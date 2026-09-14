@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "https://github.com/VladimirKhil/SIOnline.git",
+  "sourceRevision": "bc8bbbcb9f28773add6227b41a93490e285a42eb",
+  "subtreePath": "web/simulator-ui",
+  "runtimeEntry": "src/LibraryTable.tsx",
+  "runtimeMode": "library-table",
+  "outputPath": "src/SImulator/SImulator/webtable"
+}
