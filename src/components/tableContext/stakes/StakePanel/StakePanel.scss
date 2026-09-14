@@ -1,0 +1,59 @@
+@use "../../../../scss/variables" as v;
+
+.wideStakeHost {
+	height: 100%;
+	width: 100%;
+	display: flex;
+}
+
+.wideStakeHost button {
+	font-size: 20px;
+	padding: 0 15px;
+	background-color: rgba(255, 165, 0, 0.5);
+	margin: 0px 2px;
+	overflow: hidden;
+	font-size: 12px;
+	padding: 2px;
+}
+
+.wideStakeHost button.wideStake {
+	flex: 1;
+}
+
+.wideStakeHost__number {
+	flex: 0 0 120px;
+	font-size: 24px;
+	text-align: center;
+	overflow: hidden;
+	color: white;
+	background: #0A0E30;
+	border: v.$input-border;
+	border-radius: 10px;
+	margin-left: 4px;
+}
+
+.wideStakeHost__range {
+	flex: 3 0 0;
+	margin: 0 10px;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+@media screen and (min-width: 800px) {
+	.wideStakeHost button {
+		font-size: 16px;
+	}
+}
+
+@media screen and (min-width: 1100px) {
+	.wideStakeHost button {
+		font-size: 20px;
+		padding: 0 30px;
+	}
+}
+
+@media screen and (min-width: 1600px) {
+	.wideStakeHost button {
+		font-size: 27px;
+	}
+}

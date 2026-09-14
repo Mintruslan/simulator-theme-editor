@@ -1,0 +1,21 @@
+.personsDialog {
+    background-color: #000451;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+}
+
+.personsDialog header {
+    flex: 0 0 60px;
+}
+
+@media screen and (min-width: 800px) {
+    .personsDialog {
+        width: 300px;
+        top: 0;
+        left: initial;
+        bottom: 45px;
+        border-left: 1px solid darkgray;
+        z-index: 0;
+    }
+}

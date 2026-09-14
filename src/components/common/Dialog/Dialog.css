@@ -1,0 +1,53 @@
+.dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.dialog.animated {
+    animation: dialogIn 0.1s;
+}
+
+@keyframes dialogIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.dialog_closeButton {
+    padding: 6px;
+    width: 30px;
+    height: 30px;
+    border-width: 0;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    cursor: pointer;
+}
+
+.dialog header {
+    padding-left: 13px;
+    font-family: Standard;
+    color: #FFFFFF;
+    text-shadow: 1px 1px 0 #000;
+    min-height: 49px;
+}
+
+.dialog h1 {
+    margin-top: 10px;
+    margin-bottom: 0;
+    width: calc(100% - 50px);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

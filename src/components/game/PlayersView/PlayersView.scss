@@ -1,0 +1,303 @@
+@use '../../../scss/variables' as v;
+
+.playersPanel {
+    margin: 0;
+    flex: 0.5;
+}
+
+.gamePlayers {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: stretch;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    min-height: 50px;
+}
+
+.gamePlayers li {
+    list-style-type: none;
+    background-color: transparent;
+    flex-grow: 1;
+    margin: 1px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.gamePlayers .playerCard {
+    padding: 2px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+.gamePlayers .playerInfo {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    flex-flow: column;
+    justify-content: center;
+    font-weight: bolder;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.gamePlayers .playerInfo .name,
+.gamePlayers .playerInfo .sum {
+    display: flex;
+    overflow: hidden;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.gamePlayers .staticSum {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+}
+
+.gamePlayers .playerCard.me .name,
+.gamePlayers .playerCard.me .sum {
+    color: v.$me-color;
+}
+
+.gamePlayers li.selectable {
+    cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+    .playersPanel.large {
+        flex: 0 0 200px;
+    }
+
+    .playersPanel.large ul {
+        flex-wrap: wrap;
+    }
+
+    .playersPanel.large .gamePlayer {
+        font-size: 10px;
+        flex-basis: 15%;
+    }
+}
+
+@media screen and (min-height: 600px),
+(max-width: 600px) {
+    .playersPanel {
+        flex: 0 0 100px;
+    }
+
+    .gamePlayers .playerInfo .sum {
+        margin-top: 2px;
+    }
+
+    .gamePlayers li.me .sum {
+        color: darkorange;
+        text-shadow: 0.5px 0.5px 0 gray;
+    }
+
+    .gamePlayers {
+        flex-direction: row;
+    }
+
+    .gamePlayers .playerReplic {
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        width: 100%;
+        max-width: 360px;
+        height: 120px;
+    }
+
+    .gameMainView.reversed .gamePlayers .playerReplic {
+        bottom: initial;
+        top: 27px;
+    }
+
+    .gamePlayers .replicLink {
+        top: -10px;
+        left: initial;
+        width: 20px;
+        height: 20px;
+        transform: rotate(225deg);
+    }
+
+    .gameMainView.reversed .gamePlayers .replicLink {
+        top: -10px;
+        left: initial;
+        width: 20px;
+        height: 20px;
+        transform: rotate(225deg);
+    }
+
+    .playerAvatar {
+        min-width: 28px;
+        flex: 1;
+    }
+
+    .gamePlayers li {
+        height: initial;
+        margin: 2px;
+        flex: 1;
+    }
+
+    .gamePlayers .playerCard {
+        padding: 3px 1px 3px 1px;
+        flex-direction: column;
+    }
+
+    .gamePlayer {
+        font-size: 10px;
+    }
+
+    .playerInfo .sum {
+        font-size: 10px;
+    }
+}
+
+@media screen and (min-width: 800px) and (min-height: 600px) {
+    .gamePlayers {
+        justify-content: center;
+    }
+
+    .gamePlayers li {
+        max-width: 250px;
+    }
+
+    .readyMark {
+        font-size: 25px;
+    }
+
+    .gamePlayers .name,
+    .gamePlayers .sum {
+        margin: 0 3px;
+    }
+
+    .playersPanel.large ul {
+        flex-wrap: nowrap;
+    }
+
+    .gamePlayer {
+        font-size: 13px;
+    }
+}
+
+@media screen and (min-width: 1100px) and (min-height: 600px) {
+    .playersPanel {
+        flex: 0.4 0 0 !important;
+    }
+
+    .playersPanel .avatarMale,
+    .playersPanel .avatarFemale {
+        background-size: contain;
+    }
+
+    .chooserMark {
+        width: 25px;
+        height: 25px;
+    }
+
+    .gamePlayers li.me .sum {
+        color: orange !important;
+        text-shadow: none;
+    }
+
+    .gamePlayers .playerInfo .sum {
+        margin-top: 0 !important;
+    }
+
+    .gamePlayers {
+        flex-flow: initial;
+        margin: 0 9px;
+        width: calc(100% - 18px);
+        background-color: transparent;
+    }
+
+    .gamePlayers li {
+        height: calc(100% - 10px);
+        flex: 1;
+        flex-flow: column;
+        margin: 5px 1px !important;
+    }
+
+    .playerCard {
+        padding: 5px;
+        flex-direction: column;
+    }
+
+    .gamePlayers .playerReplic {
+        top: 55px !important;
+        height: 145px;
+        padding: 15px;
+    }
+
+    .gameMainView.reversed .gamePlayers .playerReplic {
+        top: 55px !important;
+        bottom: initial !important;
+    }
+
+    .gameMainView.reversed .gamePlayers .replicLink {
+        left: initial;
+        top: initial;
+        bottom: -10px;
+        width: 20px;
+        height: 20px;
+        transform: rotate(45deg);
+    }
+
+    .gamePlayers .playerInfo {
+        padding: 2px 0 0 0;
+        width: initial;
+    }
+
+    .gamePlayers .stake {
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    .playerAvatar {
+        margin-right: 0;
+        min-width: 26px;
+        flex: 2;
+    }
+}
+
+@media screen and (min-width: 1600px) and (min-height: 600px) {
+    .playersPanel {
+        flex: 0.35 0 0 !important;
+    }
+
+    .gamePlayers li {
+        height: calc(100% - 10px);
+        margin: 5px 3px !important;
+        max-width: 350px;
+    }
+
+    .gamePlayers .playerCard {
+        padding: 6px 2px;
+    }
+
+    .gamePlayers .playerReplic {
+        top: 80px !important;
+        height: 169px !important;
+    }
+
+    .gameMainView.reversed .gamePlayers .playerReplic {
+        top: 80px !important;
+        bottom: initial !important;
+    }
+
+    .gamePlayers .playerInfo {
+        padding: 3px 0 0 0;
+    }
+}
+
+@media screen and (min-width: 1600px) and (min-height: 900px) {
+    .playerAvatar {
+        flex: 3;
+    }
+}

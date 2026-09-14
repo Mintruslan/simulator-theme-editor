@@ -1,0 +1,116 @@
+.trends {
+	width: 100%;
+	height: 100%;
+	color: white;
+	padding: 10px;
+	overflow-y: auto;
+    overflow-x: hidden;
+	scrollbar-width: thin;
+
+	.tabControl {
+		font-size: 15px;
+
+		.tab {
+			padding: 10px 18px;
+			margin-top: 0;
+			margin-left: 0;
+			margin-right: 10px;
+		}
+	}
+}
+
+.trendCategory {
+	font-size: 24px;
+	font-weight: bold;
+	margin: 5px 0;
+}
+
+.trendPackage, .trendGame {
+	margin: 8px 0px;
+	padding: 20px;
+	background: #0A0E30;
+	border-radius: 12px;
+}
+
+.packageHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 5px;
+}
+
+.packageLinks {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.downloadButton {
+	border: none;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+	color: white;
+	padding: 4px 6px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 30px;
+	height: 30px;
+
+	svg {
+		color: white;
+		transition: transform 0.2s ease;
+	}
+
+	img {
+		width: 16px;
+		height: 16px;
+		object-fit: contain;
+	}
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+
+		svg {
+			transform: translateY(1px);
+		}
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+}
+
+.trends .packageName, .trends .packageAuthors, .trends .gameName {
+	font-weight: 500;
+	font-size: 18px;
+}
+
+.hasContact {
+	color: rgb(222, 206, 108);
+	cursor: pointer;
+}
+
+.property {
+	margin-top: 5px;
+	display: flex;
+	justify-content: space-between;
+	overflow: hidden;
+}
+
+.propertyHeader {
+	margin-right: 5px;
+}
+
+.propertyValue {
+	text-align: right;
+}
+
+@media screen and (min-width: 1100px) {
+	.trends {
+		padding-left: 0;
+	}
+}

@@ -1,0 +1,51 @@
+@use '../../../scss/variables' as v;
+
+.answerInputHost {
+	display: flex;
+	height: 100%;
+    border: 0;
+	overflow: hidden;
+    pointer-events: initial;
+	padding-right: 2px;
+}
+
+input[type='text'].answerInput, input[type='number'].answerInput {
+	border: 0;
+    max-width: none;
+    box-sizing: border-box;
+	flex: 1;
+    padding: 3px 15px;
+    font-size: 20px;
+	color: white;
+	background: transparent;
+	margin: 0 5px;
+	background: #05061F;
+	border: v.$input-border;
+	border-radius: 10px;
+}
+
+.answerInput::placeholder {
+	color: lightgray;
+}
+
+.sendAnswer {
+	height: 100%;
+	aspect-ratio: 1/1;
+	margin: 0 2px;
+	padding-top: 6px;
+}
+
+.sendAnswer svg {
+	width: 60%;
+	height: 60%;
+}
+
+button.standard.sendAnswer:disabled {
+	background: linear-gradient(180deg, #5178db 14.29%, #2d56a1 100%);
+}
+
+@media screen and (min-width: 1600px) {
+	.answerInput {
+		font-size: 28px;
+	}
+}

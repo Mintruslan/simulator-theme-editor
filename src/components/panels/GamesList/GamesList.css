@@ -1,0 +1,132 @@
+.gameslistHost {
+    width: calc(100% - 10px);
+    margin: 0 10px 10px 10px;
+    flex: 1;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    padding: 5px 0;
+    background-color: #0A0E30;
+    border-radius: 16px;
+}
+
+.gameslistHost header, .chatHost header {
+    display: flex;
+}
+
+    .gameslistHost h1 {
+        display: inline;
+        margin: 10px 5px 10px 5px;
+        color: #FFFFFF;
+        font-size: 20px;
+        line-height: 26px;
+        text-shadow: 1px 1px 0 #000;
+        white-space: nowrap;
+    }
+
+.filterText {
+    white-space: nowrap;
+}
+
+.triangle {
+    position: relative;
+    top: 2px;
+    left: 1px;
+}
+
+.gamenames {
+    overflow: auto;
+    scrollbar-width: thin;
+    width: 100%;
+    flex: 1;
+}
+
+.gamenames li {
+    padding-left: 15px;
+    cursor: pointer;
+    transition: background-color 0.5s;
+    position: relative;
+}
+
+.gamenames li:hover {
+    background-color: #98B9FF;
+}
+
+.gamenames li.active {
+    background-color: #5A95E2;
+}
+
+.gamenames li div.gameName {
+    height: 45px;
+    line-height: 45px;
+    vertical-align: middle;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: white;
+    font-size: 20px;
+}
+
+.gamenames li div.gameName.password {
+    padding-right: 40px;
+}
+
+.gamenames li div.locked {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    height: 45px;
+    line-height: 45px;
+    vertical-align: middle;
+    z-index: 1;
+    font-size: 15px !important;
+}
+
+.commandButtonsPanel {
+    display: flex;
+}
+
+.flyoutButton_flyout.dark > ul.gamesFilter > li {
+    padding: 0 30px 0 0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+ul.gamesFilter > li.disabled {
+    color: darkgray;
+    pointer-events: none;
+}
+
+.loadError {
+    color: darkred;
+    width: 100%;
+    height: calc(100% - 135px);
+    background-color: #C0CFF4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+}
+
+@media screen and (min-width: 1100px) {
+    .gameslistHost {
+        flex: 0 0 400px;
+        width: 300px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .gameslistHost {
+        flex: 0 0 550px;
+    }
+}
+
+@media screen and (min-height: 600px) {
+    .commandButtonsPanel {
+        flex-flow: row;
+    }
+}

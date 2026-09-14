@@ -1,0 +1,164 @@
+@use "../../../scss/variables" as v;
+
+.answerOptions {
+	flex: 1 0 0;
+	overflow: hidden;
+	animation: optionsFadeIn 0.4s ease-out;
+	padding: 2px;
+}
+
+@keyframes optionsFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.answerOption {
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.2);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding: 2px;
+	overflow: hidden;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow:
+		inset 0 0 20px rgba(255, 255, 255, 0.05),
+		0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.answerOptions.selectable .answerOption.normal {
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.25);
+}
+
+.answerOptions.selectable .answerOption.normal:hover {
+	background: rgba(255, 255, 255, 0.3);
+	border-color: rgba(255, 255, 255, 0.5);
+	box-shadow:
+		inset 0 0 30px rgba(255, 255, 255, 0.15),
+		0 0 20px rgba(255, 255, 255, 0.3),
+		0 4px 12px rgba(0, 0, 0, 0.4);
+	transform: scale(1.02);
+}
+
+.answerOptions.selectable .answerOption.normal:focus {
+	outline: 2px solid rgba(255, 255, 255, 0.6);
+	outline-offset: 2px;
+}
+
+.answerOptions.selectable .answerOption.normal:active {
+	transform: scale(0.98);
+	transition: transform 0.1s;
+}
+
+.answerOption.active {
+	background: v.$active-button-background;
+	border-color: rgba(231, 111, 29, 0.6);
+}
+
+.answerOption.right {
+	background: v.$accept-button-background;
+	border-color: rgba(39, 203, 92, 0.6);
+	animation: correctPulse 0.6s ease-out;
+}
+
+@keyframes correctPulse {
+
+	0%,
+	100% {
+		box-shadow:
+			inset 0 0 20px rgba(39, 203, 92, 0.2),
+			0 2px 8px rgba(0, 0, 0, 0.3);
+	}
+
+	50% {
+		box-shadow:
+			inset 0 0 30px rgba(39, 203, 92, 0.4),
+			0 0 25px rgba(39, 203, 92, 0.6),
+			0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+}
+
+.answerOption.wrong {
+	background: v.$reject-button-background;
+	border-color: rgba(206, 32, 19, 0.6);
+}
+
+.optionLabel {
+	color: white;
+	margin-left: 1px;
+	margin-right: 10px;
+	flex: 0 0 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	overflow: hidden;
+
+	@media screen and (min-width: 1100px) {
+		flex: 0 0 30px;
+	}
+}
+
+.optionLabel div {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+.optionContent {
+	color: white;
+	flex: 1;
+	text-align: center;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	padding: 1px;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.optionContent div {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media screen and (min-width: 1100px) {
+	.optionLabel {
+		margin-left: 3px;
+	}
+
+	.optionContent {
+		padding: 3px;
+	}
+}
+
+@media screen and (min-width: 1600px) {
+	.optionLabel {
+		margin-left: 6px;
+	}
+
+	.optionContent {
+		padding: 6px;
+	}
+}

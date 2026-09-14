@@ -1,0 +1,362 @@
+import * as React from 'react';
+import PlayerInfo from '../../../model/PlayerInfo';
+import AutoSizedText from '../../common/AutoSizedText/AutoSizedText';
+import PlayerStates from '../../../model/enums/PlayerStates';
+import NumericTextBox from '../../common/NumericTextBox/NumericTextBox';
+import ProgressBar from '../../common/ProgressBar/ProgressBar';
+import localization from '../../../model/resources/localization';
+import Sex from '../../../model/enums/Sex';
+import Constants from '../../../model/enums/Constants';
+import { isRunning } from '../../../utils/TimerInfoHelpers';
+import State from '../../../state/State';
+import { connect } from 'react-redux';
+import EditTableMenu from '../EditTableMenu/EditTableMenu';
+import Account from '../../../model/Account';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
+import ScoreEditor from './ScoreEditor/ScoreEditor';
+import { setAreSumsEditable } from '../../../state/room2Slice';
+import PersonName from './PersonName';
+
+import './PlayerView.scss';
+
+interface PlayerViewProps {
+	player: PlayerInfo;
+	account: Account | null;
+	isMe: boolean;
+	sex?: Sex;
+	avatar: string | null;
+	avatarKey: string | null;
+	avatarClass: string | null;
+	avatarVideo?: string;
+	index: number;
+	isSelectionEnabled: boolean;
+	showVideoAvatars: boolean;
+	windowWidth: number;
+	windowHeight: number;
+	currentPrice: number;
+
+	listRef: React.RefObject<HTMLUListElement>;
+
+	onSumChanged: (sum: number) => void;
+	onPlayerSelected: () => void;
+}
+
+const mapStateToProps = (state: State) => ({
+	isSelectionEnabled: state.room.selection.isEnabled,
+	showVideoAvatars: state.settings.showVideoAvatars,
+	windowWidth: state.ui.windowWidth,
+	windowHeight: state.ui.windowHeight,
+	currentPrice: state.room.stage.currentPrice,
+});
+
+export function PlayerView(props: PlayerViewProps): JSX.Element {
+	const replicRef = React.useRef<HTMLDivElement>(null);
+	const scoreEditorRef = React.useRef<HTMLDivElement>(null);
+	const sumFieldRef = React.useRef<HTMLDivElement>(null);
+	const [isScoreEditorVisible, setIsScoreEditorVisible] = React.useState(false);
+	const { player, account, isMe, sex, avatar, avatarClass, avatarVideo, index } = props;
+
+	const areSumsEditable = useAppSelector(state => state.room2.areSumsEditable);
+	const isGameStarted = useAppSelector(state => state.room2.stage.isGameStarted);
+	const hostName = useAppSelector(state => state.room2.persons.hostName);
+
+	const isHost = account?.name === hostName;
+
+	const appDispatch = useAppDispatch();
+
+	// Get the default change value from recent question price (fallback to 100)
+	const getDefaultChangeValue = () => props.currentPrice || 100;
+
+	// Hide ScoreEditor when sum editing is disabled
+	React.useEffect(() => {
+		if (!areSumsEditable && isScoreEditorVisible) {
+			setIsScoreEditorVisible(false);
+		}
+	}, [areSumsEditable]);
+
+	const buildPlayerClasses = () => {
+		const stateClass = `state_${(PlayerStates[player.state] ?? '').toLowerCase()}`;
+		const meClass = isMe ? 'me' : '';
+		const inGameClass = player.inGame ? '' : 'out_of_game';
+		const selectableClass = player.canBeSelected && props.isSelectionEnabled ? 'selectable' : '';
+		return `playerCard ${stateClass} ${meClass} ${inGameClass} ${selectableClass}`;
+	};
+
+	const onCancelSumChange = () => {
+		appDispatch(setAreSumsEditable(false));
+	};
+
+	const onSumChanged = (value: number) => {
+		props.onSumChanged(value);
+
+		if (!isScoreEditorVisible) {
+			onCancelSumChange();
+		}
+	};
+
+	const handleScoreEditorSumChanged = (newSum: number) => {
+		props.onSumChanged(player.sum + newSum);
+	};
+
+	const handleScoreEditorCancel = () => {
+		setIsScoreEditorVisible(false);
+		onCancelSumChange();
+	};
+
+	const handleScoreEditorBlur = () => {
+		// Use setTimeout to allow any click events within the ScoreEditor or sum field to fire first
+		setTimeout(() => {
+			const { activeElement } = document;
+			const scoreEditorElement = scoreEditorRef.current;
+			const sumFieldElement = sumFieldRef.current;
+
+			// Check if focus is within ScoreEditor
+			if (scoreEditorElement && activeElement && scoreEditorElement.contains(activeElement)) {
+				return;
+			}
+
+			// Check if focus is on the sum field
+			if (sumFieldElement && activeElement && sumFieldElement.contains(activeElement)) {
+				return;
+			}
+
+			// Focus is outside both ScoreEditor and sum field, hide ScoreEditor
+			setIsScoreEditorVisible(false);
+		}, 0);
+	};
+
+	const handleNumericTextBoxBlur = () => {
+		handleScoreEditorBlur();
+	};
+
+	const onPlayerClicked = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+		props.onPlayerSelected();
+		e.stopPropagation();
+	};
+
+	const displayedStake = player.stake > 0
+		? player.stake.toString()
+		: (player.stake === Constants.HIDDEN_STAKE ? '######' : null);
+
+	const effectiveAvatar = React.useMemo(() => {
+		let currentAvatar = isMe && avatar ? avatar : account?.avatar;
+
+		if (isMe && !currentAvatar && typeof localStorage !== 'undefined') {
+			const localAvatar = localStorage.getItem(Constants.AVATAR_KEY);
+			if (localAvatar) {
+				currentAvatar = `data:image/png;base64, ${localAvatar}`;
+			}
+		}
+
+		return currentAvatar;
+	}, [isMe, avatar, account?.avatar, props.avatarKey]);
+
+	// Restore avatar background image style if avatar is present
+	const avatarStyle: React.CSSProperties = effectiveAvatar
+		? { backgroundImage: `url("${effectiveAvatar}")` }
+		: {};
+
+	const moveReplic = (): void => {
+		if (props.windowHeight < 600 && props.windowWidth > 600) {
+			return;
+		}
+
+		const isScreenWide = props.windowWidth >= Constants.WIDE_WINDOW_WIDTH;
+		const playersAreAtBottom = isScreenWide;
+
+		const replic = replicRef.current;
+		const list = props.listRef.current;
+
+		if (replic === null || list === null) {
+			return;
+		}
+
+		replic.style.transform = 'translate(-50%,0)';
+
+		const replicRect = replic.getBoundingClientRect();
+		const listRect = list.getBoundingClientRect();
+
+		let transformX: string | null = null;
+		let transformY: string | null = null;
+
+		if (replicRect.left < listRect.left) {
+			transformX = `calc(-50% + ${listRect.left - replicRect.left + 1}px)`;
+		} else if (replicRect.right > listRect.right) {
+			transformX = `calc(-50% - ${replicRect.right - listRect.right + 1}px)`;
+		}
+
+		if (!playersAreAtBottom && replicRect.top < listRect.top) {
+			transformY = `calc(${listRect.top - replicRect.top + 1}px)`;
+		} else if (playersAreAtBottom && replicRect.bottom > listRect.bottom) {
+			transformY = `calc(${listRect.bottom - replicRect.bottom - 1}px)`;
+		}
+
+		if (transformX || transformY) {
+			replic.style.transform = `translate(${transformX ?? '-50%'},${transformY ?? 0})`;
+		}
+	};
+
+	React.useEffect(() => {
+		moveReplic();
+	}, [props.windowHeight, props.windowWidth]);
+
+	const answerOverlay = player.answer ? (
+		<div className="playerAnswerOverlay">
+			<AutoSizedText
+				maxFontSize={32}
+				minFontSize={3}
+				className="playerAnswerOverlayText"
+			>
+				{player.answer}
+			</AutoSizedText>
+		</div>
+	) : null;
+
+	return (
+		<li
+			className="gamePlayer"
+			onClick={(e) => player.canBeSelected ? onPlayerClicked(e) : null}
+		>
+			<div className={buildPlayerClasses()}>
+				<div className="playerCard__top">
+					{player.isDeciding ? (
+						<PlayerDecisionProgress />
+					) : null}
+					<EditTableMenu isPlayerScope={true} account={props.account} tableIndex={index} />
+				</div>
+
+				<div className="stakeHost">
+					<div className="stake">{displayedStake ?? '\u200b'}</div>
+				</div>
+
+				{props.showVideoAvatars && avatarVideo
+					? (
+						<div className='playerAvatar'>
+							<iframe title='Video avatar' src={avatarVideo} />
+							{answerOverlay}
+						</div>
+					) : (
+						<div
+							className={`playerAvatar ${avatarClass}`}
+							style={avatarStyle}
+							title={`${player.name} ${player.sum}`}
+						>
+							{answerOverlay}
+						</div>
+					)}
+
+				<div className="playerInfo">
+					<div className="name" title={player.name}>
+						<AutoSizedText className='nameValue' maxFontSize={48}>
+							<PersonName name={player.name} />
+						</AutoSizedText>
+
+						{areSumsEditable ? (
+							<ScoreEditor
+								ref={scoreEditorRef}
+								currentSum={player.sum}
+								defaultChangeValue={getDefaultChangeValue()}
+								isVisible={isScoreEditorVisible}
+								onSumChanged={handleScoreEditorSumChanged}
+								onCancel={handleScoreEditorCancel}
+								onBlur={handleScoreEditorBlur}
+							/>
+						) : null}
+					</div>
+
+					<div ref={sumFieldRef} className="sum" title={player.sum.toString()}>
+						{areSumsEditable ? (
+							<NumericTextBox
+								value={player.sum}
+								onValueChanged={value => onSumChanged(value)}
+								onCancel={onCancelSumChange}
+								onFocus={() => setIsScoreEditorVisible(true)}
+								onBlur={handleNumericTextBoxBlur}
+							/>
+						) : <AutoSizedText className='staticSum' maxFontSize={48}>{player.sum}</AutoSizedText>}
+					</div>
+				</div>
+
+				<div className='marksArea'>
+					{isHost ? (
+						<div className="mark" title={localization.host}>⭐</div>
+					) : null}
+
+					{player.isReady && !isGameStarted ? (
+						<span
+							className='readyMark'
+							role="img"
+							aria-label="checkmark"
+							title={sex === Sex.Female ? localization.readyFemale : localization.readyMale}
+						>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+						</span>
+					) : null}
+
+					{player.isChooser ? (
+						<div className='chooserMark' title={localization.chooserMark}>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
+							</svg>
+						</div>
+					) : null}
+
+					{player.mediaLoaded ? (
+						<div className='mediaLoadedMark' title={localization.mediaLoadedMark}>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M6 4L20 12L6 20V4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+							</svg>
+						</div>
+					) : null}
+
+					{player.isAppellating ? (
+						<span
+							className='appellationMark'
+							title={localization.appellationMark}
+						>
+							!
+						</span>
+					) : null}
+				</div>
+
+				{account && player.mediaPreloadStarted ? (
+					<div className='preload__progress'>
+						<div className="preload__bar" style={{ width: `${player.mediaPreloadProgress}%` }} title={localization.mediaPreloadProgress} />
+						<span className="preload__text">{localization.loading}: {player.mediaPreloadProgress}%</span>
+					</div>
+				) : null}
+
+			</div>
+
+			{player.replic && player.replic.length > 0 ? (
+				<div ref={replicRef} className="playerReplic replic">
+					<AutoSizedText id={`playerReplic_${index}`} className="playerReplicText" maxFontSize={48}>
+						{player.replic}
+					</AutoSizedText>
+
+					<div className='replicLink' />
+				</div>
+			) : null}
+		</li>
+	);
+}
+
+function PlayerDecisionProgress(): JSX.Element | null {
+	const decisionTimer = useAppSelector(state => state.room2.timers.decision);
+
+	if (!decisionTimer || decisionTimer.maximum === 0) {
+		return null;
+	}
+
+	return (
+		<ProgressBar
+			value={1 - (decisionTimer.value / decisionTimer.maximum)}
+			valueChangeDuration={isRunning(decisionTimer)
+				? ((decisionTimer.maximum - decisionTimer.value) / 10) : 0}
+		/>
+	);
+}
+
+export default connect(mapStateToProps)(PlayerView);

@@ -1,0 +1,51 @@
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { useState } from 'react';
+import localization from '../../../model/resources/localization';
+import actionCreators from '../../../logic/actionCreators';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
+import { AppDispatch } from '../../../state/store';
+
+import './ServerLicense.css';
+
+interface ServerLicenseProps {
+	accept: (appDispath: AppDispatch) => void;
+}
+
+const mapDispatchToProps = (dispatch: any) => ({
+	accept: (appDispath: AppDispatch) => {
+		dispatch(actionCreators.acceptLicense(appDispath));
+	},
+});
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function ServerLicense(props: ServerLicenseProps): JSX.Element | null {
+	const [accepted, setAccepted] = useState(false);
+	const appDispatch = useAppDispatch();
+	const serverLicense = useAppSelector(state => state.common.serverLicense);
+
+	return (
+		<div className='server__license'>
+			<div className='server__license__body animated'>
+				<div className='license__header'>{localization.serverLicense}</div>
+				<div className='license__text'>{serverLicense?.split('\n').map((text, index) => <p key={index}>{text}</p>)}</div>
+
+				<div className='license__accept'>
+					<input
+						id='accept'
+						type='checkbox'
+						checked={accepted}
+						onChange={() => setAccepted(!accepted)} />
+
+					<label htmlFor='accept'>{localization.acceptLicense}</label>
+				</div>
+
+				<div className='license__button__area'>
+					<button type='button' className='standard' disabled={!accepted} onClick={() => props.accept(appDispatch)}>OK</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export default connect(null, mapDispatchToProps)(ServerLicense);

@@ -1,0 +1,102 @@
+.editTableMenu {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.flyoutButton_flyout .editTableMenuList {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.flyoutButton_flyout .editTableMenuList li {
+	font-size: 12px;
+	padding: 10px 20px;
+	display: grid;
+	grid-template-columns: 24px 1fr;
+	align-items: center;
+	gap: 8px;
+}
+
+.editTableMenuList .menuIconWrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.editTableMenuList .menuIcon {
+	display: block;
+	width: 18px;
+	height: 18px;
+}
+
+.editTableMenuFlyout {
+	overflow: visible;
+}
+
+.replacementListContainer {
+	border-top: 1px solid #ccc;
+	margin-top: 5px;
+	padding-top: 10px;
+}
+
+.replacementListHeader {
+	font-size: 10px;
+	font-weight: bold;
+	padding: 5px;
+	text-align: center;
+}
+
+.replacementList {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 5px;
+	padding: 10px;
+	max-height: 250px;
+	overflow-y: auto;
+}
+
+.replacementItem {
+	font-size: 10px;
+	padding: 5px;
+	cursor: pointer;
+	text-align: center;
+	background-color: #aaaaaa59;
+	border-radius: 3px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.replacementItem:hover {
+	background-color: #f5f5f559;
+}
+
+@media screen and (min-width: 1100px) {
+	.flyoutButton_flyout .editTableMenuList li {
+		font-size: 22px;
+		padding: 7px 40px;
+		grid-template-columns: 40px 1fr;
+		gap: 16px;
+	}
+
+	.editTableMenuList .menuIcon {
+		width: 24px;
+		height: 24px;
+	}
+
+	.replacementListHeader {
+		font-size: 15px;
+	}
+
+	.replacementList {
+		padding: 20px;
+		gap: 3px;
+	}
+
+	.replacementItem {
+		font-size: 14px;
+		padding: 8px;
+	}
+}

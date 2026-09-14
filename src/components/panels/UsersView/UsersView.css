@@ -1,0 +1,65 @@
+.chatHost {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.chatHost.bottom {
+    display: none;
+}
+
+.chatHostTitle {
+    display: flex;
+}
+
+.chatHostTitle h1 {
+    display: inline;
+    margin: 10px 5px 10px 5px;
+    color: #FFFFFF;
+    font-size: 20px;
+    line-height: 26px;
+    text-shadow: 1px 1px 0 #000;
+    white-space: nowrap;
+}
+
+.chatBody {
+    height: 100%;
+    position: relative;
+}
+
+.playersTitle {
+    margin-left: 8px;
+    width: 160px;
+    overflow: hidden;
+}
+
+    .playersTitle:hover {
+        color: #FFFFFF99;
+        border-color: #FFFFFF99;
+    }
+
+@media screen and (min-width: 1100px) {
+    .chatHost {
+        display: block;
+        flex: 0 0 400px;
+        width: 300px;
+    }
+
+    .chatHost.bottom {
+        display: block;
+    }
+
+    .chatHostTitle {
+        padding-left: 0;
+    }
+
+    .chatHostTitle h1 {
+        margin-left: 15px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .chatHost {
+        flex: 0 0 550px;
+    }
+}

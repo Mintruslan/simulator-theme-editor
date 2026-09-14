@@ -1,0 +1,140 @@
+#settingsDialog {
+    background-color: #000451;
+    color: white;
+    z-index: 25;
+    overflow-y: hidden;
+}
+
+.settingsDialogBody {
+    padding: 15px 0 0 15px;
+    font-size: 20px;
+    height: calc(100% - 59px);
+    display: flex;
+    flex-direction: column;
+}
+
+.tabHost {
+    display: flex;
+    padding-right: 15px;
+}
+
+.settingsBody {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding: 0 15px 15px 0;
+}
+
+.settingsDialogBody input[type=checkbox] {
+    transform: scale(1.5);
+}
+
+.settingsDialogBody label {
+    margin-left: 10px;
+    vertical-align: text-bottom;
+    cursor: pointer;
+}
+
+#settingsDialog h2 {
+    color: #FFFFFF;
+    text-shadow: 1px 1px 0 #000;
+    font-weight: normal;
+    font-size: 30px;
+    margin: 20px 0 5px 0;
+}
+
+.settingsBody .tabControl {
+    margin-left: -5px;
+}
+
+.settingsBody .tab {
+    font-size: 16px;
+    padding: 7px 25px;
+}
+
+.settingItem {
+    margin-top: 20px;
+}
+
+.settingItem>input[type="range"] {
+    width: 200px;
+}
+
+#settingsDialog .hint {
+    margin-top: 5px;
+    font-size: 15px;
+    display: block;
+}
+
+#settingsDialog .warning {
+    color: #FF5A5A;
+}
+
+#settingsDialog .reset {
+    font-size: 25px;
+    margin: 20px 0;
+    padding: 5px 25px;
+}
+
+#settingsDialog .rangeEditor {
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 200px;
+}
+
+#settingsDialog .valueEditor {
+    vertical-align: middle;
+    margin-right: 5px;
+    font-size: 20px;
+}
+
+.avatarLoadHelper {
+    height: 40px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.avatarLoadingHost {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatarLoadingMessage {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.avatarLoadError {
+    color: darkred;
+    display: block;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.settings_language {
+    font-size: 16px;
+    width: 300px;
+    padding: 5px;
+}
+
+@media screen and (min-width: 800px) {
+    #settingsDialog {
+        width: 300px;
+        left: initial;
+        border-left: 1px solid #FFFFFF;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    #settingsDialog {
+        width: 400px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    #settingsDialog {
+        width: 550px;
+    }
+}

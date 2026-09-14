@@ -1,0 +1,32 @@
+.personsList {
+    overflow: auto;
+    scrollbar-width: thin;
+    width: 100%;
+    flex: 1 0 0;
+    color: white;
+}
+
+.personsHeader {
+    font-weight: bold;
+    font-size: 12px;
+    color: #FFFFFF;
+    padding: 0 10px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+}
+
+.inviteLinkHost {
+    position: relative;
+}
+
+.inviteLinkTooltip {
+    position: absolute;
+    bottom: 110%;
+    text-align: center;
+    width: 100%;
+    color: black;
+    display: none;
+    padding: 5px;
+    background-color: rgba(44, 123, 225, 0.95);
+}

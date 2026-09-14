@@ -1,0 +1,270 @@
+@use '../../../scss/variables' as v;
+
+.showmanArea {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    flex-direction: row !important;
+    align-items: stretch !important;
+}
+
+.showmanArea.playerReplicMode {
+    background: v.$person-background;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.showmanArea.playerReplicMode .showmanReplic {
+    border: none;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.showmanArea.highlighted .showmanReplic {
+    border: 1px solid #e26f1d;
+}
+
+.showmanArea.highlighted .showmanReplic {
+    --showman-border-width: 1px;
+    --showman-highlight-duration: 2.5s;
+    --showman-highlight-segment: 10;
+    --showman-highlight-stroke-width: 1.5px;
+}
+
+.showmanArea.highlighted .showmanReplicHighlightPath {
+    stroke: rgba(255, 255, 255, 0.55);
+    filter: drop-shadow(0 0 5px rgba(255, 214, 153, 0.95));
+    animation: showmanHighlightBorder var(--showman-highlight-duration) linear infinite;
+}
+
+.showmanInfo {
+    position: relative;
+    display: none;
+    flex-flow: column;
+    flex: 0 0 120px;
+    padding: 10px;
+    padding: 10px 7px 7px 7px;
+    justify-content: center;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.showmanInfo .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px 10px 0 0;
+    padding: 0;
+    margin: 0;
+    z-index: 10;
+}
+
+.showmanInfo .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff8c00, #ff4500);
+    border-radius: 10px 10px 0 0;
+    transition: width 0.1s linear;
+}
+
+.showmanInfo .marksArea {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    z-index: 5;
+}
+
+.showmanInfo .marksArea>div,
+.showmanInfo .marksArea>span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    color: white;
+}
+
+.showmanInfo .marksArea svg {
+    width: 10px;
+    height: 10px;
+}
+
+.showmanInfo .readyMark {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+@media screen and (max-width: 1100px) {
+    .showmanInfo .marksArea {
+        top: 5px;
+        bottom: auto;
+        left: 5px;
+        right: auto;
+    }
+}
+
+.showmanAvatar {
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    background-size: contain !important;
+    position: relative;
+}
+
+.showmanAvatar iframe {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.showmanAvatar img {
+    height: 100%;
+}
+
+.showmanAvatar .preload__progress {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    z-index: 5;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.showmanAvatar .preload__bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(76, 175, 80, 0.8), rgba(46, 125, 50, 0.8));
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: width 0.3s ease;
+}
+
+.showmanAvatar .preload__text {
+    position: relative;
+    z-index: 10;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+.showmanName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 15px;
+    color: white;
+    font-weight: bolder;
+}
+
+.showmanName .me {
+    color: v.$me-color;
+}
+
+.showmanAvatar,
+.showmanName {
+    width: 120px;
+}
+
+@media screen and (min-width: 1100px) {
+    .showmanArea {
+        flex-direction: column-reverse !important;
+        margin: 10px 0 0 0;
+        height: 85%;
+        width: calc(100% - 20px);
+    }
+
+    .showmanInfo {
+        display: flex;
+        flex: 1;
+        background: v.$person-background;
+        border: 1px solid #222084;
+        border-radius: 10px;
+        margin: 5px;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+
+    .showmanName {
+        font-size: 20px;
+        width: initial;
+        padding-top: 5px;
+    }
+
+    .showmanAvatar {
+        padding: 0 45px;
+        width: initial;
+    }
+
+    .showmanAvatar img {
+        width: 100%;
+        max-height: 190px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .showmanAvatar img {
+        max-height: 290px;
+    }
+
+    .showmanName {
+        font-size: 25px;
+        padding-top: 10px;
+    }
+}
+
+.playerMainInfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
+
+.playerMainInfo_item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 15px;
+}
+
+.playerMainInfo_title {
+    font-size: 14px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    /* Increased space */
+}
+
+.playerMainInfo_value {
+    color: v.$me-color;
+    /* Use the same color as current player name */
+    font-size: 32px;
+}

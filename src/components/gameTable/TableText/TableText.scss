@@ -1,0 +1,21 @@
+@use "../../../scss/variables" as v;
+
+.animatableCharacter {
+	animation: color-change 0.5s forwards;
+}
+
+@keyframes color-change {
+	100% { color: v.$highlighted-text-color; }
+}
+
+.textHost {
+	overflow: hidden;
+	width: 100%;
+	flex: 1 0 0;
+}
+
+#table .tableText.margined {
+	margin: 10px;
+	width: calc(100% - 20px);
+	height: calc(100% - 20px);
+}

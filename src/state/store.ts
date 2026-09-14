@@ -1,0 +1,73 @@
+import { AnyAction, Reducer } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
+import userReducer from './userSlice';
+import loginReducer from './loginSlice';
+import roomReducer from './room/roomReducer';
+import RoomState from './room/RoomState';
+import uiReducer from './uiSlice';
+import online2Reducer from './online2Slice';
+import gameReducer from './gameSlice';
+import room2Reducer from './room2Slice';
+import commonReducer from './commonSlice';
+import tableReducer from './tableSlice';
+import siPackagesReducer from './siPackagesSlice';
+import settingsReducer from './settingsSlice';
+import siquesterReducer from './siquesterSlice';
+import DataContext from '../model/DataContext';
+import Config from '../Config';
+import GameClient from '../client/game/GameClient';
+import GameServerClient from '../client/GameServerClient';
+import BrowserHost from '../host/BrowserHost';
+import SIHostClient from '../client/SIHostClient';
+import historySliceReducer from './historySlice';
+
+/* New version of store. Not used yet */
+
+declare const config: Config;
+
+let { serverUri } = config;
+
+if (!serverUri) {
+	serverUri = '';
+}
+
+const gameClient = new GameServerClient(serverUri);
+
+const dataContext: DataContext = {
+	config,
+	serverUri,
+	gameClient,
+	game: new GameClient(new SIHostClient()),
+	contentUris: null,
+	contentClients: [],
+	storageClients: [],
+	host: new BrowserHost(),
+};
+
+const store = configureStore({
+	reducer: {
+		user: userReducer,
+		login: loginReducer,
+		room: roomReducer as Reducer<RoomState, AnyAction>,
+		ui: uiReducer,
+		online2: online2Reducer,
+		game: gameReducer,
+		room2: room2Reducer,
+		common: commonReducer,
+		siPackages: siPackagesReducer,
+		settings: settingsReducer,
+		table: tableReducer,
+		siquester: siquesterReducer,
+		history: historySliceReducer,
+	},
+	middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+		thunk: {
+			extraArgument: dataContext
+		}
+	})
+});
+
+export default store;
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

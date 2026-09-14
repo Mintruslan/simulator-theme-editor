@@ -1,0 +1,291 @@
+@use '../../../scss/variables.scss' as v;
+
+#logon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login .main {
+    margin: auto;
+    background: linear-gradient(135deg, #4a7cc9 0%, #5a95e2 50%, #6ba5f2 100%);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(90, 149, 226, 0.3);
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-left-width: 0.5px;
+}
+
+#logon .logo {
+    width: 100px;
+    height: 100px;
+    background-image: url('../../../../assets/images/sigame.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: auto;
+    margin-top: 10px;
+}
+
+.logonHost {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    flex: 1 0 0;
+    overflow: hidden;
+}
+
+.loginUser {
+    margin: 10px 10px 5px 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.userArea {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.loginOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.userArea .languageArea {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    margin: 10px 0 0 0;
+}
+
+.userArea .sexArea {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    margin: 10px 0 0 0;
+}
+
+.login .main header {
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(180deg, rgba(4, 7, 27, 0.95) 0%, rgba(4, 7, 27, 0.85) 100%);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    height: 45px;
+    overflow: hidden;
+    border-bottom: 2px solid rgba(90, 149, 226, 0.5);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.login .main header .right {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.login .main .header {
+    font-size: 18px;
+    text-align: left;
+    padding-left: 22px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 12px;
+    vertical-align: middle;
+}
+
+.login .main h1 {
+    font-size: 20px;
+    color: white;
+    height: 45px;
+    display: inline-block;
+    margin: 0 0 0 10px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(90, 149, 226, 0.5);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.login .main p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.loginBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.app-tagline {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.loginBody .avatarArea {
+    height: 200px;
+    width: 200px;
+    margin-top: 10px;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease, filter 0.3s ease, background-color 0.4s ease, border 0.3s ease;
+}
+
+.loginBody .avatarArea:hover:not(.unselectable) {
+    transform: scale(1.05);
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4));
+}
+
+.loginBody .emptyAvatar,
+.loginBody .avatarView {
+    height: 180px;
+    width: 180px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+.loginBody .sexArea {
+    margin-top: 20px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.login_name {
+    display: block;
+    font-size: 20px;
+    margin-top: 40px;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100;
+    border: 0;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #181B64 0%, #1a1f75 100%) !important;
+    color: white;
+    border: 2px solid #347DFF;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    font-weight: 400;
+}
+
+.login_name::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.login_name:hover:not(:disabled) {
+    border-color: #5a9eff;
+    box-shadow: 0 4px 20px rgba(52, 125, 255, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+.login_name:focus {
+    border-color: #5a9eff;
+    box-shadow: 0 0 0 3px rgba(52, 125, 255, 0.2), 0 4px 20px rgba(52, 125, 255, 0.4), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+.login_name:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.standard.enter {
+    height: 45px;
+    flex-shrink: 0;
+    padding: 5px 40px;
+    width: 100%;
+    margin-top: 15px;
+    border-radius: 4px;
+    font-size: 20px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.standard.enter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #2860ef 14.29%, rgb(39, 108, 237) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.standard.enter:hover:not(:disabled) {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+.standard.enter:hover:not(:disabled)::before {
+    opacity: 1;
+}
+
+.standard.enter:active:not(:disabled) {
+    transform: scale(1);
+    background: #FFFFFF !important;
+    transition: transform 0.1s ease;
+}
+
+.standard.enter:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.clientLink {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.howToPlay {
+    width: 45px;
+}
+
+@media screen and (max-height: 400px) {
+
+    #logon .logo,
+    .siAdHost {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 470px) and (min-height: 600px) {
+    .login .main {
+        width: 470px;
+        height: 530px;
+        border: 1px solid rgba(17, 17, 17, 0.5);
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 120px rgba(90, 149, 226, 0.4);
+        border-radius: 12px;
+    }
+
+    #logonButtons {
+        left: initial;
+        width: auto;
+        display: flex;
+    }
+
+    #howToPlay,
+    .enter {
+        width: auto;
+    }
+}

@@ -1,0 +1,137 @@
+import * as React from 'react';
+import { connect } from 'react-redux';
+import State from '../../../state/State';
+import Role from '../../../model/Role';
+import StakePanel from '../stakes/StakePanel/StakePanel';
+import ReactionPanel from '../ReactionPanel/ReactionPanel';
+import AnswerInput from '../AnswerInput/AnswerInput';
+import PlayerButtonsPanel from '../PlayerButtonsPanel/PlayerButtonsPanel';
+import ReadyButton from '../ReadyButton/ReadyButton';
+import { useAppSelector } from '../../../state/hooks';
+import { ContextView } from '../../../state/room2Slice';
+import ReportPanel from '../ReportPanel/ReportPanel';
+import EditTableButton from '../EditTableButton/EditTableButton';
+import TableMode from '../../../model/enums/TableMode';
+import OralAnswer from '../OralAnswer/OralAnswer';
+import AnswerValidationButtons from '../AnswerValidationButtons/AnswerValidationButtons';
+import { DecisionType } from '../../../state/room2Slice';
+import LayoutMode from '../../../model/enums/LayoutMode';
+import localization from '../../../model/resources/localization';
+import Constants from '../../../model/enums/Constants';
+import ValidationArea from '../../game/ValidationArea/ValidationArea';
+
+import './TableContextView.css';
+
+interface TableContextViewProps {
+	areStakesVisible: boolean;
+	isAfterQuestion: boolean;
+	isAutomatic: boolean;
+}
+
+const mapStateToProps = (state: State) => ({
+	areStakesVisible: state.room.stakes.areVisible,
+	isAfterQuestion: state.room.stage.isAfterQuestion,
+	isAutomatic: state.game.isAutomatic,
+});
+
+function renderBody(
+	props: TableContextViewProps,
+	contextView: ContextView,
+	windowWidth: number,
+	tableMode: TableMode,
+	isGameStarted: boolean,
+	isGamePaused: boolean,
+	role: Role,
+	decisionType: DecisionType,
+	layoutMode: LayoutMode,
+	deepMode: boolean,
+	answerType: string,
+): JSX.Element | null {
+	switch (decisionType) {
+		case DecisionType.Answer:
+			if (layoutMode === LayoutMode.OverlayPoints) {
+				return <div className='oral__answer'>{localization.pointAnswerHint}</div>;
+			}
+
+			if (layoutMode === LayoutMode.Simple && (answerType === 'text' || answerType === 'number')) {
+				return <AnswerInput />;
+			}
+
+			break;
+
+		case DecisionType.Validation:
+			if (role === Role.Player) {
+				return <AnswerValidationButtons />;
+			} else {
+				return <div className='oral__answer'>{localization.validateAnswer}</div>;
+			}
+
+		case DecisionType.Review:
+			return <ReportPanel />;
+
+		default:
+			break;
+	}
+
+	// TODO: Switch to enum to select view to display
+	switch (contextView) {
+		case ContextView.OralAnswer:
+			return <OralAnswer />;
+
+		default:
+			break;
+	}
+
+	if (!isGameStarted && !props.isAutomatic && role !== Role.Viewer && !deepMode) {
+		return <ReadyButton />;
+	}
+
+	if (props.areStakesVisible) {
+		return <StakePanel />;
+	}
+
+	const defaultView = role === Role.Showman
+		? (windowWidth < Constants.WIDE_WINDOW_WIDTH ? <ValidationArea onlyHint className="inContext" /> : <div className='emptyContext' />)
+		: null;
+
+	if (role === Role.Player) {
+		return props.isAfterQuestion ? <ReactionPanel /> : <PlayerButtonsPanel />;
+	}
+
+	if (isGamePaused && role === Role.Showman && tableMode === TableMode.RoundTable) {
+		return <EditTableButton />;
+	}
+
+	return defaultView;
+}
+
+export function TableContextView(props: TableContextViewProps): JSX.Element | null {
+	const windowWidth = useAppSelector(rootState => rootState.ui.windowWidth);
+	const tableMode = useAppSelector(rootState => rootState.table.mode);
+	const contextView = useAppSelector(rootState => rootState.room2.contextView);
+	const isGameStarted = useAppSelector(rootState => rootState.room2.stage.isGameStarted);
+	const isGamePaused = useAppSelector(rootState => rootState.room2.stage.isGamePaused);
+	const role = useAppSelector(rootState => rootState.room2.role);
+	const decisionType = useAppSelector(rootState => rootState.room2.stage.decisionType);
+	const layoutMode = useAppSelector(rootState => rootState.table.layoutMode);
+	const deepMode = useAppSelector(rootState => rootState.room2.deepMode);
+	const answerType = useAppSelector(rootState => rootState.room2.answerType);
+
+	const body = renderBody(
+		props,
+		contextView,
+		windowWidth,
+		tableMode,
+		isGameStarted,
+		isGamePaused,
+		role,
+		decisionType,
+		layoutMode,
+		deepMode,
+		answerType,
+	);
+
+	return body == null ? null : <div className='tableContextView'>{body}</div>;
+}
+
+export default connect(mapStateToProps)(TableContextView);

@@ -1,0 +1,146 @@
+.lobby {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+	background: radial-gradient(91.6% 91.6% at 50% 4.05%, #1322AB 0%, #11174E 100%);
+}
+
+.lobby header.main {
+	color: white;
+	text-align: center;
+	background-color: #04071B;
+	width: 100%;
+	height: 45px;
+    flex: 0 0 45px;
+	overflow: hidden;
+}
+
+.lobby header.main h1 {
+	position: relative;
+	font-size: 16px;
+	margin: 0;
+	display: flex;
+	flex-direction: row;
+	height: 45px;
+	overflow: hidden;
+}
+
+.lobby header.main h1 .left {
+	text-align: left;
+}
+
+.lobby header.main h1 .right {
+	text-align: right;
+	flex: 1 0 0;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.onlineView {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.gamesBlock {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+#gameInfoDialog {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.gameInfoView {
+    position: absolute;
+    background-color: #0A0E30;
+    border-radius: 16px;
+    margin: 0 10px 10px 10px;
+    height: calc(100% - 10px);
+    width: calc(100% - 20px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.gameInfoView header {
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+.newGameArea {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.gamesArea {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.gamesView {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    flex: 1;
+    position: relative;
+}
+
+.gameInfoArea {
+    overflow: hidden;
+    height: 100%;
+}
+
+.gameInfoArea > header {
+    height: 0;
+}
+
+.emptyGameInfo {
+    display: none;
+}
+
+@media screen and (min-width: 1100px) {
+    .gameInfoArea {
+        position: relative;
+        z-index: 0;
+        flex: 1;
+    }
+
+    .gameInfoView {
+        position: relative;
+        margin-left: 0;
+        width: calc(100% - 10px);
+    }
+
+    .gameInfoAreaContent {
+        height: 100%;
+        display: flex;
+    }
+
+    .gameInfoView .dialog_closeButton {
+        display: none;
+    }
+
+    .emptyGameInfo {
+        display: initial;
+        position: relative;
+        background-color: #0A0E30;
+        border-radius: 16px;
+        margin: 0 10px 10px 0;
+        height: calc(100% - 10px);
+        width: calc(100% - 10px);
+    }
+}

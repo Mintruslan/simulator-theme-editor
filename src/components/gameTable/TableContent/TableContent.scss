@@ -1,0 +1,86 @@
+.table-content-group {
+	display: grid;
+	gap: 7px;
+	overflow: hidden;
+    width: 100%;
+}
+
+.table-content {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+.optionsLayout {
+    width: 100%;
+    height: 100%;
+    display: flex;
+	flex-direction: row;
+	overflow: hidden;
+
+	.layout__content {
+		flex: 3 0 0;
+		display: flex;
+	}
+
+	.layout__options {
+		flex: 1 0 0;
+		display: flex;
+
+		.answerOptions {
+			display: flex;
+			flex-direction: column;
+
+			.answerOption {
+				flex: 1;
+				margin: 2px;
+			}
+		}
+	}
+}
+
+.optionsLayoutStacked {
+    width: 100%;
+    height: 100%;
+    display: flex;
+	flex-direction: column;
+	overflow: hidden;
+
+	.layout__options {
+		flex: 1 0 0;
+		display: flex;
+
+		.answerOptions {
+			padding: 0 5px;
+
+			.answerOption {
+				margin: 0 1px;
+			}
+		}
+	}
+}
+
+.layout__content, .layout__options {
+	overflow: hidden;
+}
+
+.mainContent {
+	height: 100%;
+	flex: 3 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.clef {
+    font-family: 'Clefs';
+    font-weight: normal;
+    font-style: normal;
+    text-shadow: 1px 1px 0 #000;
+    font-size: 120px;
+}

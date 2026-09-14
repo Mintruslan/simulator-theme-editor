@@ -1,0 +1,101 @@
+@keyframes errorAppear {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.errorView {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-flow: column;
+	background-color: transparent;
+	height: 100%;
+}
+
+.errorBox {
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: space-between;
+	background-color: rgba(255, 17, 0, 0.432);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	color: white;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	border-radius: 12px;
+	animation: errorAppear 0.3s ease-out;
+}
+
+.errorTitle {
+	margin: 10px 0 20px 0;
+	padding-left: 13px;
+	font-family: Standard;
+	color: #FFFFFF;
+	text-shadow: 1px 1px 0 #000;
+	min-height: 49px;
+}
+
+.errorTitle h1 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.errorBody {
+	font-size: 12px;
+	white-space: pre-wrap;
+	word-break: break-all;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	margin-right: 20px;
+	-webkit-user-select: text;
+	user-select: text;
+	padding: 0 40px 10px 40px;
+}
+
+.errorView .buttons {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 20px;
+	flex-direction: column;
+}
+
+.errorView .buttons button {
+	flex: 1;
+	font-size: 15px;
+	width: 100%;
+	padding: 15px;
+	border-radius: 0;
+}
+
+@media screen and (min-width: 800px) {
+	.errorView .buttons {
+		flex-direction: row;
+	}
+
+	.errorView .buttons button {
+		width: 300px;
+		height: 45px;
+		font-size: 16px;
+		padding: initial;
+	}
+
+	.errorBox {
+		width: initial;
+		height: initial;
+		justify-content: center;
+	}
+}
