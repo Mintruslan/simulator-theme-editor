@@ -1,0 +1,169 @@
+import * as React from 'react';
+import { useEffect, useRef } from 'react';
+import { getPreloadedAudioData } from '../../../logic/contentPreloader';
+import getErrorMessage, { getHttpErrorDetails } from '../../../utils/ErrorHelpers';
+import localization from '../../../model/resources/localization';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
+import { onMediaEnded, onMediaLoaded } from '../../../state/serverActions';
+import { addOperationErrorMessage } from '../../../state/room2Slice';
+
+interface AudioContentProps {
+	audioContext: AudioContext;
+	autoPlayEnabled: boolean;
+}
+
+const AudioContent: React.FC<AudioContentProps> = ({
+	audioContext,
+	autoPlayEnabled,
+}) => {
+	const startTimeRef = useRef(0);
+	const pauseTimeRef = useRef(0);
+	const completedRef = useRef(false);
+	const audioBufferRef = useRef<AudioBuffer | null>(null);
+	const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+	const gainNodeRef = useRef<GainNode | null>(null);
+
+	const appDispatch = useAppDispatch();
+	const isVisible = useAppSelector(state => state.ui.isVisible);
+	const soundVolume = useAppSelector(state => state.settings.soundVolume);
+	const isMediaStopped = useAppSelector(state => state.room2.stage.isGamePaused || state.table.isMediaStopped);
+	const audio = useAppSelector(state => state.table.audio || '');
+
+	// Initialize gain node
+	useEffect(() => {
+		gainNodeRef.current = audioContext.createGain();
+		gainNodeRef.current.connect(audioContext.destination);
+
+		return () => {
+			if (gainNodeRef.current) {
+				gainNodeRef.current.disconnect();
+			}
+		};
+	}, [audioContext]);
+
+	// Update volume when soundVolume changes
+    useEffect(() => {
+        if (gainNodeRef.current) {
+            gainNodeRef.current.gain.value = soundVolume;
+        }
+    }, [soundVolume]);
+
+	const operationError = (message: string) => {
+		appDispatch(addOperationErrorMessage(message));
+	};
+
+	const onMediaCompleted = () => {
+		console.log(`Audio playback completed: ${audio}`);
+		appDispatch(onMediaEnded({ contentType: 'audio', contentValue: audio }));
+	};
+
+	const stop = () => {
+		if (audioSourceRef.current && audioSourceRef.current.context.state === 'running') {
+			pauseTimeRef.current += audioContext.currentTime - startTimeRef.current;
+			audioSourceRef.current.onended = null;
+			audioSourceRef.current.stop();
+			audioSourceRef.current = null;
+		}
+	};
+
+	const play = () => {
+		if (!autoPlayEnabled || isMediaStopped || !isVisible ||
+			(audioSourceRef.current && audioSourceRef.current.context.state === 'running')) {
+			return;
+		}
+
+		audioSourceRef.current = audioContext.createBufferSource();
+		audioSourceRef.current.buffer = audioBufferRef.current;
+		audioSourceRef.current.loop = false;
+
+		audioSourceRef.current.onended = () => {
+			if (!isMediaStopped && isVisible) {
+				completedRef.current = true;
+				onMediaCompleted();
+			}
+		};
+
+		if (gainNodeRef.current) {
+			audioSourceRef.current.connect(gainNodeRef.current);
+		}
+
+		startTimeRef.current = audioContext.currentTime;
+		audioSourceRef.current.start(0, pauseTimeRef.current);
+	};
+
+	const loadFromArrayBuffer = async (arrayBuffer: ArrayBuffer) => {
+		audioBufferRef.current = await audioContext.decodeAudioData(arrayBuffer);
+
+		appDispatch(onMediaLoaded());
+
+		pauseTimeRef.current = 0;
+		play();
+		completedRef.current = false;
+	};
+
+	const load = async (abortSignal: AbortSignal) => {
+		try {
+			console.log(`Loading audio: ${audio}`);
+			const preloadedAudioData = getPreloadedAudioData(audio);
+
+			if (preloadedAudioData) {
+				await loadFromArrayBuffer(preloadedAudioData);
+				return;
+			}
+
+			const response = await fetch(audio, { signal: abortSignal });
+
+			if (!response.ok) {
+				operationError(`${localization.audioLoadError} ${audio}: ${await getHttpErrorDetails(response)}`);
+				return;
+			}
+
+			const arrayBuffer = await response.arrayBuffer();
+
+			if (abortSignal.aborted) {
+				return;
+			}
+
+			await loadFromArrayBuffer(arrayBuffer);
+		} catch (e) {
+			if (e instanceof Error && e.name === 'AbortError') {
+				return;
+			}
+			operationError(getErrorMessage(e));
+		}
+	};
+
+	// Load new audio when audio prop changes
+	useEffect(() => {
+		if (audio.length === 0) {
+			return;
+		}
+
+		completedRef.current = true; // to avoid calling play in the next effect
+
+		const abortController = new AbortController();
+		load(abortController.signal);
+
+		return () => {
+			abortController.abort();
+			stop();
+		};
+	}, [audio]);
+
+	// Handle playback control changes (only when audio stays the same)
+	useEffect(() => {
+		if (audio.length === 0 || !audioBufferRef.current) {
+			return;
+		}
+
+		if (isMediaStopped || !isVisible) {
+			stop();
+		} else if (autoPlayEnabled && !completedRef.current) {
+			play();
+		}
+	}, [isMediaStopped, isVisible, autoPlayEnabled]);
+
+	return null;
+};
+
+export default AudioContent;

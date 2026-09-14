@@ -1,0 +1,207 @@
+import * as React from 'react';
+import localization from '../../../model/resources/localization';
+import Dialog from '../../common/Dialog/Dialog';
+import GameSound from '../../../model/enums/GameSound';
+import { playAudio, stopAudio } from '../../../state/commonSlice';
+import Path from '../../../model/enums/Path';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
+import UserOptions from '../../panels/UserOptions/UserOptions';
+import DiscordButton from '../../panels/DiscordButton/DiscordButton';
+import { navigate } from '../../../utils/Navigator';
+import { exitApp } from '../../../state/globalActions';
+import Link from '../../common/Link/Link';
+import Constants from '../../../model/enums/Constants';
+import { serverLicenseChanged } from '../../../state/commonSlice';
+import ProgressDialog from '../../panels/ProgressDialog/ProgressDialog';
+
+import './MainMenu.scss';
+import twitchImg from '../../../../assets/images/twitch_logo.png';
+import boostyImg from '../../../../assets/images/boosty_logo.png';
+import patreonImg from '../../../../assets/images/patreon_logo.png';
+import steamImg from '../../../../assets/images/steam_logo.png';
+import simulatorImg from '../../../../assets/images/simulator_logo.png';
+
+export default function MainMenu(): JSX.Element {
+	const [showLicense, setShowLicense] = React.useState(false);
+	const appDispatch = useAppDispatch();
+	const common = useAppSelector(state => state.common);
+	const settings = useAppSelector(state => state.settings);
+	const joinGameProgress = useAppSelector(state => state.online2.joinGameProgress);
+
+	const stopAudioPlay = () => { appDispatch(stopAudio()); };
+
+	React.useEffect(() => {
+		if (settings.mainMenuSound) {
+			appDispatch(playAudio({ audio: GameSound.MAIN_MENU, loop: true }));
+			return stopAudioPlay;
+		}
+	}, []);
+
+	React.useEffect(() => {
+		if (!common.serverLicense && typeof localStorage !== 'undefined') {
+			const savedLicense = localStorage.getItem(Constants.LICENSE_TEXT_KEY);
+			if (savedLicense) {
+				appDispatch(serverLicenseChanged(savedLicense));
+			}
+		}
+	}, [common.serverLicense]);
+
+	// setTimeout() is to forcibly load window.history before navigating
+	const onJoinByPin = () => setTimeout(() => appDispatch(navigate({ navigation: { path: Path.JoinByPin }, saveState: true })), 0);
+
+	const commands = [
+		{
+			label: localization.joinLobby,
+			onClick: () => appDispatch(navigate({ navigation: { path: Path.Lobby }, saveState: true })),
+		},
+		{
+			label: localization.singlePlay,
+			onClick: () => appDispatch(navigate({ navigation: { path: Path.NewRoom, newGameMode: 'single' }, saveState: true })),
+		},
+		{
+			label: localization.joinByPin,
+			onClick: onJoinByPin,
+		},
+		{
+			label: localization.howToPlay,
+			onClick: () => appDispatch(navigate({ navigation: { path: Path.Demo }, saveState: true })),
+		},
+		{
+			label: localization.questionEditor,
+			onClick: () => appDispatch(navigate({ navigation: { path: Path.SIQuester }, saveState: true })),
+		},
+		...(common.exitSupported
+			? [
+				{
+					label: localization.exit,
+					onClick: () => appDispatch(exitApp()),
+				},
+			]
+			: []),
+	];
+
+	const { steamLinkSupported } = common;
+
+	const links = [
+		...(steamLinkSupported ? [{
+			href: 'https://store.steampowered.com/app/3553500/SIGame',
+			imgSrc: steamImg,
+			title: 'Steam',
+		}] : []),
+		{
+			href: 'https://www.twitch.tv/directory/category/sigame',
+			imgSrc: twitchImg,
+			title: 'Twitch',
+		},
+		{
+			href: 'https://boosty.to/vladimirkhil',
+			imgSrc: boostyImg,
+			title: 'Boosty',
+		},
+		{
+			href: 'https://patreon.com/vladimirkhil',
+			imgSrc: patreonImg,
+			title: 'Patreon',
+		},
+		{
+			href: 'https://vladimirkhil.com/si/simulator',
+			imgSrc: simulatorImg,
+			title: 'SImulator',
+		},
+	];
+
+	return (
+		<section className="welcomeView">
+			<header>
+				<h1 className='mainHeader'>
+					<div className='left'>
+						{common.serverLicense ? <button
+							type='button'
+							className='serverLicense'
+							title={localization.serverLicense}
+							onClick={() => setShowLicense(true)}
+						>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+								<path d="M12 7V7.01M12 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+							</svg>
+						</button> : null}
+
+						<button
+							type='button'
+							className='about'
+							title={localization.aboutTitle}
+							onClick={() => appDispatch(navigate({ navigation: { path: Path.About }, saveState: true }))}
+						>
+							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+								<path
+									d="M9 9C9 7.34 10.34 6 12 6C13.66 6 15 7.34 15 9C15 10.31 14.16 11.42 13 11.83V13"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+								/>
+								<circle cx="12.5" cy="17" r="1" fill="currentColor" />
+							</svg>
+						</button>
+					</div>
+
+					<DiscordButton />
+
+					<div className='right'>
+						<UserOptions />
+					</div>
+				</h1>
+			</header>
+
+			<div className='mainArea'>
+				<div className={common.minimalLogo ? 'logoMini' : 'logo'} />
+
+				<div className='welcomeViewActions'>
+					{commands.map((command, index) => (
+						<button
+							key={index}
+							type='button'
+							className={`standard welcomeRow ${index % 2 === 0 ? 'left' : 'right'}`}
+							onClick={command.onClick}>
+							{command.label.toUpperCase()}
+						</button>
+					))}
+				</div>
+			</div>
+
+			{common.clearUrls ? null : <div className='links'>
+				<ul>
+					{links.map((link, index) => (
+						<li key={index}>
+							<Link
+								href={link.href}
+								target='_blank'
+								rel='noreferrer noopener'
+								title={link.title}
+							>
+								<img src={link.imgSrc} alt={link.title} />
+							</Link>
+						</li>
+					))}
+				</ul>
+			</div>}
+
+			{showLicense ? (
+				<Dialog className='licenseDialog animated' title={localization.serverLicense} onClose={() => setShowLicense(false)}>
+					<div className='licenseText'>
+						{common.serverLicense?.split('\n').map((text, index) => <p key={index}>{text}</p>)}
+					</div>
+				</Dialog>)
+				: null}
+
+			{joinGameProgress ? (
+				<ProgressDialog
+					title={localization.connectingToServer}
+					isIndeterminate={true} />
+			) : null}
+
+			<div className='appVersion'>{APP_VERSION}</div>
+		</section>
+	);
+}

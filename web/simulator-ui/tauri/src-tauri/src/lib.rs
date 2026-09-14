@@ -1,0 +1,718 @@
+#[cfg(feature = "steam_client")]
+mod content_service;
+
+#[cfg(feature = "steam_client")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "steam_client")]
+use std::fmt::Write as _;
+#[cfg(feature = "steam_client")]
+use std::fs::File;
+use std::fs::OpenOptions;
+#[cfg(feature = "steam_client")]
+use std::io::Read;
+use std::io::prelude::*;
+#[cfg(feature = "steam_client")]
+use std::path::Path;
+#[cfg(feature = "steam_client")]
+use steamworks::{AppIDs, AppId, Client, PublishedFileId, TicketForWebApiResponse, UGCType, UserList, UserListOrder};
+#[cfg(feature = "steam_client")]
+use base64::{Engine as _, engine::general_purpose};
+#[cfg(feature = "steam_client")]
+use std::io::Cursor;
+#[cfg(feature = "steam_client")]
+use std::sync::mpsc;
+#[cfg(feature = "steam_client")]
+use std::time::{Duration, Instant};
+use tauri::Manager;
+#[cfg(feature = "steam_client")]
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+#[cfg(feature = "steam_client")]
+use tauri::Emitter;
+
+#[cfg(feature = "steam_client")]
+#[derive(Serialize, Deserialize)]
+struct WorkshopItem {
+    id: u64,
+    title: String,
+    description: String,
+    created_time: u32,
+    updated_time: u32,
+    creator_id: u64,
+    file_size: u32,
+    tags: Vec<String>,
+    score: f32,
+    preview_url: Option<String>,
+}
+
+#[cfg(feature = "steam_client")]
+#[derive(Serialize)]
+struct SteamUserInfo {
+    name: String,
+    avatar: Option<String>,
+}
+
+#[cfg(feature = "steam_client")]
+#[tauri::command]
+fn get_steam_user_info(client_state: tauri::State<Client>) -> Result<SteamUserInfo, String> {
+    let friends = client_state.friends();
+    let name = friends.name();
+    
+    let steam_id = client_state.user().steam_id();
+    let me = friends.get_friend(steam_id);
+    let avatar_data = me.large_avatar();
+    
+    let mut avatar_base64 = None;
+    
+    if let Some(data) = avatar_data {
+        if let Some(img) = image::RgbaImage::from_raw(184, 184, data) {
+            let mut cursor = Cursor::new(Vec::new());
+            if let Ok(_) = img.write_to(&mut cursor, image::ImageFormat::Png) {
+                let buffer = cursor.into_inner();
+                avatar_base64 = Some(general_purpose::STANDARD.encode(buffer));
+            }
+        }
+    }
+
+    Ok(SteamUserInfo {
+        name,
+        avatar: avatar_base64,
+    })
+}
+
+#[cfg(feature = "steam_client")]
+#[tauri::command]
+fn get_steam_auth_ticket(client_state: tauri::State<Client>, identity: String) -> Result<String, String> {
+    let identity = identity.trim();
+
+    if identity.is_empty() {
+        return Err("Steam auth identity is required".to_string());
+    }
+
+    let (tx, rx) = mpsc::channel();
+    let callback_handle = client_state.register_callback(move |response: TicketForWebApiResponse| {
+        let _ = tx.send(response);
+    });
+
+    let user = client_state.user();
+    let ticket_handle = user.authentication_session_ticket_for_webapi(identity);
+    let timeout_at = Instant::now() + Duration::from_secs(10);
+
+    let response = loop {
+        let remaining = timeout_at.saturating_duration_since(Instant::now());
+
+        if remaining.is_zero() {
+            drop(callback_handle);
+            return Err(format!("Timed out waiting for Steam Web API ticket for identity '{identity}'"));
+        }
+
+        match rx.recv_timeout(remaining) {
+            Ok(response) if response.ticket_handle == ticket_handle => break response,
+            Ok(_) => continue,
+            Err(mpsc::RecvTimeoutError::Timeout) => {
+                drop(callback_handle);
+                return Err(format!("Timed out waiting for Steam Web API ticket for identity '{identity}'"));
+            }
+            Err(mpsc::RecvTimeoutError::Disconnected) => {
+                drop(callback_handle);
+                return Err("Steam Web API ticket callback channel disconnected".to_string());
+            }
+        }
+    };
+
+    drop(callback_handle);
+
+    response
+        .result
+        .map_err(|error| format!("Steam Web API ticket request failed: {error:?}"))?;
+
+    let ticket_len = usize::try_from(response.ticket_len.max(0))
+        .unwrap_or_default()
+        .min(response.ticket.len());
+    let mut ticket = String::with_capacity(ticket_len * 2);
+
+    for byte in response.ticket.iter().take(ticket_len) {
+        let _ = write!(&mut ticket, "{byte:02x}");
+    }
+
+    Ok(ticket)
+}
+
+#[cfg(feature = "steam_client")]
+#[derive(Serialize)]
+struct WorkshopItemsResponse {
+    items: Vec<WorkshopItem>,
+    total: u32,
+}
+
+#[cfg(feature = "steam_client")]
+#[tauri::command]
+fn get_workshop_subscribed_items(
+    client_state: tauri::State<Client>,
+    page: u32,
+) -> Result<WorkshopItemsResponse, String> {
+    let ugc = client_state.ugc();
+    let user = client_state.user();
+    let steam_id = user.steam_id();
+
+    // Create a user query for subscribed items
+    let query = match ugc.query_user(
+        steam_id.account_id(),
+        UserList::Subscribed,                  // Get subscribed items
+        UGCType::All,                          // All types of UGC
+        UserListOrder::CreationOrderDesc,      // Order by creation date (descending)
+        AppIDs::ConsumerAppId(AppId(3553500)), // App ID for the game
+        page,                                  // Page number for pagination
+    ) {
+        Ok(q) => q,
+        Err(e) => return Err(format!("Failed to create query: {:?}", e)),
+    };
+
+    // Use a channel to receive the processed result
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    // Fetch the query results with a callback
+    query.fetch(move |result| {
+        let response = match result {
+            Ok(result) => {
+                // Get total count of subscribed items
+                let total = result.total_results();
+
+                // Extract item details
+                let mut items = Vec::new();
+                for i in 0..result.returned_results() {
+                    if let Some(detail) = result.get(i) {
+                        let preview_url = result.preview_url(i).map(|url| url.to_string());
+
+                        items.push(WorkshopItem {
+                            id: detail.published_file_id.0,
+                            title: detail.title.clone(),
+                            description: detail.description.clone(),
+                            created_time: detail.time_created,
+                            updated_time: detail.time_updated,
+                            creator_id: detail.owner.raw(),
+                            file_size: detail.file_size,
+                            tags: detail.tags.clone(),
+                            score: detail.score,
+                            preview_url,
+                        });
+                    }
+                }
+
+                Ok(WorkshopItemsResponse { items, total })
+            }
+            Err(e) => Err(format!("Steam error: {:?}", e)),
+        };
+
+        // Send the processed response through the channel
+        let _ = tx.send(response);
+    });
+
+    // Receive the result from the channel
+    rx.recv()
+        .map_err(|e| format!("Failed to receive query result: {:?}", e))?
+}
+
+#[cfg(feature = "steam_client")]
+// File info structure for metadata
+#[derive(serde::Serialize, serde::Deserialize)]
+struct SteamWorkshopFileInfo {
+    file_url: String,
+    size: u64,
+    file_id: u64,
+}
+
+#[cfg(feature = "steam_client")]
+// Generate a custom protocol URL for a workshop file
+#[tauri::command]
+fn get_workshop_file_url(
+    client_state: tauri::State<Client>,
+    item_id: u64,
+) -> Result<SteamWorkshopFileInfo, String> {
+    log::info!("Getting workshop file URL for item: {}", item_id);
+
+    let ugc = client_state.ugc();
+    let workshop_id = PublishedFileId(item_id);
+
+    // Check if the item is already downloaded
+    match ugc.item_install_info(workshop_id) {
+        Some(info) => {
+            let mut package_path = info.folder.clone();
+            package_path.push_str("/package.siq");
+
+            // Verify file exists and get metadata
+            log::info!("Checking file at path: {}", package_path);
+
+            match std::fs::metadata(&package_path) {
+                Ok(metadata) => {
+                    let size = metadata.len();
+                    log::info!("File size: {}", size);
+
+                    // Create a custom protocol URL
+                    // The protocol will be registered as "sigame-workshop" and we'll include the item_id
+                    let file_url = format!("http://sigame.localhost/file?id={}", item_id);
+
+                    Ok(SteamWorkshopFileInfo {
+                        file_url,
+                        size,
+                        file_id: item_id,
+                    })
+                }
+                Err(e) => {
+                    log::error!("Failed to get file metadata: {}", e);
+                    Err(format!("Failed to get file metadata: {}", e))
+                }
+            }
+        }
+        None => {
+            log::info!("Downloading Workshop item: {}", item_id);
+
+            // Not downloaded yet, try to download
+            if ugc.download_item(workshop_id, true) {
+                // Wait for download to complete
+                let mut retries = 0;
+                while retries < 3000 {
+                    // Wait up to 300 seconds
+                    match ugc.item_install_info(workshop_id) {
+                        Some(info) => {
+                            let mut package_path = info.folder.clone();
+                            package_path.push_str("/package.siq");
+
+                            // Verify the file exists
+                            if std::path::Path::new(&package_path).exists() {
+                                match std::fs::metadata(&package_path) {
+                                    Ok(metadata) => {
+                                        let size = metadata.len();
+
+                                        // Create a custom protocol URL
+                                        let file_url =
+                                            format!("http://sigame.localhost/file?id={}", item_id);
+
+                                        return Ok(SteamWorkshopFileInfo {
+                                            file_url,
+                                            size,
+                                            file_id: item_id,
+                                        });
+                                    }
+                                    Err(e) => {
+                                        return Err(format!("Failed to get file metadata: {}", e))
+                                    }
+                                }
+                            }
+                        }
+                        None => {}
+                    }
+                    retries += 1;
+                    std::thread::sleep(std::time::Duration::from_millis(100));
+                }
+
+                Err("Timed out waiting for Workshop item to download".to_string())
+            } else {
+                Err("Failed to download Workshop item".to_string())
+            }
+        }
+    }
+}
+
+#[cfg(feature = "steam_client")]
+/// Payload for upload progress events
+#[derive(Clone, Serialize)]
+struct UploadProgressPayload {
+    loaded: u64,
+    total: u64,
+    progress: f64,
+}
+
+#[cfg(feature = "steam_client")]
+/// Payload for upload result events
+#[derive(Clone, Serialize)]
+struct UploadResultPayload {
+    success: bool,
+    uri: Option<String>,
+    error: Option<String>,
+    already_existed: bool,
+}
+
+#[cfg(feature = "steam_client")]
+/// Get the file path for a workshop item, downloading if necessary
+/// This function is synchronous to avoid Send issues with Steam client
+fn get_workshop_file_path_sync(
+    client_state: &tauri::State<'_, Client>,
+    item_id: u64,
+) -> Result<String, String> {
+    let ugc = client_state.ugc();
+    let workshop_id = PublishedFileId(item_id);
+
+    // Check if item is already installed
+    if let Some(info) = ugc.item_install_info(workshop_id) {
+        let mut path = info.folder.clone();
+        path.push_str("/package.siq");
+
+        if std::path::Path::new(&path).exists() {
+            return Ok(path);
+        }
+    }
+
+    log::info!("Workshop item not installed, attempting to download: {}", item_id);
+
+    // Try to download the item
+    if !ugc.download_item(workshop_id, true) {
+        return Err("Failed to start download of Workshop item".to_string());
+    }
+
+    // Wait for download to complete (synchronously)
+    let mut retries = 0;
+    loop {
+        if retries >= 3000 {
+            // 300 seconds timeout
+            return Err("Timed out waiting for Workshop item to download".to_string());
+        }
+
+        if let Some(info) = ugc.item_install_info(workshop_id) {
+            let mut path = info.folder.clone();
+            path.push_str("/package.siq");
+
+            if std::path::Path::new(&path).exists() {
+                return Ok(path);
+            }
+        }
+
+        retries += 1;
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
+#[cfg(feature = "steam_client")]
+/// Upload a workshop package directly to the content service
+/// This avoids transferring the file through the webview
+#[tauri::command]
+async fn upload_workshop_package(
+    app_handle: tauri::AppHandle,
+    client_state: tauri::State<'_, Client>,
+    item_id: u64,
+    content_service_uri: String,
+    package_name: String,
+) -> Result<(), String> {
+    use content_service::{FileKey, SIContentServiceClient, read_file_with_hash};
+
+    log::info!(
+        "Starting upload of workshop item {} to content service: {}",
+        item_id,
+        content_service_uri
+    );
+
+    // Get the file path synchronously to avoid Send issues with Steam client
+    let package_path = get_workshop_file_path_sync(&client_state, item_id)
+        .map_err(|e| {
+            let _ = app_handle.emit("upload-result", UploadResultPayload {
+                success: false,
+                uri: None,
+                error: Some(e.clone()),
+                already_existed: false,
+            });
+            e
+        })?;
+
+    log::info!("Reading package file from: {}", package_path);
+
+    // Read file and calculate hash
+    let (file_data, hash) = match read_file_with_hash(std::path::Path::new(&package_path)).await {
+        Ok(result) => result,
+        Err(e) => {
+            let error_msg = format!("Failed to read package file: {}", e);
+            let _ = app_handle.emit("upload-result", UploadResultPayload {
+                success: false,
+                uri: None,
+                error: Some(error_msg.clone()),
+                already_existed: false,
+            });
+            return Err(error_msg);
+        }
+    };
+
+    let file_size = file_data.len() as u64;
+    log::info!("Package size: {} bytes, MD5 hash: {}", file_size, hash);
+
+    let package_key = FileKey {
+        name: package_name,
+        hash,
+    };
+
+    // Create content service client
+    let content_client = SIContentServiceClient::new(&content_service_uri);
+
+    // Clone app_handle for the progress callback
+    let app_handle_progress = app_handle.clone();
+
+    // Upload the package with progress reporting
+    let result = content_client
+        .upload_package_if_not_exists(&package_key, file_data, move |loaded, total| {
+            let progress = if total > 0 {
+                (loaded as f64) / (total as f64)
+            } else {
+                0.0
+            };
+
+            let _ = app_handle_progress.emit(
+                "upload-progress",
+                UploadProgressPayload {
+                    loaded,
+                    total,
+                    progress,
+                },
+            );
+        })
+        .await;
+
+    match result {
+        Ok(upload_result) => {
+            log::info!(
+                "Upload completed successfully: {} (already existed: {})",
+                upload_result.uri,
+                upload_result.already_existed
+            );
+
+            let _ = app_handle.emit("upload-result", UploadResultPayload {
+                success: true,
+                uri: Some(upload_result.uri),
+                error: None,
+                already_existed: upload_result.already_existed,
+            });
+
+            Ok(())
+        }
+        Err(e) => {
+            let error_msg = format!("Upload failed: {}", e);
+            log::error!("{}", error_msg);
+
+            let _ = app_handle.emit("upload-result", UploadResultPayload {
+                success: false,
+                uri: None,
+                error: Some(error_msg.clone()),
+                already_existed: false,
+            });
+
+            Err(error_msg)
+        }
+    }
+}
+
+#[cfg(feature = "steam_client")]
+// Handle custom protocol for workshop files
+fn handle_workshop_protocol(
+    app: tauri::AppHandle,
+    request: tauri::http::Request<Vec<u8>>,
+) -> tauri::http::Response<Vec<u8>> {
+    // Parse the URI to extract the file ID
+    let uri = request.uri().to_string();
+
+    log::info!("Received custom protocol request: {}", uri);
+
+    let error_response = tauri::http::Response::builder()
+        .status(404)
+        .body(Vec::new())
+        .unwrap();
+
+    // Extract file ID from query params
+    if !uri.contains("?id=") {
+        return error_response;
+    }
+
+    let id_param = uri.split("?id=").nth(1).unwrap_or("");
+    let item_id = match id_param.parse::<u64>() {
+        Ok(id) => id,
+        Err(_) => return error_response,
+    };
+
+    log::info!("Custom protocol request for file ID: {}", item_id);
+
+    // Get the client from app state
+    let client_state = app.state::<Client>();
+    let ugc = client_state.ugc();
+    let workshop_id = PublishedFileId(item_id);
+
+    // Get file path
+    let file_path = match ugc.item_install_info(workshop_id) {
+        Some(info) => {
+            let mut package_path = info.folder.clone();
+            package_path.push_str("/package.siq");
+            package_path
+        }
+        None => return error_response,
+    };
+
+    // Check if file exists
+    if !Path::new(&file_path).exists() {
+        log::error!("File not found: {}", file_path);
+        return error_response;
+    }
+
+    // Read file
+    let mut file = match File::open(&file_path) {
+        Ok(file) => file,
+        Err(e) => {
+            log::error!("Failed to open file: {}", e);
+            return error_response;
+        }
+    };
+
+    // Read file data
+    let mut data = Vec::new();
+    if let Err(e) = file.read_to_end(&mut data) {
+        log::error!("Failed to read file: {}", e);
+        return error_response;
+    }
+
+    // Build response with correct MIME type
+    tauri::http::Response::builder()
+        .header("Access-Control-Allow-Origin", "*")
+        .header("Content-Type", "application/x-zip-compressed")
+        .header(
+            "Content-Disposition",
+            format!("attachment; filename=\"package.siq\""),
+        )
+        .status(200)
+        .body(data)
+        .unwrap()
+}
+
+#[tauri::command]
+fn greet(name: &str) -> String {
+    format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[cfg(feature = "steam_client")]
+#[tauri::command]
+fn open_url_in_steam_overlay(client_state: tauri::State<Client>, url: String) {
+    client_state
+        .friends()
+        .activate_game_overlay_to_web_page(&url);
+}
+
+#[tauri::command]
+fn append_text_file(app_handle: tauri::AppHandle, file_name: String, content: String) {
+  // Sanitize the file_name: only allow alphanumeric, dash, underscore and dot
+  if !file_name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.') {
+    log::error!("Invalid filename. Only alphanumeric characters, dash, underscore, and dot are allowed: {}", file_name);
+    return;
+  }
+
+  // Prevent hidden files
+  if file_name.starts_with('.') {
+    log::error!("Hidden files are not allowed: {}", file_name);
+    return;
+  }
+
+  let app_log_dir = app_handle.path().app_log_dir().expect("Failed to get app log directory");
+  let log_path = app_log_dir.join(file_name);
+
+  // Validate the resulting path is within the log directory (prevents path traversal)
+  if !log_path.starts_with(&app_log_dir) {
+    log::error!("Invalid path: {}. Path traversal is not allowed.", log_path.display());
+    return;
+  }
+
+  let mut file = OpenOptions::new()
+      .write(true)
+      .append(true)
+      .create(true)
+      .open(&log_path)
+      .expect("Failed to open file");
+
+  file.write(content.as_bytes()).expect("Failed to write file");
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    // Initialize Tauri application with plugins
+    // and set up the application state with Steam client
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_opener::init());
+
+    #[cfg(feature = "steam_client")]
+    {
+        builder = builder
+            .setup(|app| {
+                // Initialize Steam (must have steam_appid.txt or app ID passed)
+                let steam_result = Client::init_app(3553500);
+
+                match steam_result {
+                    Ok(client) => {
+                        let callback_client = client.clone();
+
+                        // Store the client in app state for later use
+                        app.manage(client);
+
+                        // Keep the client alive
+                        std::thread::spawn(move || {
+                            loop {
+                                callback_client.run_callbacks();
+                                std::thread::sleep(std::time::Duration::from_millis(100));
+                            }
+                        });
+
+                        log::info!("Steam client initialized successfully");
+                    },
+                    Err(e) => {
+                        // Steam failed to initialize - show error to user
+                        log::error!("Steam initialization failed: {}", e);
+
+                        // Show error dialog to user
+                        app.dialog()
+                            .message("Steam must be running to play this game. Please start Steam and try again")
+                            .title("Steam Error")
+                            .buttons(MessageDialogButtons::Ok)
+                            .blocking_show();
+
+                        std::process::exit(1);
+                    }
+                }
+
+                // Set up the main window
+                Ok(())
+            })
+            // Register custom protocol handler for workshop files
+            .register_asynchronous_uri_scheme_protocol("sigame", move |app_handle, request, responder| {
+                // Convert the UriSchemeContext to AppHandle
+                let handle = app_handle.app_handle().clone();
+
+                std::thread::spawn(move || {
+                    responder.respond(handle_workshop_protocol(handle, request));
+                });
+            });
+    }
+
+    // Set up invoke handlers
+    #[cfg(feature = "steam_client")]
+    {
+        builder = builder.invoke_handler(tauri::generate_handler![
+            greet,
+            open_url_in_steam_overlay,
+            get_workshop_subscribed_items,
+            get_workshop_file_url,
+            upload_workshop_package,
+            append_text_file,
+            get_steam_user_info,
+            get_steam_auth_ticket
+        ]);
+    }
+
+    #[cfg(not(feature = "steam_client"))]
+    {
+        builder = builder.invoke_handler(tauri::generate_handler![
+            greet,
+            append_text_file
+        ]);
+    }
+
+    builder
+        .run(tauri::generate_context!())
+        .unwrap_or_else(|e| {
+            log::error!("Error while running SIGame: {}", e);
+            std::process::exit(1);
+        });
+}

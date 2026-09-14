@@ -1,0 +1,585 @@
+@use 'variables' as v;
+
+@font-face {
+    font-family: Standard;
+    src: url('../../assets/fonts/Geologica/Geologica-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: Standard;
+    src: url('../../assets/fonts/Geologica/Geologica-SemiBold.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: Standard;
+    src: url('../../assets/fonts/Geologica/Geologica-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Clefs';
+    src: url('../../assets/fonts/Clefs.eot');
+    src: url('../../assets/fonts/Clefs.eot?#iefix') format('embedded-opentype'), url('../../assets/fonts/Clefs.woff') format('woff'), url('../../assets/fonts/Clefs.ttf') format('truetype'), url('../../assets/fonts/Clefs.svg#Clefs') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: radial-gradient(91.6% 91.6% at 50% 4.05%, #1322AB 0%, #11174E 100%);
+    background: url('../../assets/images/main_background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    overflow: hidden;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    scrollbar-width: thin;
+    scrollbar-color: #a8acfd transparent;
+    font-family: Standard;
+}
+
+#reactHost {
+    height: 100%;
+}
+
+select,
+input {
+    font-family: Standard;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists
+   will truncate terms that are too long to fit in the left column
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+dl {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+dt,
+dd {
+    line-height: 1.428571429;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    margin-left: 0;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    line-height: inherit;
+    outline: none;
+}
+
+textarea {
+    resize: none;
+}
+
+input:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+input[type='password'],
+input[type='search'],
+input[type='text'] {
+    background: #d9e3f9;
+    border-width: 1px;
+}
+
+h1 {
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 39px;
+}
+
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #a8acfd;
+    cursor: pointer;
+    transition: background-color 1s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d2e1ff;
+    background: linear-gradient(0deg, #a8acfd 0%, #d2e1ff 50%, #a8acfd 100%);
+}
+
+.avatarMale,
+.avatarFemale {
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: contain;
+}
+
+.avatarMale {
+    background-image: url('../../assets/images/avatar-m.png');
+}
+
+.avatarFemale {
+    background-image: url('../../assets/images/avatar-f.png');
+}
+
+.gameHost {
+    height: 100%;
+}
+
+.floatable {
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.floatable:hover {
+    opacity: 1;
+}
+
+#entermain {
+    margin-left: 16pt;
+    text-align: center;
+}
+
+#logonButtons {
+    font-size: 25px;
+    width: 100%;
+    display: flex;
+}
+
+#logonButtons button {
+    flex: 1 0 0;
+}
+
+.sexLogin {
+    text-align: left;
+    margin-top: -5px;
+}
+
+.sexLogin input {
+    margin-left: 22px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.sexLogin label {
+    font-size: 14px;
+    font-weight: normal;
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+.gamesblock header {
+    height: 35pt;
+}
+
+button {
+    color: #FFFFFF;
+    background-color: transparent;
+    border: 0;
+    padding: 5px 7px 5px 7px;
+    font-family: Standard;
+    text-shadow: 1px 1px 0 #000;
+    font-size: inherit;
+    cursor: pointer;
+    transition: all 1s;
+}
+
+button.standard,
+.sidePanel {
+    background: linear-gradient(180deg, #255ADC 14.29%, #0A3FA4 100%);
+}
+
+button.standard {
+    border-radius: 4px;
+}
+
+button.standard.imageButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+}
+
+button.standard.imageButton.active {
+    background: linear-gradient(180deg, #CEE0FF 14.29%, rgb(39, 108, 237) 100%);
+}
+
+button.standard.imageButton img {
+    object-fit: contain;
+}
+
+button.standard.imageButton:disabled img {
+    opacity: 0.5;
+}
+
+button:hover,
+button.standard:hover {
+    background: linear-gradient(180deg, #2860ef 14.29%, rgb(39, 108, 237) 100%);
+}
+
+button:active,
+button.standard:active {
+    background: #FFFFFF;
+    transition: initial;
+}
+
+button:disabled,
+button.standard:disabled {
+    color: darkgray;
+    border-color: darkgray;
+    background: transparent;
+    cursor: initial;
+}
+
+button.mainAction {
+    background: linear-gradient(360deg, #b87566 0%, #ffb179 100%);
+    border-radius: 4px;
+}
+
+button.mainAction.active {
+    background: v.$active-button-background;
+}
+
+button.mainAction:not(:disabled):hover {
+    background: linear-gradient(360deg, #ff4b23 0%, #FF7C1E 100%);
+}
+
+button.mainAction:not(:disabled):active {
+    background: #FFFFFF;
+}
+
+.closeButton {
+    padding: 4px;
+    width: 30px;
+    height: 30px;
+    border-width: 0;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+#gameName {
+    height: 55px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: 50px;
+}
+
+#actionsHost {
+    display: flex;
+}
+
+.actions button {
+    margin: 0;
+    display: inline;
+    flex: 1 0 0;
+}
+
+.cannotConnect {
+    color: darkred;
+    text-align: center;
+    height: 45px;
+    line-height: 45px;
+    overflow: hidden;
+}
+
+.cannotConnect span {
+    line-height: normal;
+    display: block;
+    margin: 0 3px;
+}
+
+.tabHeader h1 {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Standard;
+    font-size: 20px;
+    height: 100%;
+    margin: 0;
+    padding: 0 12px;
+    color: #FFFFFF66;
+    text-shadow: 1px 1px 0 #000;
+    cursor: pointer;
+}
+
+#extraMenu {
+    top: 35pt;
+    right: 0;
+}
+
+h1.activeTab {
+    color: #FFFFFF;
+    background-color: #98B9FF;
+}
+
+.tabHeader h1:hover {
+    color: #FFFFFF99;
+    background-color: white;
+}
+
+.chat span {
+    display: block;
+    word-wrap: break-word;
+}
+
+#gamesList,
+#game {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+#rules,
+#started,
+#showman,
+#players,
+#viewers {
+    min-height: 20px;
+}
+
+#gameLogHost {
+    flex: 0 0 130px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#playerButtonHost {
+    height: 100%;
+}
+
+.sideArea {
+    flex: 1 0 0;
+    display: flex;
+    overflow: hidden;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(20, 24, 62, 0.4), rgba(5, 6, 31, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-clip: padding-box;
+    isolation: isolate;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin: 4px;
+}
+
+.game__chat {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    color: white;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+showman,
+player,
+viewer {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+showman::after,
+player::after,
+viewer::after {
+    content: ": "
+}
+
+.playerButtonWrapper {
+    flex: 1 0 0;
+    position: relative;
+}
+
+#managedPersons {
+    width: 100%;
+}
+
+video,
+audio {
+    margin: 10px 0;
+    width: calc(100% - 20px);
+}
+
+.mainNav {
+    top: 47px;
+    left: 0;
+}
+
+.buttonsPanel {
+    height: 45px;
+    flex: 0 0 45px;
+    display: flex;
+    width: 100%;
+}
+
+.buttonsPanel button,
+.buttonsPanel div {
+    flex: 1 0 0;
+    font-size: 16px;
+}
+
+@keyframes spinner {
+    from {
+        transform: rotateY(-90deg);
+    }
+
+    to {
+        transform: rotateY(90deg);
+    }
+}
+
+.rotate {
+    animation-name: spinner;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-duration: 3s;
+}
+
+#lastReplic {
+    position: absolute;
+    top: -110px;
+    height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background: #ffffe0;
+    border-top: 1px solid gray;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 1.0);
+    overflow: hidden;
+    padding: 2px 6px;
+    opacity: 0.7;
+}
+
+.stakeSum {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    background-color: #c0cff4;
+    border: 1px solid yellow;
+    font-size: 24px;
+}
+
+.stakeRangeHost {
+    position: absolute;
+    top: 1px;
+    bottom: 0;
+    left: 10px;
+    right: 10px;
+    background-color: #c0cff4;
+    width: calc(100% - 20px);
+}
+
+.stakeRange {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+}
+
+.wide {
+    display: none;
+}
+
+.commandButton {
+    height: 45px;
+    font-size: 19pt;
+}
+
+.bottomButton {
+    margin-bottom: -1px;
+}
+
+a.simpleLink {
+    text-decoration: none;
+    color: white;
+}
+
+@media screen and (min-width: 800px) {
+    #nav {
+        display: none;
+    }
+
+    .cannotConnect span {
+        display: inline-block;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    .actions {
+        left: 400px;
+        right: 400px;
+    }
+
+    #gameLogHost {
+        flex: 1 0 0;
+    }
+
+    #playerButtonHost {
+        display: none;
+    }
+
+    .playerButtonWrapper {
+        flex: 0 0 0;
+    }
+
+    .wide {
+        display: initial;
+    }
+}

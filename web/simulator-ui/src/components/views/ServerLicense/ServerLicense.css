@@ -1,0 +1,97 @@
+.server__license {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 20px;
+}
+
+.server__license__body {
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 4, 81, 0.1);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+	color: white;
+	padding: 20px 30px;
+	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.server__license__body.animated {
+	animation: serverLicenseIn 0.2s;
+}
+
+@keyframes serverLicenseIn {
+	from {
+		transform: scale(0.9);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.license__header {
+	font-size: 25px;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.license__text {
+	height: calc(100% - 170px);
+	overflow-y: auto;
+	padding-right: 10px;
+	margin-left: 0;
+}
+
+.license__accept {
+	display: flex;
+	align-items: center;
+	margin-top: 20px;
+	margin-left: 5px;
+	gap: 15px;
+}
+
+.server__license__body input[type="checkbox"] {
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	transform: scale(1.5);
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.license__button__area {
+	display: flex;
+	flex-direction: row;
+	justify-content: end;
+}
+
+.server__license__body label {
+	cursor: pointer;
+	font-size: 18px;
+	margin: 0;
+}
+
+.server__license__body button {
+	margin-top: 20px;
+	padding: 7px 35px;
+	text-align: center;
+}
+
+@media screen and (min-width: 1100px) {
+	.server__license__body {
+		height: auto;
+		max-height: 90vh;
+		max-width: 700px;
+		border-radius: 12px;
+		border: rgba(160, 160, 160, 0.548) 1px solid;
+	}
+	
+	.license__text {
+		max-height: 60vh;
+	}
+}

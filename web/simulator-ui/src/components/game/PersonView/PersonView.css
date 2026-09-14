@@ -1,0 +1,110 @@
+.personItem {
+	padding-left: 5px;
+	height: 35px;
+	line-height: 40px;
+	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	padding: 5px 0;
+}
+
+.personItem.me {
+	font-weight: bold;
+}
+
+.personItem .personNameWrapper {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+.personItem .personName {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.personItem_avatar {
+	width: 40px;
+	margin: 2px 4px 2px 10px;
+	height: calc(100% - 4px);
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position-y: center;
+}
+
+.personItem_host {
+	margin-left: 5px;
+}
+
+.joinMode {
+	align-items: center;
+	justify-content: center;
+}
+
+.joinModeTitle {
+	flex: 1 0 0;
+	text-align: center;
+	color: white;
+	text-shadow: 1px 1px black;
+	font-size: 14px;
+}
+
+.joinMode select {
+	flex: 1 0 0;
+	padding: 5px;
+	margin: 0 10px;
+}
+
+.personItem_menuHost {
+	flex: 1;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.personMenu {
+	border: 1px solid white;
+	border-radius: 5px;
+	padding: 6px 0;
+}
+
+.personMenu li {
+	padding: 8px 12px;
+}
+
+.personMenuFlyout {
+	min-width: 180px;
+	padding: 4px;
+}
+
+.personMenuReplacementList {
+	padding-top: 8px;
+}
+
+.personMenuReplacementHeader {
+	padding: 0 8px 4px;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	opacity: 0.8;
+}
+
+.personMenuReplacementItems {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.personMenuReplacementItem {
+	padding: 6px 8px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.personMenuReplacementItem:hover {
+	background: #f0f0f0;
+	color: #000;
+}

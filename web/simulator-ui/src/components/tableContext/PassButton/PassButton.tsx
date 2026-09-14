@@ -1,0 +1,41 @@
+import * as React from 'react';
+import { Action, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import localization from '../../../model/resources/localization';
+import roomActionCreators from '../../../state/room/roomActionCreators';
+import { useAppSelector } from '../../../state/hooks';
+import PlayerStates from '../../../model/enums/PlayerStates';
+
+import './PassButton.scss';
+
+interface PassButtonProps {
+	onPass: () => void;
+}
+
+const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
+	onPass: () => {
+		dispatch(roomActionCreators.onPass() as unknown as Action);
+	},
+});
+
+export function PassButton(props: PassButtonProps): JSX.Element {
+	const name = useAppSelector((state) => state.room2.name);
+	const persons = useAppSelector((state) => state.room2.persons);
+	const isConnected = useAppSelector((state) => state.common.isSIHostConnected);
+
+	const me = persons.players.find(p => p.name === name);
+	const canPass = me && (me.state === PlayerStates.None || me.state === PlayerStates.Lost);
+
+	return (
+		<button
+			type="button"
+			className={`passButton ${canPass ? '' : ' hidden'}`}
+			disabled={!isConnected || !canPass}
+			onClick={() => props.onPass()}
+		>
+			{localization.pass.toLocaleUpperCase()}
+		</button>
+	);
+}
+
+export default connect(null, mapDispatchToProps)(PassButton);

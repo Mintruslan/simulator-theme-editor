@@ -1,0 +1,300 @@
+#table {
+    flex: 1 0 0;
+    margin: 0;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    font-family: Standard;
+    font-weight: 500;
+}
+
+.tableCaption {
+    flex: 0 0 45px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2px;
+    overflow: hidden;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.caption__left,
+.caption__right {
+    width: 52px;
+}
+
+.caption__left {
+    padding: 0 5px 5px 5px;
+    display: flex;
+    overflow: hidden;
+}
+
+.answer__deviation {
+    font-size: 18px;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.caption__right {
+    padding: 0;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.tableCaptionContent {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.tableContent {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+}
+
+#table .pauseLogo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.contentHint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideUpFadeIn 0.3s ease-out;
+}
+
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#table .pauseLogo.warning {
+    color: darkgray;
+    background-color: #000066;
+}
+
+#table .centerBlock {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#table .answerBlock {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-grow: 1;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+#table .tableText {
+    height: 100%;
+    width: 100%;
+    font-size: 36px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    white-space: pre-line;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+#table .tableText.fadeIn {
+    animation: fadeIn 0.2s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.mainContent .tableText {
+    padding: 5px;
+}
+
+#table .tableTextCenter {
+    text-align: center;
+    justify-content: center;
+}
+
+@keyframes blink {
+    0% {
+        background: transparent;
+        box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    }
+
+    50% {
+        background: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        transform: scale(1.02);
+    }
+
+    100% {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        transform: scale(1);
+    }
+}
+
+#table .roundTable .questHeader.blink {
+    animation: blink;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+#table .specialThemes {
+    flex: 0 0 40%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.commonProgress {
+    position: absolute;
+    top: initial;
+    bottom: 2px;
+    left: 4px;
+    right: 4px;
+    width: calc(100% - 8px);
+    height: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    z-index: 3;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+}
+
+.commonProgress.captioned {
+    margin-top: 0;
+}
+
+.commonProgress .progress-bar {
+    background: #fff;
+    height: 15px;
+    box-shadow: none;
+    -webkit-mask-image: linear-gradient(to right,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) 80%,
+            rgba(0, 0, 0, 0.5) 100%);
+    mask-image: linear-gradient(to right,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 1) 80%,
+            rgba(0, 0, 0, 0.5) 100%);
+}
+
+.answerValidationInTable {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-size: 14px;
+    overflow: hidden;
+    animation: validationSlideIn 0.3s ease-out;
+}
+
+@keyframes validationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    #table .mainContent .tableText {
+        padding: 10px;
+    }
+
+    .tableCaption {
+        font-size: 25px;
+        padding: 4px 0;
+    }
+
+    .commonProgress.captioned {
+        margin-top: 35px;
+    }
+
+    .caption__left,
+    .caption__right {
+        width: 152px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    #table .mainContent .tableText {
+        padding: 25px;
+    }
+
+    .tableCaption {
+        font-size: 30px;
+        padding: 6px 0;
+    }
+
+    .commonProgress.captioned {
+        margin-top: 50px;
+    }
+}

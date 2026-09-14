@@ -1,0 +1,176 @@
+import * as React from 'react';
+import { connect } from 'react-redux';
+import State from '../../../state/State';
+import TableBorder from '../TableBorder/TableBorder';
+import ContentType from '../../../model/enums/ContentType';
+import AudioContent from '../AudioContent/AudioContent';
+import ContentGroup from '../../../model/ContentGroup';
+import LayoutMode from '../../../model/enums/LayoutMode';
+import AnswerOptions from '../AnswerOptions/AnswerOptions';
+import Constants from '../../../model/enums/Constants';
+import StackedContent from '../StackedContent/StackedContent';
+import ExternalMediaWarning from '../ExternalMediaWarning/ExternalMediaWarning';
+import { useAudioContext } from '../../../contexts/AudioContextProvider';
+import { tableSizeChanged } from '../../../state/uiSlice';
+import { useAppDispatch } from '../../../state/hooks';
+
+import './TableContent.scss';
+
+interface TableContentProps {
+	layoutMode: LayoutMode;
+	content: ContentGroup[];
+	audio: string;
+	prependText: string;
+	appendText: string;
+	externalMediaUris: string[];
+	attachContentToTable: boolean;
+	useStackedAnswerLayout: boolean;
+	windowWidth: number;
+	answerOptionsCount: number;
+	contentWeight: number;
+	optionsWeight: number;
+}
+
+const mapStateToProps = (state: State) => ({
+	content: state.table.content,
+	audio: state.table.audio,
+	layoutMode: state.table.layoutMode,
+	prependText: state.table.prependText,
+	appendText: state.table.appendText,
+	externalMediaUris: state.table.externalMediaUris,
+	attachContentToTable: state.settings.attachContentToTable,
+	useStackedAnswerLayout: state.table.useStackedAnswerLayout,
+	windowWidth: state.ui.windowWidth,
+	answerOptionsCount: state.table.answerOptions.length,
+	contentWeight: state.table.contentWeight,
+	optionsWeight: state.table.optionsWeight,
+});
+
+function getLayout(
+	layoutMode: LayoutMode,
+	mainContent: JSX.Element,
+	useStackedAnswerLayout: boolean,
+	isPhoneMode: boolean,
+	contentWeight: number,
+	optionsWeight: number
+) {
+	if (layoutMode !== LayoutMode.AnswerOptions) {
+		return mainContent;
+	}
+
+	// Use stacked (vertical) layout when in phone mode or when content is single text-only
+	const shouldStack = isPhoneMode || useStackedAnswerLayout;
+	const layoutClass = shouldStack ? 'optionsLayoutStacked' : 'optionsLayout';
+
+	// Use weights from state (calculated in messageProcessor and ClientController)
+	// These are calculated proportionally:
+	// - contentWeight: proportional to text length (like in onScreenContent)
+	// - optionsWeight: proportional to row count from getBestRowColumnCount
+
+	const contentStyle = shouldStack ? { flex: `${contentWeight} 0 0` } : undefined;
+	const optionsStyle = shouldStack ? { flex: `${optionsWeight} 0 0` } : undefined;
+
+	return (
+		<div className={layoutClass}>
+			<div className="layout__content" style={contentStyle}>
+				{mainContent}
+			</div>
+			<div className="layout__options" style={optionsStyle}>
+				<AnswerOptions gridMode={shouldStack} />
+			</div>
+		</div>
+	);
+}
+
+const TableContentComponent: React.FC<TableContentProps> = (props) => {
+	const { audioContext, canPlayAudio } = useAudioContext();
+	const dispatch = useAppDispatch();
+	const tableRef = React.useRef<HTMLDivElement>(null);
+	const isPhoneMode = props.windowWidth < 800;
+
+	React.useEffect(() => {
+		if (!tableRef.current) {
+			return;
+		}
+
+		const observer = new ResizeObserver((entries) => {
+			if (entries.length === 0) {
+				return;
+			}
+
+			const entry = entries[0];
+			dispatch(tableSizeChanged({
+				width: entry.contentRect.width,
+				height: entry.contentRect.height
+			}));
+		});
+
+		observer.observe(tableRef.current);
+
+		return () => {
+			observer.disconnect();
+		};
+	}, [dispatch]);
+
+	const getAudioContent = (): React.ReactNode => props.audio.length > 0
+		? (<div className='centerBlock'><span className="clef rotate">&amp;</span></div>)
+		: null;
+
+	let { content } = props;
+
+	if (props.externalMediaUris.length > 0) {
+		return <TableBorder><ExternalMediaWarning /></TableBorder>;
+	}
+
+	if (props.attachContentToTable &&
+		((props.audio.length > 0 &&
+			content.length === 0) ||
+		(props.audio.length === 0 &&
+			content.length === 1 &&
+			content[0].content.length === 1 &&
+			content[0].content[0].type !== ContentType.Text))) {
+		if (props.appendText.length > 0) {
+			const textWeight = Math.min(Constants.LARGE_CONTENT_WEIGHT, Math.max(1, props.appendText.length / 80));
+
+			content = [...content, {
+				columnCount: 1,
+				weight: textWeight,
+				content: [{
+					type: ContentType.Text,
+					value: props.appendText,
+					read: false,
+					partial: false
+				}]
+			}];
+		} else if (props.prependText.length > 0) {
+			const textWeight = Math.min(Constants.LARGE_CONTENT_WEIGHT, Math.max(1, props.prependText.length / 80));
+
+			content = [ {
+				columnCount: 1,
+				weight: textWeight,
+				content: [{
+					type: ContentType.Text,
+					value: props.prependText,
+					read: false,
+					partial: false
+				}]
+			}, ...content];
+		}
+	}
+
+	const mainContent = content.length > 0
+		? <StackedContent content={content} canPlayAudio={canPlayAudio} />
+		: <div className='mainContent'>{getAudioContent()}</div>;
+
+	return (
+		<TableBorder>
+			<div className='table-content' ref={tableRef}>
+				{getLayout(props.layoutMode, mainContent, props.useStackedAnswerLayout, isPhoneMode, props.contentWeight, props.optionsWeight)}
+
+				<AudioContent audioContext={audioContext} autoPlayEnabled={canPlayAudio} />
+			</div>
+		</TableBorder>
+	);
+};
+
+export default connect(mapStateToProps)(TableContentComponent);

@@ -1,0 +1,478 @@
+import SIStorageClient from 'sistorage-client';
+import AuthorizationMode from '../client/contracts/AuthorizationMode';
+import {
+	setClipboardSupported,
+	setExitSupported,
+	setHostManagedUrls,
+	setIsDesktop,
+	setLogSupported
+} from '../state/commonSlice';
+import { getCookie, setCookie } from '../utils/CookieHelpers';
+import IHost, { AuthorizationData, FullScreenMode, UploadCallbacks } from './IHost';
+import { Store } from 'redux';
+import SIStorageInfo from '../client/contracts/SIStorageInfo';
+
+const ACCEPT_LICENSE_KEY = 'ACCEPT_LICENSE';
+
+/** Payload for upload progress events from Rust */
+export interface UploadProgressPayload {
+	loaded: number;
+	total: number;
+	progress: number;
+}
+
+/** Payload for upload result events from Rust */
+export interface UploadResultPayload {
+	success: boolean;
+	uri: string | null;
+	error: string | null;
+	already_existed: boolean;
+}
+
+declare global {
+	interface Window {
+		__TAURI__?: TauriAPI;
+	}
+}
+
+interface TauriAPI {
+	opener?: {
+		openPath?: (path: string) => Promise<void>;
+		openUrl?: (url: string) => Promise<void>;
+	};
+	path?: {
+		appLogDir(): Promise<string>;
+		resolve(...paths: string[]): Promise<string>;
+	};
+	http?: {
+		fetch: (url: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+	};
+	webviewWindow?: {
+		getCurrentWebviewWindow: () => { setFullscreen: (fullScreen: boolean) => Promise<void> };
+	};
+	clipboardManager?: {
+		writeText: (text: string) => void;
+	};
+	core?: {
+		invoke: (cmd: string, args: any) => Promise<any>;
+	};
+	process?: {
+		exit: (code: number) => void;
+	};
+	event?: {
+		listen: <T>(event: string, handler: (event: { payload: T }) => void) => Promise<() => void>;
+	};
+}
+
+export default class TauriHost implements IHost {
+	protected app = window.__TAURI__;
+
+	private licenseAccepted = false;
+
+	private clipboardSupported = false;
+
+	private exitSupported = false;
+
+	private logSupported = false;
+
+	private currentLogFilePath: string | null = null;
+
+	constructor(private isLegacy: boolean) {
+		if (this.app && this.app.http) {
+			const originalFetch = globalThis.fetch.bind(globalThis);
+			const { fetch } = this.app.http;
+
+			const resolveRequestUrl = (input: RequestInfo | URL): URL | null => {
+				if (input instanceof URL) {
+					return input;
+				}
+
+				if (input instanceof Request) {
+					try {
+						return new URL(input.url, window.location.href);
+					} catch {
+						return null;
+					}
+				}
+
+				if (typeof input === 'string') {
+					try {
+						return new URL(input, window.location.href);
+					} catch {
+						return null;
+					}
+				}
+
+				return null;
+			};
+
+			const isBrowserManagedUrl = (input: RequestInfo | URL): boolean => {
+				const requestUrl = resolveRequestUrl(input);
+				if (!requestUrl) {
+					return false;
+				}
+
+				if (!requestUrl.protocol.startsWith('http')) {
+					return true;
+				}
+
+				if (requestUrl.origin === window.location.origin) {
+					return true;
+				}
+
+				if (requestUrl.href.startsWith('http://ipc.localhost/') || requestUrl.href.startsWith('http://sigame.localhost/')) {
+					return true;
+				}
+
+				return false;
+			};
+
+			globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+				if (isBrowserManagedUrl(input)) {
+					return originalFetch(input, init);
+				}
+
+				return fetch(input, init);
+			};
+		}
+
+		const urlParams = new URLSearchParams(window.location.hash.substring(1));
+		this.licenseAccepted = !!this.app || urlParams.get('licenseAccepted') === 'true';
+		this.clipboardSupported = !!this.app || urlParams.get('clipboardSupported') === 'true';
+		this.exitSupported = (!!this.app && !!this.app.process) || urlParams.get('exitSupported') === 'true';
+		this.logSupported = !!this.app || urlParams.get('logSupported') === 'true';
+	}
+
+	isDesktop(): boolean {
+		return true;
+	}
+
+	async initAsync(store: Store): Promise<void> {
+		store.dispatch(setIsDesktop(true));
+		console.log('Loaded from Tauri');
+		store.dispatch(setHostManagedUrls(true));
+
+		if (!this.clipboardSupported) {
+			store.dispatch(setClipboardSupported(false));
+		}
+
+		if (this.exitSupported) {
+			store.dispatch(setExitSupported(true));
+		}
+
+		if (!this.logSupported) {
+			store.dispatch(setLogSupported(false));
+		}
+	}
+
+	onReady() {
+	}
+
+	isLicenseAccepted(): boolean {
+		return this.licenseAccepted || getCookie(ACCEPT_LICENSE_KEY) === '1';
+	}
+
+	acceptLicense() {
+		window.parent.postMessage({ type: 'acceptLicense' }, '*');
+		setCookie(ACCEPT_LICENSE_KEY, '1', 365);
+	}
+
+	loadNavigationState(): any {
+		return window.history.state;
+	}
+
+	saveNavigationState(state: any, url: string | null | undefined, popCurrentState: boolean) {
+		if (popCurrentState) {
+			window.history.replaceState(state, '', url);
+		} else {
+			window.history.pushState(state, '', url);
+		}
+	}
+
+	isFullScreenSupported(): boolean {
+		return !this.isLegacy || !!this.app;
+	}
+
+	detectFullScreen(): FullScreenMode {
+		return FullScreenMode.Undefined;
+	}
+
+	async setFullScreen(fullScreen: boolean): Promise<boolean> {
+		window.parent.postMessage({ type: 'fullscreen', payload: fullScreen }, '*');
+		return true;
+	}
+
+	copyToClipboard(text: string): void {
+		if (this.app && this.app.clipboardManager) {
+			this.app.clipboardManager.writeText(text);
+		} else {
+			window.parent.postMessage({ type: 'copyToClipboard', payload: text }, '*');
+		}
+	}
+
+	copyUriToClipboard(): void {
+		const text = window.location.href.replace('http://tauri.localhost', 'https://sigame.vladimirkhil.com');
+		this.copyToClipboard(text);
+	}
+
+	openLink(url: string) {
+		const opener = this.app?.opener;
+		const normalizedUrl = url.trim();
+		const isWebUrl = /^https?:\/\//i.test(normalizedUrl) || /^(mailto|tel):/i.test(normalizedUrl);
+
+		if (!opener) {
+			console.warn('Tauri app opener is not available, cannot open link:', normalizedUrl);
+			return;
+		}
+
+		if (isWebUrl && opener.openUrl) {
+			void opener.openUrl(normalizedUrl).catch((error) => {
+				console.error('Failed to open external URL:', error);
+			});
+			return;
+		}
+
+		if (opener.openPath) {
+			void opener.openPath(normalizedUrl).catch((error) => {
+				console.error('Failed to open path:', error);
+			});
+			return;
+		}
+
+		console.warn('Tauri opener method is not available for link:', normalizedUrl);
+	}
+
+	getSupportedAuthModes(): AuthorizationMode[] {
+		return [];
+	}
+
+	getAuthToken(): string | null {
+		return null;
+	}
+
+	async getAuthorizationData(authorizationMode?: AuthorizationMode): Promise<AuthorizationData | null> {
+		return null;
+	}
+
+	getStorage(): { storageClient?: SIStorageClient; storageInfo?: SIStorageInfo; } {
+		return {};
+	}
+
+	async getPackageData(id: string): Promise<[File, string] | null> {
+		if (!this.app || !this.app.core) {
+			console.warn('Tauri app core or http module is not available, cannot get package data');
+			return null;
+		}
+
+		try {
+			const itemId = parseInt(id, 10);
+
+			console.log(`Getting package data for workshop item: ${itemId}`);
+
+			// Instead of directly downloading the file data, request a URL through our custom protocol
+			const startTime = performance.now();
+
+			// This returns metadata with a custom protocol URL
+			const fileInfo = await this.app.core.invoke('get_workshop_file_url', { itemId });
+
+			const endTime = performance.now();
+			console.log(`Retrieved file URL for workshop item ${itemId} in ${(endTime - startTime).toFixed(2)}ms`);
+			console.log(`File size: ${fileInfo.size} bytes, URL: ${fileInfo.file_url}`);
+
+			// Now we use fetch to get the file through our custom protocol
+			// This approach is more memory efficient as the browser handles streaming
+			const response = await fetch(fileInfo.file_url);
+
+			if (!response.ok) {
+				throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+			}
+
+			// Get the file as a blob
+			const blob = await response.blob();
+			console.log(`Retrieved blob of size: ${blob.size} bytes`);
+
+			const file = new File([blob], 'package.siq', { type: 'application/x-zip-compressed' });
+			const packageSource = `https://steamcommunity.com/sharedfiles/filedetails/?id=${itemId}`;
+
+			// Create a File object from the blob
+			return [file, packageSource];
+		} catch (error) {
+			console.error('Failed to get package data:', error);
+			return null;
+		}
+	}
+
+	exitApp(): void {
+		if (this.app && this.app.process) {
+			this.app.process.exit(0);
+		} else {
+			window.parent.postMessage({ type: 'exit' }, '*');
+		}
+	}
+
+	async clearGameLog(): Promise<boolean> {
+		if (!this.app) {
+			window.parent.postMessage({ type: 'clearGameLog' }, '*');
+			return true;
+		}
+
+		this.currentLogFilePath = null;
+		return true;
+	}
+
+	async addGameLog(content: string, newLine: boolean): Promise<boolean> {
+		if (!this.app || !this.app.core || !this.app.path) {
+			window.parent.postMessage({ type: 'addGameLog', payload: { content, newLine } }, '*');
+			return true;
+		}
+
+		try {
+			if (!this.currentLogFilePath) {
+				const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+				this.currentLogFilePath = `game-log-${timestamp}.txt`;
+			} else if (newLine) {
+				content = '\n' + content;
+			}
+
+			this.app.core.invoke('append_text_file', { fileName: this.currentLogFilePath, content });
+
+			return true;
+		} catch (error) {
+			console.error('Failed to write game log to file:', error);
+			return false;
+		}
+	}
+
+	async openGameLog(): Promise<boolean> {
+		if (!this.app || !this.app.opener || !this.app.path || !this.currentLogFilePath) {
+			window.parent.postMessage({ type: 'openGameLog' }, '*');
+			return false;
+		}
+
+		try {
+			const appLogDir = await this.app.path.appLogDir();
+
+			const fullPath = await this.app.path.resolve(
+				appLogDir,
+				this.currentLogFilePath,
+			);
+
+			console.log(`Opening game log file: ${fullPath}`);
+			await this.app.opener.openPath?.(fullPath);
+			return true;
+		} catch (error) {
+			console.error('Failed to open game log file:', error);
+			return false;
+		}
+	}
+
+	getPackageSource(packageId?: string): string | undefined {
+		return 'https://www.sibrowser.ru'; // Using this source for statistics for now
+	}
+
+	getAlternativePackageSource(): string | undefined {
+		return 'https://steamcommunity.com'; // Packages are also published in Steam Workshop
+	}
+
+	/**
+	 * Upload a workshop package directly to the content service from Rust.
+	 * This avoids transferring large files through the webview.
+	 *
+	 * @param id Workshop item ID
+	 * @param packageName Name for the package
+	 * @param contentServiceUri URI of the content service to upload to
+	 * @param callbacks Upload progress callbacks
+	 * @returns Package URI if successful, null otherwise
+	 */
+	async uploadPackageToContentService(
+		id: string,
+		packageName: string,
+		contentServiceUri: string,
+		callbacks: UploadCallbacks,
+	): Promise<string | null> {
+		const app = this.app;
+		if (!app || !app.core || !app.event) {
+			console.warn('Tauri app core or event module is not available, cannot upload package directly');
+			return null;
+		}
+
+		const itemId = parseInt(id, 10);
+
+		if (isNaN(itemId)) {
+			console.error('Invalid workshop item ID:', id);
+			return null;
+		}
+
+		console.log(`Starting direct upload of workshop item ${itemId} to ${contentServiceUri}`);
+
+		let progressUnlisten: (() => void) | null = null;
+		let resultUnlisten: (() => void) | null = null;
+
+		const cleanup = () => {
+			if (progressUnlisten) {
+				progressUnlisten();
+			}
+			if (resultUnlisten) {
+				resultUnlisten();
+			}
+		};
+
+		try {
+			// Set up event listeners first, before invoking the command
+			const resultPromise = new Promise<string | null>((resolve) => {
+				// We need to set up the listener asynchronously but use the promise synchronously
+				// So we'll use a nested approach
+
+				const setupListeners = async () => {
+					progressUnlisten = await app.event?.listen<UploadProgressPayload>(
+						'upload-progress',
+						(event) => {
+							if (event.payload.progress === 0 && event.payload.loaded === 0) {
+								callbacks.onStartUpload();
+							}
+							callbacks.onUploadProgress(event.payload.progress);
+						}
+					) ?? null;
+
+					resultUnlisten = await app.event?.listen<UploadResultPayload>(
+						'upload-result',
+						(event) => {
+							callbacks.onFinishUpload();
+
+							if (event.payload.success && event.payload.uri) {
+								console.log(`Package uploaded successfully: ${event.payload.uri}`);
+								cleanup();
+								resolve(event.payload.uri);
+							} else {
+								console.error('Package upload failed:', event.payload.error);
+								cleanup();
+								resolve(null);
+							}
+						}
+					) ?? null;
+
+					// Invoke the Rust command to start the upload
+					await app.core?.invoke('upload_workshop_package', {
+						itemId,
+						contentServiceUri,
+						packageName,
+					});
+				};
+
+				setupListeners().catch((error) => {
+					console.error('Failed to set up upload listeners:', error);
+					callbacks.onFinishUpload();
+					cleanup();
+					resolve(null);
+				});
+			});
+
+			return await resultPromise;
+		} catch (error) {
+			console.error('Failed to invoke upload_workshop_package:', error);
+			callbacks.onFinishUpload();
+			cleanup();
+			return null;
+		}
+	}
+}

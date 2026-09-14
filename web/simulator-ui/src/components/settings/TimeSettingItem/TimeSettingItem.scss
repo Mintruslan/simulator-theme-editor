@@ -1,0 +1,43 @@
+@use "../../../scss/variables" as v;
+
+.timeSettingItem {
+	.timeUnit {
+		width: 20px;
+	}
+}
+
+.timeSettingItem.block {
+	height: 150px;
+}
+
+.timeSettingItem .blockName {
+    flex: 0 0 180px;
+}
+
+.timeSettingItem .timeRange {
+	vertical-align: middle;
+	margin-right: 10px;
+	flex: 1;
+}
+
+.timeSettingItem .timeValue {
+	vertical-align: middle;
+	margin-left: 10px;
+	margin-right: 10px;
+	font-size: 16px;
+	width: 75px;
+	color: white;
+	background: #181B64;
+	border: 1px solid #347DFF;
+	border-radius: 10px;;
+}
+
+@media screen and (min-width: 800px) {
+	.timeSettingItem.block {
+		height: 80px;
+	}
+
+	.timeSettingItem .blockName {
+		flex: 0 0 350px;
+	}
+}

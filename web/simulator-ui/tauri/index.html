@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGame</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div id="iframe-container"></div>
+
+    <script>
+        function getCookie(name) {
+            const cookies = document.cookie.split("; ");
+            for (let cookie of cookies) {
+                const [key, value] = cookie.split("=");
+                if (key === name) return value;
+            }
+            return null;
+        }
+
+        // Check if the ACCEPT_LICENSE cookie is set
+        const isLicenseAccepted = getCookie("ACCEPT_LICENSE") !== null;
+
+        // Create and insert the iframe dynamically
+        const iframe = document.createElement("iframe");
+        iframe.title = "Main";
+        iframe.src = `https://sigame.vladimirkhil.com#origin=TAURI&licenseAccepted=${isLicenseAccepted}&clipboardSupported=true&exitSupported=true&logSupported=true`;
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.sandbox = "allow-same-origin allow-scripts";
+
+        document.getElementById("iframe-container").appendChild(iframe);
+    </script>
+  </body>
+</html>

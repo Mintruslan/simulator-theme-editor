@@ -1,0 +1,43 @@
+﻿import Role from '../model/Role';
+import GameType from '../model/GameType';
+import GameInfo from '../model/GameInfo';
+import { SettingsState } from './settingsSlice';
+
+const STATE_KEY = 'SIOnline_State';
+
+export default interface SavedState {
+	login: string;
+
+	game: {
+		name: string;
+		password: string;
+		voiceChat: string;
+		role: Role;
+		type: GameType;
+		playersCount: number;
+	};
+
+	settings: SettingsState;
+	history?: {
+		currentGame: GameInfo | null;
+		gameHistory: GameInfo[];
+	};
+}
+
+export function loadState(): SavedState | null {
+	const savedState = localStorage.getItem(STATE_KEY);
+
+	if (!savedState) {
+		return null;
+	}
+
+	return JSON.parse(savedState);
+}
+
+export function saveState(state: SavedState) {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
+
+	localStorage.setItem(STATE_KEY, JSON.stringify(state));
+}

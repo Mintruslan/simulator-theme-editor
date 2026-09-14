@@ -1,0 +1,34 @@
+.spinnerImg {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.image-host {
+	overflow: hidden;
+	display: flex;
+    justify-content: center;
+	position: relative;
+}
+
+.inGameImg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.inGameImg.animate {
+	animation-name: animateClip;
+	animation-fill-mode: forwards;
+	animation-timing-function: linear;
+}
+
+@keyframes animateClip {
+	100% {
+		clip-path: inset(0 0 0 0);
+		-webkit-clip-path: inset(0 0 0 0);
+	}
+}

@@ -1,0 +1,952 @@
+import React from 'react';
+import { useAppDispatch, useAppSelector } from '../../../../state/hooks';
+import { NumberSet, ContentParam, Question, InfoOwner, SelectionMode, QuestionTypes } from '../../../../model/siquester/package';
+import localization from '../../../../model/resources/localization';
+import {
+	updateQuestionProperty,
+	updateQuestionParam,
+	updateQuestionRightAnswer,
+	updateQuestionWrongAnswer,
+	addQuestionRightAnswer,
+	removeQuestionRightAnswer,
+	addQuestionWrongAnswer,
+	removeQuestionWrongAnswer,
+	setCurrentItem,
+	findItemIndices,
+	updateInfoProperty,
+	addInfoItem,
+	removeInfoItem,
+	removeQuestion,
+	resetQuestion,
+	addAnswerOption,
+	removeAnswerOption,
+	updateAnswerOptionValue,
+	addComplexAnswer,
+} from '../../../../state/siquesterSlice';
+import CollectionEditor from '../../CollectionEditor/CollectionEditor';
+import MediaItem from '../../MediaItem/MediaItem';
+import ScreensView from '../../ScreensView/ScreensView';
+import PointAnswerDialog from './PointAnswerDialog';
+
+interface QuestionItemProps {
+	item: Question;
+	isEditMode: boolean;
+}
+
+const defaultQuestionTypeOptionValue = '__default__';
+const customQuestionTypeOptionValue = '__custom__';
+
+const QuestionItem: React.FC<QuestionItemProps> = ({ item, isEditMode }) => {
+	const dispatch = useAppDispatch();
+	const pack = useAppSelector(state => state.siquester.pack);
+	const question = item;
+	const indices = findItemIndices(pack || null, item);
+	const { answerOptions } = question.params;
+
+	// Check if current question type is a predefined type
+	const predefinedTypes = [
+		QuestionTypes.Simple,
+		QuestionTypes.Stake,
+		QuestionTypes.NoRisk,
+		QuestionTypes.Secret,
+		QuestionTypes.SecretPublicPrice,
+		QuestionTypes.SecretNoQuestion,
+		QuestionTypes.ForAll,
+		QuestionTypes.StakeAll
+	];
+
+	const isCustomType = question.type && !predefinedTypes.includes(question.type);
+	const [isCustomMode, setIsCustomMode] = React.useState(isCustomType);
+	const [customTypeValue, setCustomTypeValue] = React.useState(isCustomType ? question.type : '');
+	const [isPointAnswerDialogOpen, setIsPointAnswerDialogOpen] = React.useState(false);
+	const isVoided = question.price === -1;
+	const hasQuestionIndices = typeof indices.roundIndex === 'number' &&
+		typeof indices.themeIndex === 'number' &&
+		typeof indices.questionIndex === 'number';
+	const pointAnswerImage = React.useMemo(
+		() => question.params.question?.items.find(contentItem => contentItem.type === 'image') ?? null,
+		[question.params.question],
+	);
+	const deleteIconPath =
+		'M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19Z' +
+		'M8 9H16V19H8V9ZM15.5 4L14.5 3H9.5L8.5 4H5V6H19V4H15.5Z';
+	const voidIconPath = isVoided
+		? 'M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM17 13H13V17H11V13H7V11H11V7H13V11H17V13Z'
+		: 'M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM17 13H7V11H17V13Z';
+
+	function getSetAnswererSelect(setAnswererSelect: SelectionMode | undefined): string {
+		switch (setAnswererSelect) {
+			case 'any': return localization.setAnswererSelectAny;
+			case 'exceptCurrent': return localization.setAnswererSelectExceptCurrent;
+			default: return setAnswererSelect || '';
+		}
+	}
+
+	function getQuestionTypeName(type: string): string {
+		switch (type) {
+			case QuestionTypes.Default: return localization.defaultQuestionType;
+			case 'simple': return localization.questionTypeSimple;
+			case 'stake': return localization.questionTypeStake;
+			case 'noRisk': return localization.questionTypeForYourself;
+			case 'secret': return localization.questionTypeSecret;
+			case 'secretPublicPrice': return localization.questionTypeSecretPublicPrice;
+			case 'secretNoQuestion': return localization.questionTypeSecretNoQuestion;
+			case 'forAll': return localization.questionTypeForAll;
+			case 'stakeAll': return localization.questionTypeForAllWithStake;
+			default: return type;
+		}
+	}
+
+	function getNumberSet(numberSet: NumberSet) {
+		if (numberSet.minimum === numberSet.maximum) {
+			if (numberSet.minimum === 0) {
+				return <input aria-label='price' type='text' value={localization.minMaxInRound} readOnly />;
+			}
+
+			return <input aria-label='price' type='number' value={numberSet.minimum} readOnly />;
+		}
+
+		if (numberSet.step === 0 || numberSet.step === numberSet.maximum - numberSet.minimum) {
+			return <>
+				{localization.from}
+				<input aria-label='price' type='text' value={numberSet.minimum} readOnly />
+				{localization.to}
+				<input aria-label='price' type='text' value={numberSet.maximum} readOnly />
+			</>;
+		}
+
+		return <>
+			{localization.from}
+			<input aria-label='price' type='text' value={numberSet.minimum} readOnly />
+			{localization.to}
+			<input aria-label='price' type='text' value={numberSet.maximum} readOnly />
+			{localization.withStep}
+			<input aria-label='price' type='text' value={numberSet.step} readOnly />
+		</>;
+	}
+
+	function getAnswerType(answerType: string): string {
+		switch (answerType) {
+			case 'text': return localization.text;
+			case 'select': return localization.answerTypeSelect;
+			case 'number': return localization.number;
+			case 'point': return localization.answerTypePoint;
+			default: return answerType;
+		}
+	}
+
+	function getInfo(infoOwner: InfoOwner, isEditable = false, itemIndices?: {
+		roundIndex?: number;
+		themeIndex?: number;
+		questionIndex?: number;
+	}): React.ReactNode {
+		const getTargetType = (): 'package' | 'round' | 'theme' | 'question' => {
+			if (typeof itemIndices?.questionIndex === 'number') return 'question';
+			if (typeof itemIndices?.themeIndex === 'number') return 'theme';
+			if (typeof itemIndices?.roundIndex === 'number') return 'round';
+			return 'package';
+		};
+
+		const handleAuthorChange = (authorIndex: number, value: string) => {
+			if (isEditable) {
+				dispatch(updateInfoProperty({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'authors',
+					index: authorIndex,
+					value
+				}));
+			}
+		};
+
+		const handleSourceChange = (sourceIndex: number, value: string) => {
+			if (isEditable) {
+				dispatch(updateInfoProperty({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'sources',
+					index: sourceIndex,
+					value
+				}));
+			}
+		};
+
+		const handleAddAuthor = () => {
+			if (isEditable) {
+				dispatch(addInfoItem({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'authors'
+				}));
+			}
+		};
+
+		const handleRemoveAuthor = (authorIndex: number) => {
+			if (isEditable) {
+				dispatch(removeInfoItem({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'authors',
+					index: authorIndex
+				}));
+			}
+		};
+
+		const handleAddSource = () => {
+			if (isEditable) {
+				dispatch(addInfoItem({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'sources'
+				}));
+			}
+		};
+
+		const handleRemoveSource = (sourceIndex: number) => {
+			if (isEditable) {
+				dispatch(removeInfoItem({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'sources',
+					index: sourceIndex
+				}));
+			}
+		};
+
+		const handleCommentsChange = (value: string) => {
+			if (isEditable) {
+				dispatch(updateInfoProperty({
+					targetType: getTargetType(),
+					roundIndex: itemIndices?.roundIndex,
+					themeIndex: itemIndices?.themeIndex,
+					questionIndex: itemIndices?.questionIndex,
+					property: 'comments',
+					value
+				}));
+			}
+		};
+
+		return <>
+			<CollectionEditor
+				label={localization.authors}
+				items={infoOwner.info?.authors || []}
+				isEditMode={isEditable}
+				className='packageView__info__author'
+				getValue={(author) => author.name}
+				onItemChange={handleAuthorChange}
+				onAddItem={handleAddAuthor}
+				onRemoveItem={handleRemoveAuthor}
+				placeholder={localization.enterAuthorName}
+			/>
+
+			<CollectionEditor
+				label={localization.sources}
+				items={infoOwner.info?.sources || []}
+				isEditMode={isEditable}
+				className='packageView__info__source'
+				getValue={(source) => source.value}
+				onItemChange={handleSourceChange}
+				onAddItem={handleAddSource}
+				onRemoveItem={handleRemoveSource}
+				placeholder={localization.enterSource}
+			/>
+
+			{(infoOwner.info?.comments && infoOwner.info.comments.length > 0) || isEditable
+				? <>
+					<label className='header' htmlFor='comments'>{localization.comments}</label>
+					<textarea
+						id='comments'
+						className='packageView__info__comments'
+						value={infoOwner.info?.comments || ''}
+						readOnly={!isEditable}
+						onChange={(e) => handleCommentsChange(e.target.value)}
+					/>
+				</> : null}
+		</>;
+	}
+
+	const handleQuestionChange = (property: 'price' | 'type', value: string | number) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(updateQuestionProperty({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				property,
+				value
+			}));
+		}
+	};
+
+	const handleQuestionParamChange = (param: string, value: string) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(updateQuestionParam({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				param,
+				value
+			}));
+		}
+	};
+
+	const handleRightAnswerChange = (answerIndex: number, value: string) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(updateQuestionRightAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				answerIndex,
+				value
+			}));
+		}
+	};
+
+	const handleWrongAnswerChange = (answerIndex: number, value: string) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(updateQuestionWrongAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				answerIndex,
+				value
+			}));
+		}
+	};
+
+	const handleAddRightAnswer = () => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(addQuestionRightAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex
+			}));
+		}
+	};
+
+	const handleRemoveRightAnswer = (answerIndex: number) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(removeQuestionRightAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				answerIndex
+			}));
+		}
+	};
+
+	const handleAddWrongAnswer = () => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(addQuestionWrongAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex
+			}));
+		}
+	};
+
+	const handleRemoveWrongAnswer = (answerIndex: number) => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(removeQuestionWrongAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex,
+				answerIndex
+			}));
+		}
+	};
+	const handleAddComplexAnswer = () => {
+		if (isEditMode && indices.roundIndex !== undefined && indices.themeIndex !== undefined && indices.questionIndex !== undefined) {
+			dispatch(addComplexAnswer({
+				roundIndex: indices.roundIndex,
+				themeIndex: indices.themeIndex,
+				questionIndex: indices.questionIndex
+			}));
+		}
+	};
+
+	const handlePointAnswerApply = (value: string, answerDeviation: string) => {
+		if (question.right.answer.length === 0) {
+			handleAddRightAnswer();
+		}
+
+		handleRightAnswerChange(0, value);
+		handleQuestionParamChange('answerDeviation', answerDeviation);
+		setIsPointAnswerDialogOpen(false);
+	};
+
+	let rightAnswersEditor: React.ReactNode;
+
+	if (question.params.answerType === 'point' && isEditMode) {
+		rightAnswersEditor = <>
+			<label htmlFor='pointAnswer' className='header'>{localization.rightAnswers}</label>
+			<div className='packageView__pointAnswer'>
+				<input
+					id='pointAnswer'
+					type='text'
+					value={question.right.answer[0] || ''}
+					readOnly
+					placeholder={localization.pointAnswerHint}
+				/>
+				<button
+					type='button'
+					className='standard packageView__pointAnswerButton'
+					onClick={() => setIsPointAnswerDialogOpen(true)}
+					disabled={!pointAnswerImage}
+				>
+					{localization.pointAnswerSet}
+				</button>
+			</div>
+			{!pointAnswerImage ? (
+				<div className='packageView__pointAnswerHint'>{localization.pointAnswerNoImage}</div>
+			) : null}
+		</>;
+	} else if (answerOptions && isEditMode && question.right.answer.length === 1) {
+		rightAnswersEditor = <>
+			<label htmlFor='name' className='header'>{localization.rightAnswers}</label>
+			<select
+				aria-label='right answer'
+				className='packageView__info__answer'
+				value={question.right.answer[0]}
+				onChange={(e) => handleRightAnswerChange(0, e.target.value)}
+			>
+				{Object.keys(answerOptions).map((key) => (
+					<option key={key} value={key}>{key}</option>
+				))}
+			</select>
+		</>;
+	} else {
+		rightAnswersEditor = <CollectionEditor
+			label={localization.rightAnswers}
+			items={question.right.answer}
+			isEditMode={isEditMode}
+			className='packageView__info__answer'
+			getValue={(answer) => answer}
+			onItemChange={handleRightAnswerChange}
+			onAddItem={handleAddRightAnswer}
+			onRemoveItem={handleRemoveRightAnswer}
+			placeholder={localization.enterAnswer}
+			preventDeleteLast={true}
+		/>;
+	}
+
+	const handleQuestionTypeChange = (value: string) => {
+		if (value === customQuestionTypeOptionValue) {
+			setIsCustomMode(true);
+			// Don't change the actual question type yet, wait for custom input
+		} else if (value === defaultQuestionTypeOptionValue) {
+			setIsCustomMode(false);
+			setCustomTypeValue('');
+			handleQuestionChange('type', QuestionTypes.Default);
+		} else {
+			setIsCustomMode(false);
+			setCustomTypeValue('');
+			handleQuestionChange('type', value);
+		}
+	};
+
+	const handleCustomTypeChange = (value: string) => {
+		setCustomTypeValue(value);
+		if (value.trim()) {
+			handleQuestionChange('type', value.trim());
+		}
+	};
+
+	const handleResetQuestion = () => {
+		if (hasQuestionIndices) {
+			const roundIndex = indices.roundIndex as number;
+			const themeIndex = indices.themeIndex as number;
+			const questionIndex = indices.questionIndex as number;
+
+			dispatch(resetQuestion({
+				roundIndex,
+				themeIndex,
+				questionIndex,
+			}));
+		}
+	};
+
+	const handleRemoveQuestion = () => {
+		if (hasQuestionIndices) {
+			const roundIndex = indices.roundIndex as number;
+			const themeIndex = indices.themeIndex as number;
+			const questionIndex = indices.questionIndex as number;
+
+			dispatch(removeQuestion({
+				roundIndex,
+				themeIndex,
+				questionIndex,
+			}));
+		}
+	};
+
+	return (
+		<div className='info packageView__question__info'>
+			{isPointAnswerDialogOpen && pointAnswerImage ? (
+				<PointAnswerDialog
+					answer={question.right.answer[0]}
+					deviation={question.params.answerDeviation}
+					src={pointAnswerImage.value}
+					isRef={pointAnswerImage.isRef}
+					onApply={handlePointAnswerApply}
+					onClose={() => setIsPointAnswerDialogOpen(false)}
+				/>
+			) : null}
+
+			<header>
+				<div className='main__header'>{localization.question}</div>
+				{isEditMode && hasQuestionIndices && (
+					<>
+						<button
+							type='button'
+							className='packageView__void-button'
+							onClick={handleResetQuestion}
+							title={isVoided ? localization.unvoid : localization.voidQuestion}
+							aria-label={isVoided ? localization.unvoid : localization.voidQuestion}
+						>
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d={voidIconPath} fill="currentColor" />
+							</svg>
+						</button>
+						<button
+							type='button'
+							className='packageView__delete-button'
+							onClick={handleRemoveQuestion}
+							title={localization.delete}
+							aria-label={localization.delete}
+						>
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d={deleteIconPath} fill="currentColor" />
+							</svg>
+						</button>
+					</>
+				)}
+				<button
+					type='button'
+					className='standard'
+					onClick={() => dispatch(setCurrentItem({ isPackageSelected: false }))}
+				>
+					{localization.close}
+				</button>
+			</header>
+
+			<section className='info__content'>
+				{question.price > -1
+					? <>
+						<label htmlFor='price' className='header'>{localization.price}</label>
+						<input
+							id='price'
+							type='number'
+							className='packageView__question__info__price'
+							value={question.price}
+							readOnly={!isEditMode}
+							onChange={(e) => handleQuestionChange('price', parseInt(e.target.value, 10) || 0)}
+						/>
+
+						{question.type || isEditMode
+							? <>
+								<label htmlFor='type' className='header'>{localization.type}</label>
+
+								{isEditMode ? (
+									<>
+										<select
+											id='type'
+											className='packageView__question__type'
+											value={isCustomMode ? customQuestionTypeOptionValue : (question.type || defaultQuestionTypeOptionValue)}
+											onChange={(e) => handleQuestionTypeChange(e.target.value)}
+										>
+											<option value={defaultQuestionTypeOptionValue}>{localization.defaultQuestionType}</option>
+											<option value={QuestionTypes.Simple}>{localization.questionTypeSimple}</option>
+											<option value={QuestionTypes.Stake}>{localization.questionTypeStake}</option>
+											<option value={QuestionTypes.NoRisk}>{localization.questionTypeForYourself}</option>
+											<option value={QuestionTypes.Secret}>{localization.questionTypeSecret}</option>
+											<option value={QuestionTypes.SecretPublicPrice}>{localization.questionTypeSecretPublicPrice}</option>
+											<option value={QuestionTypes.SecretNoQuestion}>{localization.questionTypeSecretNoQuestion}</option>
+											<option value={QuestionTypes.ForAll}>{localization.questionTypeForAll}</option>
+											<option value={QuestionTypes.StakeAll}>{localization.questionTypeForAllWithStake}</option>
+											<option value={customQuestionTypeOptionValue}>{localization.customQuestionType}</option>
+										</select>
+
+										{isCustomMode && (
+											<input
+												type='text'
+												className='packageView__question__customType'
+												placeholder={localization.enterCustomQuestionType}
+												value={customTypeValue}
+												onChange={(e) => handleCustomTypeChange(e.target.value)}
+											/>
+										)}
+									</>
+								) : (
+									<input
+										id='type'
+										type='text'
+										className='packageView__question__type'
+										value={getQuestionTypeName(question.type ?? '')}
+										readOnly
+									/>
+								)}
+							</>
+							: null}
+
+						{question.params.theme || (
+							isEditMode && (
+								question.type === QuestionTypes.Secret ||
+								question.type === QuestionTypes.SecretPublicPrice
+							)
+						)
+							? <>
+								<label htmlFor='theme' className='header'>{localization.theme}</label>
+								<input
+									id='theme'
+									type='text'
+									value={question.params.theme || ''}
+									readOnly={!isEditMode}
+									onChange={(e) => handleQuestionParamChange('theme', e.target.value)}
+								/>
+							</>
+							: null}
+
+						{question.params.selectionMode || (
+							isEditMode && (
+								question.type === QuestionTypes.Secret ||
+								question.type === QuestionTypes.SecretPublicPrice
+							)
+						)
+							? <>
+								<label htmlFor='selectionMode' className='header'>{localization.selectionMode}</label>
+
+								{isEditMode ? (
+									<select
+										id='selectionMode'
+										value={question.params.selectionMode || ''}
+										onChange={(e) => handleQuestionParamChange('selectionMode', e.target.value)}
+									>
+										<option value='any'>{localization.setAnswererSelectAny}</option>
+										<option value='exceptCurrent'>{localization.setAnswererSelectExceptCurrent}</option>
+									</select>
+								) : (
+									<input
+										id='selectionMode'
+										type='text'
+										value={getSetAnswererSelect(question.params.selectionMode)}
+										readOnly={!isEditMode}
+										onChange={(e) => handleQuestionParamChange('selectionMode', e.target.value)}
+									/>
+								)}
+							</>
+							: null}
+
+						{question.params.price?.numberSet
+							? <>
+								<label htmlFor='price' className='header'>{localization.price}</label>
+								{getNumberSet(question.params.price.numberSet)}
+							</>
+							: null}
+
+						{question.type !== 'secretNoQuestion'
+							? <>
+								<label htmlFor='name' className='header'>{localization.screens}</label>
+
+								{question.params.question ? <ScreensView
+									content={question.params.question}
+									isEditMode={isEditMode}
+									roundIndex={indices.roundIndex}
+									themeIndex={indices.themeIndex}
+									questionIndex={indices.questionIndex}
+									paramName="question"
+								/> : null}
+
+								{question.params.answerType || isEditMode
+									? <>
+										<label htmlFor='answerType' className='header'>{localization.answerType}</label>
+										{isEditMode ? (
+											<select
+												id='answerType'
+												className='packageView__question__answerType'
+												value={question.params.answerType || 'text'}
+												onChange={(e) => handleQuestionParamChange('answerType', e.target.value)}
+											>
+												<option value='text'>{localization.text}</option>
+												<option value='select'>{localization.answerTypeSelect}</option>
+												<option value='number'>{localization.number}</option>
+												<option value='point'>{localization.answerTypePoint}</option>
+											</select>
+										) : (
+											<input id='answerType' type='text' value={getAnswerType(question.params.answerType || 'text')} readOnly />
+										)}
+									</>
+									: null}
+
+								{answerOptions || (isEditMode && (question.params.answerType === 'select'))
+									? <>
+										<label htmlFor='name' className='header'>{localization.answerOptions}</label>
+
+										{answerOptions ? Object.keys(answerOptions).map((key, ii) => {
+											const option = answerOptions[key] as ContentParam;
+											const [firstItem] = option.items || [];
+
+											if (!firstItem) {
+												return (
+													<div key={key} className='packageView__answer__option__host'>
+														<div className='packageView__answer__option__label'>{key}</div>
+														<input
+															aria-label='content'
+															className='packageView__answer__option'
+															value=""
+															readOnly={!isEditMode}
+															onChange={(e) => {
+																if (isEditMode &&
+																	indices.roundIndex !== undefined &&
+																	indices.themeIndex !== undefined &&
+																	indices.questionIndex !== undefined) {
+																	dispatch(updateAnswerOptionValue({
+																		roundIndex: indices.roundIndex,
+																		themeIndex: indices.themeIndex,
+																		questionIndex: indices.questionIndex,
+																		key,
+																		value: e.target.value,
+																	}));
+																}
+															}}
+														/>
+														{isEditMode ? (
+															<button
+																type='button'
+																className='packageView__answer__option__remove'
+																onClick={() => {
+																	if (indices.roundIndex !== undefined &&
+																		indices.themeIndex !== undefined &&
+																		indices.questionIndex !== undefined) {
+																		dispatch(removeAnswerOption({
+																			roundIndex: indices.roundIndex,
+																			themeIndex: indices.themeIndex,
+																			questionIndex: indices.questionIndex,
+																			key,
+																		}));
+																	}
+																}}
+																title={localization.removeOption}
+																aria-label={localization.removeOption}
+															>✕</button>
+														) : null}
+													</div>
+												);
+											}
+
+											const renderAnswerOptionContent = () => {
+												switch (firstItem.type) {
+													case 'image': {
+														return (
+															<div className='packageView__answer__option__image'>
+																<MediaItem
+																	src={firstItem.value}
+																	type='image'
+																	isRef={firstItem.isRef}
+																/>
+															</div>
+														);
+													}
+
+													default:
+														return (
+															<input
+																aria-label='content'
+																key={ii}
+																className='packageView__answer__option'
+																value={firstItem.value}
+																readOnly={!isEditMode}
+																onChange={(e) => {
+																	if (isEditMode &&
+																		indices.roundIndex !== undefined &&
+																		indices.themeIndex !== undefined &&
+																		indices.questionIndex !== undefined) {
+																		dispatch(updateAnswerOptionValue({
+																			roundIndex: indices.roundIndex,
+																			themeIndex: indices.themeIndex,
+																			questionIndex: indices.questionIndex,
+																			key,
+																			value: e.target.value,
+																		}));
+																	}
+																}}
+															/>
+														);
+												}
+											};
+
+											return (
+												<div key={key} className='packageView__answer__option__host'>
+													<div className='packageView__answer__option__label'>{key}</div>
+													{renderAnswerOptionContent()}
+													{isEditMode ? (
+														<button
+															type='button'
+															className='packageView__answer__option__remove'
+															onClick={() => {
+																if (indices.roundIndex !== undefined &&
+																	indices.themeIndex !== undefined &&
+																	indices.questionIndex !== undefined) {
+																	dispatch(removeAnswerOption({
+																		roundIndex: indices.roundIndex,
+																		themeIndex: indices.themeIndex,
+																		questionIndex: indices.questionIndex,
+																		key,
+																	}));
+																}
+															}}
+															title={localization.removeOption}
+															aria-label={localization.removeOption}
+														>✕</button>
+													) : null}
+												</div>
+											);
+										}) : null}
+
+										{isEditMode ? (
+											<button
+												type='button'
+												className='packageView__answer__option__add'
+												onClick={() => {
+													if (indices.roundIndex !== undefined &&
+														indices.themeIndex !== undefined &&
+														indices.questionIndex !== undefined) {
+														dispatch(addAnswerOption({
+															roundIndex: indices.roundIndex,
+															themeIndex: indices.themeIndex,
+															questionIndex: indices.questionIndex,
+														}));
+													}
+												}}
+												title={localization.addOption}
+												aria-label={localization.addOption}
+											>+</button>
+										) : null}
+									</>
+									: null}
+
+								{isEditMode && (
+									<label className='header packageView__question__checkboxLabel'>
+										<input
+											type='checkbox'
+											checked={!!question.params.answerDuration}
+											onChange={(e) => {
+												if (e.target.checked) {
+													handleQuestionParamChange('answerDuration', '30');
+												} else {
+													handleQuestionParamChange('answerDuration', '');
+												}
+											}}
+										/>
+										{localization.answerDuration}
+									</label>
+								)}
+
+								{!isEditMode && question.params.answerDuration ? (
+									<label className='header'>{localization.answerDuration}</label>
+								) : null}
+
+								{question.params.answerDuration ? (
+									<input
+										type='number'
+										min={1}
+										max={120}
+										value={question.params.answerDuration}
+										aria-label={localization.answerDuration}
+										readOnly={!isEditMode}
+										onChange={(e) => handleQuestionParamChange('answerDuration', e.target.value)}
+									/>
+								) : null}
+
+								{question.params.answer
+									? <>
+										<label htmlFor='name' className='header'>{localization.answer}</label>
+										<ScreensView
+											content={question.params.answer}
+											isEditMode={isEditMode}
+											roundIndex={indices.roundIndex}
+											themeIndex={indices.themeIndex}
+											questionIndex={indices.questionIndex}
+											paramName="answer"
+										/>
+									</>
+									: null}
+
+								{isEditMode && !question.params.answer ? (
+									<button
+										type='button'
+										className='packageView__answer__add'
+										onClick={handleAddComplexAnswer}
+										title={localization.addComplexAnswer}
+										aria-label={localization.addComplexAnswer}
+									>
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path
+												d={
+													'M12 16L1 9L12 2L23 9L12 16Z' +
+													'M12 18.5L2 12.06L1 12.68L12 19.68L23 12.68L22 12.06L12 18.5Z' +
+													'M12 21L2 14.56L1 15.18L12 22.18L23 15.18L22 14.56L12 21Z'
+												}
+												fill="currentColor"
+											/>
+										</svg>
+									</button>
+								) : null}
+
+									{rightAnswersEditor}
+
+								{(question.params.answerType === 'number' ||
+									question.params.answerType === 'point')
+									? <>
+										<label htmlFor='answerDeviation' className='header'>
+											{localization.answerDeviation}
+										</label>
+										<input
+											id='answerDeviation'
+											type='number'
+											step='any'
+											value={question.params.answerDeviation ?? ''}
+											readOnly={!isEditMode}
+											onChange={(e) => handleQuestionParamChange('answerDeviation', e.target.value)}
+										/>
+									</>
+									: null}
+
+								{(question.wrong && question.wrong.answer.length > 0) || isEditMode ? (
+									<CollectionEditor
+										label={localization.wrongAnswers}
+										items={question.wrong?.answer || []}
+										isEditMode={isEditMode}
+										className='packageView__info__answer'
+										getValue={(answer) => answer}
+										onItemChange={handleWrongAnswerChange}
+										onAddItem={handleAddWrongAnswer}
+										onRemoveItem={handleRemoveWrongAnswer}
+										placeholder={localization.enterWrongAnswer}
+									/>
+								) : null}
+							</>
+							: null
+						}
+					</>
+					: null
+				}
+
+				{getInfo(question, isEditMode, indices)}
+			</section>
+		</div>
+	);
+};
+
+export default QuestionItem;

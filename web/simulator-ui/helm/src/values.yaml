@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: vladimirkhil/sionline
+  tag: 1.9.3
+  pullPolicy: IfNotPresent
+
+nginxPrometheusExporter:
+  tag: 0.11.0
+  port: 9113
+  resources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: nginx
+  pathType: ImplementationSpecific
+  hosts: []
+  tls: []
+
+resources: {}
+
+config:
+  serverDiscoveryUri: 'https://vladimirkhil.com/api/si/servers'
+  rootUri: '/'
+  ads: '<b>Test ad</b>'
+  onLoad: console.log('SIGame successfully loaded!');
+  rewriteUrl: true
+  forceHttps: true
+  registerServiceWorker: false
+  enableNoSleep: false
+  askForConsent: false
+  siStatisticsServiceUri: 'https://vladimirkhil.com/sistatistics'
+  appRegistryServiceUri: 'https://vladimirkhil.com/appregistry'

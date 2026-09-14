@@ -1,0 +1,103 @@
+#table .tableBorder {
+	flex-grow: 1;
+	border: 14px solid transparent;
+	--border-edge-opacity: 0.5;
+	--border-center-opacity: 1;
+}
+
+#table .tableBorderCentered {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-grow: 1;
+}
+
+.tableBorder .topBorder,
+.tableBorder .rightBorder,
+.tableBorder .bottomBorder,
+.tableBorder .leftBorder {
+	position: absolute;
+    border-radius: 4px;
+}
+
+.tableBorder .topBorder {
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	height: 10px;
+	pointer-events: none;
+}
+
+.tableBorder .rightBorder {
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 10px;
+	pointer-events: none;
+}
+
+.tableBorder .bottomBorder {
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	height: 10px;
+	pointer-events: none;
+}
+
+.tableBorder .leftBorder {
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 10px;
+	pointer-events: none;
+}
+
+.tableBorder .topBorder.animate,
+.tableBorder .bottomBorder.animate {
+	animation: animateWidth linear forwards;
+}
+
+.tableBorder .leftBorder.animate,
+.tableBorder .rightBorder.animate {
+	animation: animateHeight linear forwards;
+}
+
+.tableBorder .topBorder.shrinking,
+.tableBorder .bottomBorder.shrinking {
+	-webkit-mask-image: linear-gradient(to left,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 0%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 20%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 80%,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 100%);
+	mask-image: linear-gradient(to left,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 0%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 20%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 80%,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 100%);
+}
+
+.tableBorder .leftBorder.shrinking,
+.tableBorder .rightBorder.shrinking {
+	-webkit-mask-image: linear-gradient(to top,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 0%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 20%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 80%,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 100%);
+	mask-image: linear-gradient(to top,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 0%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 20%,
+		rgba(0, 0, 0, var(--border-center-opacity)) 80%,
+		rgba(0, 0, 0, var(--border-edge-opacity)) 100%);
+}
+
+@keyframes animateWidth {
+	100% {
+		width: 0;
+	}
+}
+
+@keyframes animateHeight {
+	100% {
+		height: 0;
+	}
+}

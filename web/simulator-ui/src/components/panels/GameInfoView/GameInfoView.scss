@@ -1,0 +1,273 @@
+.gameinfoHost {
+    flex: 1;
+    overflow: hidden;
+}
+
+.gameinfo {
+    height: 100%;
+    padding: 20px 0 0 0;
+    position: relative;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+
+    .info__block {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: normal;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .rules {
+        .rule {
+            background-color: #2649FF;
+            margin-top: 8px;
+            margin-right: 8px;
+            padding: 2px 20px;
+            border-radius: 5px;
+        }
+    }
+
+    .players {
+        span {
+            margin-left: 5px;
+            margin-top: 8px;
+            margin-right: 8px;
+            font-size: 17px;
+            vertical-align: middle;
+        }
+
+        img {
+            width: 25px;
+            margin-right: 5px;
+            margin-top: 8px;
+        }
+
+        .player {
+            background-color: darkorange;
+            margin-top: 8px;
+            margin-right: 8px;
+            padding: 2px 20px;
+            border-radius: 5px;
+        }
+    }
+}
+
+.gameinfo h1 {
+    margin-top: 0;
+    font-size: 36px;
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.maininfo {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    padding-left: 20px;
+    flex: 1;
+    margin-bottom: 20px;
+}
+
+.gameinfoHost .language {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.gameinfoHost dt {
+    font-size: 14px;
+    font-weight: normal;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.gameinfoHost dt img {
+    width: 25px;
+    margin-right: 5px;
+}
+
+.gameinfoHost dt span {
+    margin-left: 5px;
+    margin-top: 2px;
+    font-size: 17px;
+    vertical-align: middle;
+}
+
+.gameinfoHost dd {
+    font-size: 17px;
+    font-weight: bold;
+    color: rgb(222, 206, 108);
+}
+
+.innerinfo {
+    font-size: 11pt;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.innerinfo dt {
+    margin-top: 10px;
+}
+
+.gameInfoBlocks {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.gameInfoBlock {
+    text-align: center;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding-left: 40px;
+    padding-right: 40px;
+
+    &.gameInfoBlock--name {
+        flex-wrap: nowrap;
+        text-align: left;
+
+        >span {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+    }
+
+    .gameInfoBlock__header {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: end;
+        gap: 2px;
+    }
+}
+
+.gameInfoBlock span {
+    display: block;
+    margin-right: 10px;
+}
+
+.gameInfoBlock input.gameInfoBlock__input {
+    flex: 1;
+    font-size: 20px;
+    width: calc(100% - 30px);
+    max-width: initial;
+    display: block;
+    margin: 5px 15px;
+    padding: 2px 5px;
+    background: #181B64;
+    color: white;
+    border: 1px solid #347DFF;
+    border-radius: 5px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.joinGameProgress {
+    position: absolute;
+    display: flex;
+    top: 6px;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    justify-content: center;
+    animation: joinfadein 2s;
+}
+
+@keyframes joinfadein {
+    from {
+        background-color: transparent;
+    }
+
+    to {
+        background-color: #00000055;
+    }
+}
+
+.joinGameProgress .progress {
+    position: static;
+}
+
+.actions button.join {
+    font-size: 22px;
+    line-height: 22px;
+    height: 45px;
+    padding: 7pt 2px;
+    margin: 0 2px;
+}
+
+@media screen and (min-width: 800px) {
+    .gameInfo_close {
+        display: none;
+    }
+
+    .gameInfoBlocks {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .gameInfoBlock {
+        left: 300px;
+        right: 295px;
+    }
+
+    .gameInfoBlock input.gameInfoBlock__input {
+        display: inline;
+        width: initial;
+    }
+
+    .actions {
+        left: 300px;
+        right: 300px;
+        z-index: 0;
+    }
+
+    .joinGameProgress {
+        top: 0;
+    }
+
+    .actions button.join {
+        font-size: 20px;
+        line-height: 20px;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    .join {
+        font-size: 25px;
+        line-height: 25px;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    .gameinfoHost dt {
+        font-size: 18px;
+    }
+
+    .gameinfoHost dt span {
+        font-size: 22px;
+    }
+
+    .gameinfoHost dd {
+        font-size: 22px;
+    }
+
+    .innerinfo dt {
+        margin-top: 20px;
+    }
+
+    .actions button.join {
+        font-size: 24px;
+        line-height: 24px;
+    }
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGame</title>
+    <meta name="theme-color" content="#FFFFFF"/>
+    <link rel="manifest" href="../assets/manifest/manifest.json" crossorigin="use-credentials" />
+    <link rel="apple-touch-icon" href="../assets/images/sigame.png" />
+    <script>
+        window.addEventListener("error", (event) => {
+            if (event.target && event.target.tagName === "SCRIPT" && !event.target.src.startsWith("https://www.googletagmanager.com/")) {
+                alert("Script loading error: " + event.target.src);
+            }
+        }, true);
+    </script>
+</head>
+<body>
+    <div id="reactHost"></div>
+</body>
+</html>

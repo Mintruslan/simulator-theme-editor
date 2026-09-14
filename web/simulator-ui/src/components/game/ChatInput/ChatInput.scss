@@ -1,0 +1,52 @@
+@use '../../../scss/variables' as v;
+
+input.disconnected {
+    color: gray;
+}
+
+.roomChatBodyHost {
+    position: relative;
+    display: flex;
+    flex: 0 0 45px;
+
+    .roomChatInput {
+        position: relative;
+        flex: 1;
+        padding: 5px;
+        display: flex;
+    }
+}
+
+.roomChatBodyHost .pickerWrapper {
+    bottom: 5px;
+    right: 5px;
+}
+
+.gameInputBox {
+    max-width: none;
+    width: 100%;
+    flex: 1;
+    margin: 0;
+    height: 45px;
+    top: 0;
+    color: white;
+    background: #05061F;
+    border: 1px solid #222084;
+    border-radius: 10px;
+    font-size: 16px;
+    padding-left: 10px;
+    padding-right: 47px;
+    box-sizing: border-box;
+    pointer-events: initial;
+}
+
+.gameInputBox::placeholder {
+    color: lightgray;
+}
+
+@media screen and (min-width: 800px) {
+    .roomChatBodyHost {
+        flex: initial;
+        width: calc(100% - 5px);
+    }
+}

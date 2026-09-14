@@ -1,0 +1,436 @@
+@use '../../../scss/variables' as v;
+
+// Player answer overlay styling (matches AnswerValidationBody)
+.playerAvatar .playerAnswerOverlay {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	z-index: 2;
+}
+
+
+.playerAvatar .playerAnswerOverlayText {
+	width: 100%;
+	height: 100%;
+	display: flex !important;
+	overflow: hidden;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-weight: bold;
+	padding: 12px 16px;
+	border-radius: 6px;
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+	animation: answerPulse 0.5s ease-out 0.2s backwards;
+	white-space: pre-wrap;
+	word-break: break-word;
+	flex: 1;
+	margin: 5px;
+}
+
+@keyframes answerPulse {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.gamePlayer {
+	.preload__progress {
+		position: absolute;
+		top: 5px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 80%;
+		z-index: 5;
+		height: 16px;
+		background: rgba(0, 0, 0, 0.4);
+		border-radius: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.preload__bar {
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		background: linear-gradient(90deg, rgba(76, 175, 80, 0.8), rgba(46, 125, 50, 0.8));
+		border-radius: 10px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		transition: width 0.3s ease;
+	}
+
+	.preload__text {
+		position: relative;
+		z-index: 10;
+		color: white;
+		font-size: 10px;
+		font-weight: bold;
+		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+		white-space: nowrap;
+	}
+}
+
+.playerInfo .name,
+.playerInfo .sum {
+	position: relative;
+	display: block;
+	margin: 0 1px;
+	padding: 1px 0;
+}
+
+.stake {
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+}
+
+.stakeHost {
+	flex: 0 0 20px;
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+
+	@media screen and (min-width: 800px) {
+		flex: 0 0 25px;
+	}
+}
+
+.stakeHost .answer {
+	color: orange;
+	margin-left: 5px;
+	font-size: larger;
+	overflow: hidden;
+}
+
+.playerInfo .sum,
+.stakeHost {
+	text-align: center;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.playerInfo .nameValue {
+	display: flex;
+	overflow: hidden;
+	justify-content: center;
+	align-items: center;
+	white-space: nowrap;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+}
+
+.gamePlayer .playerReplic {
+	position: absolute;
+	top: 0;
+	width: 200px;
+	left: 100%;
+	height: 100%;
+	padding: 5px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 1.0);
+	z-index: 3;
+	animation: replicfadein 1s;
+	border-radius: 30px;
+}
+
+@keyframes replicfadein {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.gamePlayer .playerReplicText {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.gamePlayer .replicLink {
+	position: absolute;
+	left: -5px;
+	width: 10px;
+	height: 10px;
+	z-index: 1;
+	background: #1634CF;
+	transform: rotate(135deg);
+	box-shadow: 12px 11px 10px -4px black;
+}
+
+.playerAvatar {
+	height: 100%;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	overflow: hidden;
+	min-width: 10px;
+	flex: 0.3;
+	position: relative;
+}
+
+.playerAvatar iframe {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.gamePlayer {
+	background-color: transparent;
+	transition: background-color 1s, opacity 1s;
+}
+
+.playerCard {
+	position: relative;
+	border-radius: 10px;
+	background: linear-gradient(135deg, rgba(20, 24, 62, 0.4), rgba(5, 6, 31, 0.6));
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	background-clip: padding-box;
+	isolation: isolate;
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	transition: background 0.3s, border-color 0.3s, transform 0.2s;
+}
+
+.playerCard__top {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 24px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 10;
+	opacity: 0.5;
+
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.playerCard__top .progress {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 10px 10px 0 0;
+	padding: 0;
+	margin: 0;
+}
+
+.playerCard__top .progress-bar {
+	height: 100%;
+	background: linear-gradient(90deg, #ff8c00, #ff4500);
+	border-radius: 10px 10px 0 0;
+	transition: width 0.1s linear;
+}
+
+.gamePlayers .playerCard.state_press {
+	background: linear-gradient(135deg, rgba(236, 232, 164, 0.75), rgba(182, 170, 67, 0.95)) !important;
+	border-color: rgba(236, 232, 164, 0.95) !important;
+	box-shadow: 0 0 10px rgba(236, 232, 164, 0.8), inset 0 0 0 1px rgba(236, 232, 164, 0.6);
+}
+
+.gamePlayers .playerCard.state_lost {
+	background: linear-gradient(135deg, rgba(255, 152, 0, 0.75), rgba(245, 124, 0, 0.95)) !important;
+	border-color: rgba(255, 152, 0, 0.95) !important;
+	box-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
+}
+
+.gamePlayers .playerCard.state_right {
+	background: linear-gradient(135deg, rgba(76, 175, 80, 0.75), rgba(46, 125, 50, 0.95)) !important;
+	border-color: rgba(76, 175, 80, 0.95) !important;
+	box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.gamePlayers .playerCard.state_wrong {
+	background: linear-gradient(135deg, rgba(244, 67, 54, 0.75), rgba(198, 40, 40, 0.95)) !important;
+	border-color: rgba(244, 67, 54, 0.95) !important;
+	box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
+
+.gamePlayers .playerCard.state_hasanswered {
+	background: linear-gradient(135deg, rgba(156, 39, 176, 0.75), rgba(123, 31, 162, 0.95)) !important;
+	border-color: rgba(156, 39, 176, 0.95) !important;
+	box-shadow: 0 0 8px rgba(156, 39, 176, 0.6);
+}
+
+.gamePlayers .playerCard.state_pass {
+	background: linear-gradient(135deg, rgba(96, 125, 139, 0.75), rgba(69, 90, 100, 0.95)) !important;
+	border-color: rgba(96, 125, 139, 0.95) !important;
+	box-shadow: 0 0 8px rgba(96, 125, 139, 0.6);
+}
+
+.gamePlayers .playerCard.out_of_game {
+	opacity: 0.5;
+}
+
+.gamePlayers .playerCard.selectable {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+	border-color: white;
+}
+
+.gamePlayers .playerCard.selectable:hover {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2)) !important;
+	cursor: pointer;
+}
+
+.playerInfo .numericTextBox {
+	font-size: smaller;
+	width: 100%;
+}
+
+.marksArea {
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+	z-index: 5;
+}
+
+.marksArea>div,
+.marksArea>span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+	color: white;
+}
+
+.marksArea svg {
+	width: 10px;
+	height: 10px;
+}
+
+.readyMark {
+	background: linear-gradient(135deg, #4caf50, #2e7d32);
+	border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.chooserMark {
+	background: linear-gradient(135deg, #2196f3, #1565c0);
+	border: 1px solid rgba(33, 150, 243, 0.5);
+	color: white;
+}
+
+.mediaLoadedMark {
+	background: linear-gradient(135deg, #4caf50, #2e7d32);
+	border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.appellationMark {
+	background: linear-gradient(135deg, rgba(255, 107, 107, 0.9), rgba(255, 68, 68, 0.9));
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	font-weight: bold;
+	font-size: 13px;
+	border-radius: 4px !important;
+}
+
+.playerInfo .staticSum {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	background: #05061F;
+	border: 2px solid #14183E;
+	border-radius: 5px;
+}
+
+.playerInfo .sum {
+	font-size: 15px;
+}
+
+@media screen and (max-width: 1100px) {
+	.marksArea {
+		top: 5px;
+		bottom: auto;
+		left: 5px;
+		right: auto;
+	}
+
+	.playerAvatar .playerAnswerOverlayText {
+		padding: 6px 8px;
+		margin: 2px;
+	}
+}
+
+@media screen and (min-width: 1100px) and (min-height: 600px) {
+	.stakeHost {
+		flex: 0 0 28px;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 16px;
+	}
+
+	.playerInfo .sum {
+		font-size: 15px !important;
+	}
+}
+
+@media screen and (min-width: 1600px) and (min-height: 900px) {
+	.playerInfo .sum {
+		font-size: 20px !important;
+	}
+}
+
+.personName {
+	display: inline;
+	white-space: nowrap;
+
+	.steamIcon {
+		height: 18px;
+		width: 18px;
+		margin-right: 4px;
+		object-fit: contain;
+	}
+}

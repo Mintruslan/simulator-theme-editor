@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sionline.fullname" . }}
+data:
+  config.js: |
+    config = {
+      serverDiscoveryUri: '{{ .Values.config.serverDiscoveryUri }}',
+      rootUri: '{{ .Values.config.rootUri }}',
+      ads: '{{ .Values.config.ads }}',
+      rewriteUrl: {{ .Values.config.rewriteUrl }},
+      forceHttps: {{ .Values.config.forceHttps }},
+      registerServiceWorker: {{ .Values.config.registerServiceWorker }},
+      enableNoSleep: {{ .Values.config.enableNoSleep }},
+      askForConsent: {{ .Values.config.askForConsent }},
+      siStatisticsServiceUri: '{{ .Values.config.siStatisticsServiceUri }}',
+      appRegistryServiceUri: '{{ .Values.config.appRegistryServiceUri }}',
+    };
+
+{{ if .Values.firebase }}
+    firebaseConfig = {
+      apiKey: '{{ .Values.firebase.apiKey }}',
+      authDomain: '{{ .Values.firebase.authDomain }}',
+      projectId: '{{ .Values.firebase.projectId }}',
+      storageBucket: '{{ .Values.firebase.storageBucket }}',
+      messagingSenderId: '{{ .Values.firebase.messagingSenderId }}',
+      appId: '{{ .Values.firebase.appId }}',
+      measurementId: '{{ .Values.firebase.measurementId }}'
+    };
+{{ end }}
+
+    onLoad = function () {
+{{ .Values.config.onLoad | indent 6 }}
+    };

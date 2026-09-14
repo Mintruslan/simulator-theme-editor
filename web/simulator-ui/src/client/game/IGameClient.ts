@@ -1,0 +1,110 @@
+import JoinMode from './JoinMode';
+import ServerRole from '../contracts/ServerRole';
+
+/** Defines a high level game client built over IGameServerClient layer. */
+export default interface IGameClient {
+	addTable(): Promise<boolean>;
+
+	updateJoinRole(role: ServerRole): void;
+
+	apellate(forRightAnswer: boolean): Promise<boolean>;
+
+	approveAnswer(factor: number): Promise<boolean>;
+
+	changeTableType(isShowman: boolean, tableIndex: number): Promise<boolean>;
+
+	deleteTable(tableIndex: number): Promise<boolean>;
+
+	deleteTheme(themeIndex: number): Promise<boolean>;
+
+	freeTable(isShowman: boolean, tableIndex: number): Promise<boolean>;
+
+	getPin(): Promise<boolean>;
+
+	info(): Promise<boolean>;
+
+	kick(personName: string): Promise<boolean>;
+
+	leaveGame(): Promise<void>;
+
+	markQuestion(questionId: number, comment: string): Promise<boolean>;
+
+	/** Notifies that the client has loaded the media. */
+	mediaLoaded(): Promise<boolean>;
+
+	/** Notifies about media preload progress. */
+	mediaPreloadProgress(progress: number): Promise<boolean>;
+
+	moveable(): Promise<boolean>;
+
+	moveNext(): Promise<boolean>;
+
+	moveToRound(roundIndex: number): Promise<boolean>;
+
+	onMediaCompleted(contentType: string, contentValue: string): Promise<boolean>;
+
+	pass(): Promise<boolean>;
+
+	pause(enable: boolean): Promise<boolean>;
+
+	pressButton(deltaTime: number): Promise<boolean>;
+
+	ready(isReady: boolean): Promise<boolean>;
+
+	rejectAnswer(factor: number): Promise<boolean>;
+
+	say(text: string): Promise<boolean>;
+
+	selectChooser(playerIndex: number): Promise<boolean>;
+
+	selectPlayer(playerIndex: number): Promise<boolean>;
+
+	selectQuestion(themeIndex: number, questionIndex: number): Promise<boolean>;
+
+	sendAnswer(answer: string): Promise<boolean>;
+
+	sendAnswerAsRightByDefault(): Promise<boolean>;
+
+	sendAnswerAsWrongByDefault(): Promise<boolean>;
+
+	/** Sends answer version. */
+	sendAnswerVersion(answerVersion: string): Promise<boolean>;
+
+	sendGameReport(reportText: string): Promise<boolean>;
+
+	sendImageAvatar(avatarUri: string): Promise<boolean>;
+
+	sendVideoAvatar(avatarUri: string): Promise<boolean>;
+
+	/** Gives turn to player. */
+	setChooser(playerIndex: number): Promise<boolean>;
+
+	/** Sets person as host. */
+	setHost(personName: string): Promise<boolean>;
+
+	/** Sets game join mode. */
+	setJoinMode(joinMode: JoinMode): Promise<boolean>;
+
+	setPlayerScore(playerIndex: number, score: number): Promise<boolean>;
+
+	setOption(name: string, value: string): Promise<boolean>;
+
+	setTable(isShowman: boolean, tableIndex: number, name: string): Promise<boolean>;
+
+	stakeAllIn(): Promise<boolean>;
+
+	stakePass(): Promise<boolean>;
+
+	stakeValue(value: number): Promise<boolean>;
+
+	start(): Promise<boolean>;
+
+	/** Toggles (removes or restores) a question on game table. */
+	toggle(themeIndex: number, questionIndex: number): Promise<boolean>;
+
+	/** Sends command to unban the person by IP. */
+	unban(ip: string): Promise<boolean>;
+
+	/** Validates player answer. */
+	validateAnswer(answer: string, isRight: boolean, factor: number): Promise<boolean>;
+}

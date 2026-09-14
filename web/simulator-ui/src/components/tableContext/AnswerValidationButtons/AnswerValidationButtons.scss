@@ -1,0 +1,66 @@
+@use "../../../scss/variables" as v;
+
+.answerValidationButtons .buttonsPanel {
+    flex: 0 0 45px;
+    margin-bottom: 1px;
+}
+
+.answerValidationButtons .buttonsPanel .buttonsArea {
+    position: relative;
+    margin: 0 1px;
+}
+
+.answerValidationButtons .buttonsPanel .buttonsArea.passArea {
+    flex: 0.3;
+}
+
+.answerValidationButtons .validationButton {
+    width: 100%;
+    height: 100%;
+}
+
+.answerValidationButtons .acceptButton {
+    background: v.$accept-button-background;
+}
+
+.answerValidationButtons .acceptButton:hover {
+    background: linear-gradient(180deg, #97c7a6 14.29%, #54996a 100%);
+}
+
+.answerValidationButtons .rejectButton {
+    background: v.$reject-button-background;
+}
+
+.answerValidationButtons .rejectButton:hover {
+    background: linear-gradient(180deg, #d0726c 14.29%, #a8372f 100%);
+}
+
+.answerValidationButtons .extraButton {
+    position: absolute;
+    font-family: 'Arial';
+    font-size: 12px;
+    background-color: transparent;
+    width: 35px;
+    height: 100%;
+}
+
+.answerValidationButtons .extraButton:hover {
+    background-color: #98B9FF;
+}
+
+.answerValidationButtons .extraButton.halfPrice {
+    left: 0;
+}
+
+.answerValidationButtons .extraButton.doublePrice {
+    right: 0;
+}
+
+.answerValidationButtons .cancelAnswer {
+    color: white;
+    background: v.$cancel-button-background;
+}
+
+.answerValidationButtons .cancelAnswer:hover {
+    background: v.$cancel-hover-button-background;
+}
