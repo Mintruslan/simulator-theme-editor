@@ -11,6 +11,27 @@ SImulator remains a Windows-first, offline application. Its audience-facing scre
 
 The SImulator-specific `index.html`, `script.js`, and `style.css` files are preserved during synchronization. Webpack owns `main.js`, `vendor.js`, and hashed assets. Do not edit generated JavaScript manually.
 
+## Local theme storage
+
+- `Default SImulator Theme` is built in and read-only; it preserves the legacy colors and font settings.
+- User presets are individual, versioned `*.theme.json` files under `%LOCALAPPDATA%\Khil-soft\SImulator\Settings\Themes`.
+- The active theme document is also stored in `user.config`, so the application can restore it without network access.
+- `FileThemeRepository` validates IDs and schema versions, writes atomically, ignores broken presets while listing the library, and supports save, duplicate, delete, import, and export operations.
+
+Theme assets remain URL/path references in schema version 1. Copying fonts and images into a portable exported package belongs to the later assets/import-export stage.
+
+## Theme Editor MVP
+
+Open the **Design** tab in the desktop application and select **Открыть Theme Editor**. The editor itself is bundled in `webtable` and requires no server or internet connection.
+
+- Left: visual sections for global settings, typography, board, question, and players.
+- Center: a 16:9 live preview using the same presentation components as the game.
+- Right: structured, non-CSS controls for the selected section.
+- Preview states: board, text question, image, video, audio, players, buzzer, correct answer, incorrect answer, and final round.
+- Preset actions: load, save, duplicate, delete, import JSON, and export JSON.
+
+Changes update both the editor preview and an active game presentation immediately. Saving writes the preset to the local theme library; closing SImulator persists the active theme in normal application settings.
+
 ## Initial setup and build
 
 ```powershell

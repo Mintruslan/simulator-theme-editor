@@ -21,7 +21,14 @@ const targetDirectory = path.join(repositoryRoot, 'src', 'SImulator', 'SImulator
 const integrationFile = path.join(repositoryRoot, 'web', 'simulator-ui.integration.json');
 const manifestName = 'presentation-build.json';
 const manifestPath = path.join(targetDirectory, manifestName);
-const preservedRuntimeFiles = new Set(['index.html', 'script.js', 'style.css']);
+const preservedRuntimeFiles = new Set([
+	'index.html',
+	'script.js',
+	'style.css',
+	'theme-editor.html',
+	'theme-editor-script.js',
+	'theme-editor.css',
+]);
 const ignoredBuildFiles = new Set(['index.html', 'favicon.ico']);
 const shouldBuild = !process.argv.includes('--sync-only');
 
@@ -101,11 +108,12 @@ function removePreviousArtifacts() {
 }
 
 function verifyOfflineShell() {
-	const indexPath = path.join(targetDirectory, 'index.html');
-	const html = readFileSync(indexPath, 'utf8');
+	for (const shellName of ['index.html', 'theme-editor.html']) {
+		const html = readFileSync(path.join(targetDirectory, shellName), 'utf8');
 
-	if (/\b(?:src|href)=["']https?:\/\//i.test(html)) {
-		fail('webtable/index.html contains a remote runtime dependency');
+		if (/\b(?:src|href)=["']https?:\/\//i.test(html)) {
+			fail(`webtable/${shellName} contains a remote runtime dependency`);
+		}
 	}
 
 	for (const file of preservedRuntimeFiles) {
@@ -157,7 +165,7 @@ const manifest = {
 	sourceRepository: integration.sourceRepository,
 	sourceRevision: integration.sourceRevision,
 	packageLockSha256: hashFile(path.join(sourceDirectory, 'package-lock.json')),
-	entrypoints: ['vendor.js', 'main.js', 'script.js'],
+	entrypoints: ['vendor.js', 'main.js', 'script.js', 'theme-editor-script.js'],
 	offlineRuntime: true,
 	artifacts,
 };

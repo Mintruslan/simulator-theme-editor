@@ -11,6 +11,7 @@ import { setAppSound } from './state/settingsSlice';
 import QRCodeView from './components/panels/QRCodeView/QRCodeView';
 import { AudioContextProvider } from './contexts/AudioContextProvider';
 import ThemeStyleHost from './presentation/ThemeStyleHost';
+import ThemeEditor from './presentation/editor/ThemeEditor';
 
 import './scss/style.scss';
 
@@ -39,6 +40,25 @@ export function run(elementId: string, game?: IGameClient): void {
 					<QRCodeView />
 				</ThemeStyleHost>
 			</AudioContextProvider>
+		</Provider>,
+		host
+	);
+}
+
+export function runThemeEditor(elementId: string): void {
+	const host = document.getElementById(elementId);
+
+	if (!host) {
+		console.error('Theme Editor host element not found!');
+		return;
+	}
+
+	const store = runCore();
+	store.dispatch(setAppSound(false));
+
+	ReactDOM.render(
+		<Provider store={store}>
+			<ThemeEditor />
 		</Provider>,
 		host
 	);

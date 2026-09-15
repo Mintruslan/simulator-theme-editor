@@ -24,6 +24,7 @@ using System.Windows.Threading;
 using Utils;
 using Settings = SImulator.ViewModel.Model.AppSettings;
 using SImulator.ViewModel.Contracts;
+using SImulator.ViewModel.Theming;
 
 #if DEBUG
 using SIStorage.Service.Contract.Models;
@@ -87,6 +88,7 @@ public partial class App : Application
         services.AddSingleton<StorageViewModel>();
         services.AddTransient<CommandWindow>();
         services.AddSingleton<IPlatformService>(_manager);
+        services.AddSingleton<IThemeRepository>(_ => new FileThemeRepository(SettingsHelper.ThemesFolder));
         services.AddSingleton(Settings);
         services.AddSingleton<MainViewModel>();
     }
@@ -127,7 +129,8 @@ public partial class App : Application
         ProcessAsync();
 #endif
 
-        MainWindow = new CommandWindow { DataContext = main };
+        MainWindow = _host.Services.GetRequiredService<CommandWindow>();
+        MainWindow.DataContext = main;
         MainWindow.Show();
     }
 

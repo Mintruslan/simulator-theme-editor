@@ -434,8 +434,9 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
     {
         _settings = settings;
 
-        var tableTextColor = ConvertWpfToHtmlColor(settings.TableColorString);
-        var tableBackgroundColor = ConvertWpfToHtmlColor(settings.TableBackColorString);
+        var defaultTheme = SimulatorDefaultTheme.Create(settings);
+        var tableTextColor = defaultTheme.Tokens.Global.TextColor;
+        var tableBackgroundColor = defaultTheme.Tokens.Global.BackgroundColor;
 
         SendMessageCore(new
         {
@@ -444,7 +445,7 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
             TableBackgroundColor = tableBackgroundColor,
         });
 
-        ApplyTheme(SimulatorDefaultTheme.Create(tableTextColor, tableBackgroundColor, settings.TableFontFamily));
+        ApplyTheme(defaultTheme);
     }
 
     public void ApplyTheme(SimulatorThemeDocument theme) => SendMessageCore(new
@@ -452,16 +453,6 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
         Type = "applyTheme",
         Theme = theme,
     });
-
-    private static string ConvertWpfToHtmlColor(string wpfColor)
-    {
-        if (wpfColor.Length == 9 && wpfColor.StartsWith("#"))
-        {
-            return $"#{wpfColor.Substring(3)}{wpfColor.Substring(1, 2)}";
-        }
-
-        return wpfColor; // Return as-is if not in expected format
-    }
 
     public void UpdateShowPlayers(bool showPlayers) => SendMessage(new
     {

@@ -33,7 +33,15 @@ function cssUrl(value: string | null): string {
 		return 'none';
 	}
 
-	return `url("${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}")`;
+	let normalizedValue = value;
+
+	if (/^[A-Za-z]:[\\/]/.test(value)) {
+		normalizedValue = `file:///${value.replaceAll('\\', '/')}`;
+	} else if (value.startsWith('/')) {
+		normalizedValue = `file://${value}`;
+	}
+
+	return `url("${normalizedValue.replaceAll('"', '\\"')}")`;
 }
 
 function toBackgroundSize(backgroundFit: string): string {

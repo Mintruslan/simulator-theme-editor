@@ -6,7 +6,8 @@
   "entrypoints": [
     "vendor.js",
     "main.js",
-    "script.js"
+    "script.js",
+    "theme-editor-script.js"
   ],
   "offlineRuntime": true,
   "artifacts": {
@@ -41,7 +42,7 @@
     "d660f85b3fc88581c86b.jpg": "febcc03470212896770a407abf8ee1db1f94c3d8c4d866d2cdbe439d74ddf5cf",
     "e30b805477ba6904b1b0.ttf": "84c64f3d512f8231b6140c6365ee6a6ea65fa0329b0138dd7f8f159d27212df3",
     "f055c1d80103ccc18124.mp3": "4157c80977693c2d2e1244a39831189010e5e704712d101edd373076a852fa31",
-    "main.js": "888ea7bdca0a60a45c41e8221d232e46a9b35832e5c324f7f9ad970c8a307ffd",
+    "main.js": "8e1ccd9b52283e559755dfd0c5159a7cbd9b71947f8a5c840f5d6e24f3136f86",
     "vendor.js": "6381b7810a326f4707357f788a2e57aba5ad79fe5131f44f961044d5446704aa",
     "vendor.js.LICENSE.txt": "3e491f31d7cfeb7b833fa7cabaffaa644aedd3897b51a1df86b02ee3bbfd9f62"
   }

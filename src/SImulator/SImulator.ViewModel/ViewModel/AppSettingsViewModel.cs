@@ -55,6 +55,7 @@ public sealed class AppSettingsViewModel
             currentSettings.Model.LogoUri = defaultUISettings.LogoUri;
             currentSettings.Model.BackgroundImageUri = defaultUISettings.BackgroundImageUri;
             currentSettings.Model.BackgroundVideoUri = defaultUISettings.BackgroundVideoUri;
+            Model.PresentationTheme = null;
             Model.ShowRight = defaultSettings.ShowRight;
             Model.ShowPlayers = defaultSettings.ShowPlayers;
             Model.ShowTableCaption= defaultSettings.ShowTableCaption;

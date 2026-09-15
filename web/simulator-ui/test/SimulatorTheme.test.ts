@@ -48,4 +48,22 @@ describe('SimulatorTheme', () => {
 		expect(variables['--sim-players-layout']).toBe('row');
 		expect(variables['--sim-global-background-image']).toBe('none');
 	});
+
+	it('maps an offline Windows image path to a file URL', () => {
+		const theme = {
+			...defaultSimulatorTheme,
+			tokens: {
+				...defaultSimulatorTheme.tokens,
+				global: {
+					...defaultSimulatorTheme.tokens.global,
+					backgroundImage: 'C:\\Broadcast\\background.png',
+				},
+			},
+		};
+
+		const variables = toSimulatorThemeCssVariables(theme);
+
+		expect(variables['--sim-global-background-image'])
+			.toBe('url("file:///C:/Broadcast/background.png")');
+	});
 });

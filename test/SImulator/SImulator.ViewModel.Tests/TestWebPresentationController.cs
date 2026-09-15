@@ -6,6 +6,7 @@ using SIPackages;
 using SIPackages.Core;
 using SIUI.ViewModel;
 using SIUI.ViewModel.Core;
+using SImulator.ViewModel.Theming;
 
 namespace SImulator.ViewModel.Tests;
 
@@ -158,6 +159,11 @@ internal sealed class TestWebPresentationController : IPresentationController
     public void UpdateSettings(Settings settings)
     {
         AddCommand("UpdateSettings");
+    }
+
+    public void ApplyTheme(SimulatorThemeDocument theme)
+    {
+        AddCommand($"ApplyTheme: {theme.Id}");
     }
 
     public void UpdateShowPlayers(bool showPlayers)

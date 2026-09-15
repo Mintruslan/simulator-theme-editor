@@ -7,6 +7,7 @@ using SImulator.ViewModel.Model;
 using SImulator.ViewModel.PlatformSpecific;
 using SImulator.ViewModel.Properties;
 using SImulator.ViewModel.Services;
+using SImulator.ViewModel.Theming;
 using SIPackages;
 using SIPackages.Core;
 using SIUI.Model;
@@ -962,6 +963,10 @@ public sealed class GameViewModel : INotifyPropertyChanged, IButtonManagerListen
             case nameof(AppSettings.AttachContentToTable):
                 PresentationController.SetAttachContentToTable(settings.AttachContentToTable);
                 break;
+
+            case nameof(AppSettings.PresentationTheme):
+                ApplyPresentationSettings();
+                break;
         }
     }
 
@@ -1025,8 +1030,18 @@ public sealed class GameViewModel : INotifyPropertyChanged, IButtonManagerListen
 
     #region Event handlers
 
-    private void Default_PropertyChanged(object? sender, PropertyChangedEventArgs e) =>
+    private void Default_PropertyChanged(object? sender, PropertyChangedEventArgs e) => ApplyPresentationSettings();
+
+    private void ApplyPresentationSettings()
+    {
         PresentationController.UpdateSettings(Settings.SIUISettings.Model);
+
+        if (Settings.Model.PresentationTheme is { } presentationTheme
+            && SimulatorThemeValidator.IsValid(presentationTheme))
+        {
+            PresentationController.ApplyTheme(presentationTheme);
+        }
+    }
 
     private void PlayerInfo_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -1408,7 +1423,7 @@ public sealed class GameViewModel : INotifyPropertyChanged, IButtonManagerListen
         PresentationController.SetReadingSpeed(Settings.Model.QuestionReadingSpeed);
         PresentationController.SetAttachContentToTable(Settings.Model.AttachContentToTable);
         PresentationController.SetAppSound(Settings.Model.PlaySounds);
-        PresentationController.UpdateSettings(Settings.SIUISettings.Model);
+        ApplyPresentationSettings();
         PresentationController.UpdateShowPlayers(Settings.Model.ShowPlayers);
         PresentationController.ClearPlayersState();
         PresentationController.SetTimerMaxTime(QuestionTimeMax * 10);
@@ -1888,6 +1903,7 @@ public sealed class GameViewModel : INotifyPropertyChanged, IButtonManagerListen
 
             Settings.Model.SIUISettings.PropertyChanged -= Default_PropertyChanged;
             Settings.SIUISettings.PropertyChanged -= Default_PropertyChanged;
+            Settings.Model.PropertyChanged -= Settings_PropertyChanged;
 
             if (_buttonManager != null)
             {

@@ -1,4 +1,7 @@
 ﻿using SImulator.ViewModel;
+using SImulator.ViewModel.Controllers;
+using SImulator.ViewModel.Model;
+using SImulator.ViewModel.Theming;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
@@ -11,12 +14,30 @@ namespace SImulator;
 /// </summary>
 public partial class CommandWindow : Window
 {
+    private readonly AppSettings _settings;
+    private readonly IThemeRepository _themeRepository;
+
     /// <summary>
     /// Application version.
     /// </summary>
     public string? Version => App.ProductVersion.ToString(3);
 
-    public CommandWindow() => InitializeComponent();
+    public CommandWindow(AppSettings settings, IThemeRepository themeRepository)
+    {
+        _settings = settings;
+        _themeRepository = themeRepository;
+        InitializeComponent();
+    }
+
+    private void OpenThemeEditor_Click(object sender, RoutedEventArgs e)
+    {
+        var editor = new ThemeEditorWindow(new ThemeEditorController(_settings, _themeRepository))
+        {
+            Owner = this,
+        };
+
+        editor.Show();
+    }
 
     private async void Window_Closing(object sender, CancelEventArgs e)
     {

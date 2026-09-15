@@ -166,6 +166,66 @@ try {
 	}
 
 	console.log(`Simulator UI smoke test passed: ${JSON.stringify(result)}`);
+
+	await page.goto(`${localOrigin}/theme-editor.html`, { waitUntil: 'networkidle' });
+	await page.waitForSelector('.themeEditor .themeEditorPreviewStage');
+
+	await page.locator('.themeEditorInspector input[type="color"]').first().fill('#223344');
+
+	await page.waitForFunction(() => {
+		const preview = document.querySelector('.themeEditorPreviewStage');
+		return preview && getComputedStyle(preview).backgroundColor === 'rgb(34, 51, 68)';
+	});
+
+	const previewChecks = [
+		['Текст', '#table .tableText'],
+		['Изображение', '#table .inGameImg'],
+		['Видео', '.themeEditorMediaPlaceholder.video'],
+		['Аудио', '.themeEditorMediaPlaceholder.audio'],
+		['Игроки', '.playersPanel .gamePlayer'],
+		['Кнопка', '.playersPanel .state_press'],
+		['Верно', '.playersPanel .state_right'],
+		['Неверно', '.playersPanel .state_wrong'],
+		['Финал', '#table .finalTable'],
+		['Табло', '#table .roundTable'],
+	];
+
+	for (const [buttonName, expectedSelector] of previewChecks) {
+		await page.locator('.themeEditorPreviewStates').getByRole('button', { name: buttonName, exact: true }).click();
+		await page.waitForSelector(expectedSelector);
+	}
+
+	const editorResult = await page.evaluate(() => ({
+		background: getComputedStyle(document.querySelector('.themeEditorPreviewStage')).backgroundColor,
+		previewStateCount: document.querySelectorAll('.themeEditorPreviewStates button').length,
+		sectionCount: document.querySelectorAll('.themeEditorNavigation button').length,
+		postedMessageTypes: window.chrome.webview.postedMessages.map((message) => message.type),
+	}));
+
+	if (editorResult.background !== 'rgb(34, 51, 68)' ||
+		editorResult.previewStateCount !== 10 ||
+		editorResult.sectionCount !== 5 ||
+		!editorResult.postedMessageTypes.includes('loaded') ||
+		!editorResult.postedMessageTypes.includes('themeChanged')) {
+		throw new Error(`Unexpected Theme Editor state: ${JSON.stringify(editorResult)}`);
+	}
+
+	if (pageErrors.length > 0) {
+		throw new Error(`Presentation emitted page errors: ${pageErrors.join('; ')}`);
+	}
+
+	if (externalRequests.length > 0) {
+		throw new Error(`Presentation requested external resources: ${externalRequests.join(', ')}`);
+	}
+
+	console.log(`Theme Editor smoke test passed: ${JSON.stringify(editorResult)}`);
+
+	if (process.argv.includes('--screenshot')) {
+		const screenshotPath = path.join('/private/tmp', 'simulator-theme-editor.png');
+		await page.screenshot({ path: screenshotPath, fullPage: true });
+		console.log(`Theme Editor screenshot saved: ${screenshotPath}`);
+	}
+
 	await context.close();
 } finally {
 	await browser.close();

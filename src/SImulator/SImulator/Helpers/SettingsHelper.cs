@@ -31,6 +31,8 @@ internal static class SettingsHelper
         ProductName,
         SettingsFolderName);
 
+    internal static string ThemesFolder => Path.Combine(SettingsFolder, "Themes");
+
     /// <summary>
     /// User settings configuration file name.
     /// </summary>

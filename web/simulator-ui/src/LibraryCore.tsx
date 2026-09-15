@@ -47,6 +47,8 @@ interface WebViewEventListener {
 type WebViewEventListenerOrEventListenerObject = WebViewEventListener | WebViewEventListenerObject;
 
 interface WebView extends EventTarget {
+	postMessage(message: unknown): void;
+
 	/**
 	 * The standard EventTarget.addEventListener method. Use it to subscribe to the message event
 	 * or sharedbufferreceived event. The message event receives messages posted from the WebView2

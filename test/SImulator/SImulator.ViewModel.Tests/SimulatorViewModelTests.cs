@@ -2,6 +2,7 @@ using NUnit.Framework;
 using SImulator.ViewModel.Controllers;
 using SImulator.ViewModel.Model;
 using SImulator.ViewModel.PlatformSpecific;
+using SImulator.ViewModel.Theming;
 
 namespace SImulator.ViewModel.Tests;
 
@@ -338,5 +339,31 @@ public sealed class SimulatorViewModelTests
         Assert.That(caughtException, Is.Null, $"Should not throw exceptions: {caughtException?.Message}");
         Assert.That(executedCount, Is.GreaterThan(0), "Should execute multiple Next commands");
         Assert.That(game!.LocalInfo, Is.Not.Null, "LocalInfo should remain initialized");
+    }
+
+    [Test]
+    public async Task GameViewModel_AppliesPersistedPresentationThemeOnStart()
+    {
+        var defaultTheme = SimulatorDefaultTheme.Create("#FFFFFF", "#0A0E30", "Standard");
+        _appSettings.PresentationTheme = new SimulatorThemeDocument
+        {
+            Id = "broadcast-theme",
+            Name = "Broadcast Theme",
+            BasedOn = defaultTheme.Id,
+            Assets = defaultTheme.Assets,
+            Tokens = defaultTheme.Tokens,
+        };
+
+        var main = new MainViewModel(_appSettings, _platformManager)
+        {
+            PackageSource = new TestPackageSource()
+        };
+
+        await main.Start.ExecuteAsync(null);
+
+        var presentation = main.Game?.PresentationController as TestWebPresentationController;
+
+        Assert.That(presentation, Is.Not.Null);
+        Assert.That(presentation!.Commands, Does.Contain("ApplyTheme: broadcast-theme"));
     }
 }

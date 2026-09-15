@@ -7,6 +7,11 @@ namespace SImulator.ViewModel.Theming;
 /// </summary>
 public static class SimulatorDefaultTheme
 {
+    public static SimulatorThemeDocument Create(Settings settings) => Create(
+        ConvertWpfToHtmlColor(settings.TableColorString),
+        ConvertWpfToHtmlColor(settings.TableBackColorString),
+        settings.TableFontFamily);
+
     public static SimulatorThemeDocument Create(string textColor, string backgroundColor, string? fontFamily)
     {
         var resolvedFontFamily = string.IsNullOrWhiteSpace(fontFamily) || fontFamily == Settings.DefaultTableFontFamily
@@ -48,4 +53,14 @@ public static class SimulatorDefaultTheme
         Color = color,
         FontFamily = fontFamily,
     };
+
+    private static string ConvertWpfToHtmlColor(string wpfColor)
+    {
+        if (wpfColor.Length == 9 && wpfColor.StartsWith('#'))
+        {
+            return $"#{wpfColor.Substring(3)}{wpfColor.Substring(1, 2)}";
+        }
+
+        return wpfColor;
+    }
 }

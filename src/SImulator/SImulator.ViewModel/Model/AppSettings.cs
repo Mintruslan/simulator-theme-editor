@@ -1,4 +1,5 @@
 ﻿using SImulator.ViewModel.Core;
+using SImulator.ViewModel.Theming;
 using SIUI.ViewModel.Core;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -169,6 +170,25 @@ public sealed class AppSettings : INotifyPropertyChanged
             if (_siUISettings != value && value != null)
             {
                 _siUISettings = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private SimulatorThemeDocument? _presentationTheme;
+
+    /// <summary>
+    /// Active structured presentation theme. A null value preserves legacy SImulator settings.
+    /// </summary>
+    [XmlIgnore]
+    public SimulatorThemeDocument? PresentationTheme
+    {
+        get => _presentationTheme;
+        set
+        {
+            if (!ReferenceEquals(_presentationTheme, value))
+            {
+                _presentationTheme = value;
                 OnPropertyChanged();
             }
         }
