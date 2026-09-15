@@ -27,11 +27,14 @@ Open the **Design** tab in the desktop application and select **Открыть T
 - Left: visual sections for global settings, typography, board, question, and players.
 - Center: a 16:9 live preview using the same presentation components as the game.
 - Right: structured, non-CSS controls for the selected section.
-- Typography: choose the bundled font or upload/remove fonts stored directly inside the theme JSON.
+- Typography: choose the bundled font or upload/remove fonts stored directly inside the theme JSON; keep the legacy adaptive sizing or switch a role to an exact pixel size; enable or disable its text shadow.
+- Board: configure cell spacing and colors, or hide all cell/theme borders with one switch while preserving their saved width and color.
 - Preview states: board, text question, image, video, audio, players, buzzer, correct answer, incorrect answer, and final round.
 - Preset actions: load, save, duplicate, delete, import JSON, and export JSON.
 
 Changes update both the editor preview and an active game presentation immediately. Saving writes the preset to the local theme library; closing SImulator persists the active theme in normal application settings.
+
+The local `table` bridge includes the complete theme-name list together with the price matrix. This prevents the board from losing rows when it opens before the one-by-one theme announcement animation finishes; generic SIOnline callers can continue sending the original prices-only payload.
 
 ## Initial setup and build
 

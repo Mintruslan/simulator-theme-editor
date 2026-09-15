@@ -50,6 +50,7 @@ export default function ThemeStack() {
 
 		return (
 			<AutoSizedText key={themeIndex} maxFontSize={finalThemeName.fontSize}
+				isAdaptive={finalThemeName.autoSize !== false}
 				style={toTypographyStyle(finalThemeName)}
 				className={`finalTableCell  ${isActive ? 'active' : ''} ${isBlinking ? 'blink' : ''}`}
 				onClick={() => onSelectTheme(themeIndex)}>

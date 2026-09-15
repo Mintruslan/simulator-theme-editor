@@ -69,7 +69,9 @@
 	flex: 0 0 40%;
 	background: var(--sim-board-theme-background, rgba(255, 255, 255, 0.05));
 	margin: calc(var(--sim-board-gap, 4px) / 2);
-	border: 2px solid rgba(255, 255, 255, 0.15);
+	border-width: var(--sim-board-border-width, 2px);
+	border-style: solid;
+	border-color: rgba(255, 255, 255, 0.15);
 	color: var(--sim-theme-name-color, #FFFFFF);
 	font-family: var(--sim-theme-name-font-family, Standard);
 	font-weight: var(--sim-theme-name-font-weight, 500);
@@ -153,7 +155,9 @@
 	.themeHeader {
 		height: calc(100% - 10px);
 		background: rgba(255, 255, 255, 0.05);
-		border: 2px solid rgba(255, 255, 255, 0.15);
+		border-width: var(--sim-board-border-width, 2px);
+		border-style: solid;
+		border-color: rgba(255, 255, 255, 0.15);
 		transition: none;
 		align-self: center;
 	}

@@ -42,6 +42,8 @@ public sealed class WebPresentationControllerContractTests
             Assert.That(root.GetProperty("table")[0][1].GetInt32(), Is.EqualTo(200));
             Assert.That(root.GetProperty("table")[1][0].GetInt32(), Is.EqualTo(300));
             Assert.That(root.GetProperty("table")[0].ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(root.GetProperty("themes")[0].GetString(), Is.EqualTo("Science"));
+            Assert.That(root.GetProperty("themes")[1].GetString(), Is.EqualTo("Games"));
         });
     }
 

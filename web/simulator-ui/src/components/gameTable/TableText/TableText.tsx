@@ -26,6 +26,7 @@ export function TableText(props: TableTextProps) {
 		<AutoSizedText
 			className="tableText fadeIn tableTextCenter margined"
 			maxFontSize={typographyToken.fontSize}
+			isAdaptive={typographyToken.autoSize !== false}
 			style={toTypographyStyle(typographyToken)}>
 			{props.isAnswer ? <ClickableAnswer text={props.text} /> : props.text}
 		</AutoSizedText>

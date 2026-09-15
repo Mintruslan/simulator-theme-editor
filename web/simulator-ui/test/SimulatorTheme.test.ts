@@ -5,7 +5,7 @@ import {
 	SIMULATOR_THEME_SCHEMA_VERSION,
 	SimulatorThemeDocument,
 } from '../src/model/SimulatorTheme';
-import { toSimulatorFontFaceCss, toSimulatorThemeCssVariables } from '../src/presentation/ThemeStyleHost';
+import { toSimulatorFontFaceCss, toSimulatorThemeCssVariables, toTypographyStyle } from '../src/presentation/ThemeStyleHost';
 
 const cloneDefaultTheme = (): SimulatorThemeDocument => (
 	JSON.parse(JSON.stringify(defaultSimulatorTheme)) as SimulatorThemeDocument
@@ -71,6 +71,28 @@ describe('SimulatorTheme', () => {
 
 		expect(variables['--sim-global-background-image'])
 			.toBe('url("file:///C:/Broadcast/background.png")');
+	});
+
+	it('supports fixed font sizes, disabled shadows and hidden board borders', () => {
+		const theme = cloneDefaultTheme();
+		const { questionText } = theme.tokens.typography;
+		questionText.autoSize = false;
+		questionText.fontSize = 42;
+		questionText.textShadowEnabled = false;
+		theme.tokens.board.bordersVisible = false;
+
+		expect(toTypographyStyle(questionText).fontSize).toBe('42px');
+		expect(toTypographyStyle(questionText).textShadow).toBe('none');
+		expect(toSimulatorThemeCssVariables(theme)['--sim-board-border-width']).toBe('0px');
+	});
+
+	it('accepts themes saved before optional presentation switches were added', () => {
+		const theme = cloneDefaultTheme();
+		delete theme.tokens.typography.questionText.autoSize;
+		delete theme.tokens.typography.questionText.textShadowEnabled;
+		delete theme.tokens.board.bordersVisible;
+
+		expect(parseSimulatorTheme(theme)).toBe(theme);
 	});
 
 	it('registers an embedded font without using a system or network source', () => {

@@ -252,6 +252,7 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 						<AutoSizedText
 							className='nameValue'
 							maxFontSize={typography.playerName.fontSize}
+							isAdaptive={typography.playerName.autoSize !== false}
 							style={toTypographyStyle(typography.playerName)}>
 							<PersonName name={player.name} />
 						</AutoSizedText>
@@ -282,6 +283,7 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 							<AutoSizedText
 								className='staticSum'
 								maxFontSize={typography.playerScore.fontSize}
+								isAdaptive={typography.playerScore.autoSize !== false}
 								style={toTypographyStyle(typography.playerScore)}>
 								{player.sum}
 							</AutoSizedText>

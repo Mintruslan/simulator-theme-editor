@@ -26,7 +26,18 @@ export default function fitElement(element: HTMLElement, maxFont: number, minFon
 		extraHeight += parseInt(style.paddingBottom, 10);
 	}
 
-	const cacheKey = `${window.innerWidth} ${content.innerHTML} ${boxHeight + extraHeight} ${boxWidth + extraHeight}`;
+	const cacheKey = [
+		window.innerWidth,
+		content.innerHTML,
+		boxHeight + extraHeight,
+		boxWidth + extraHeight,
+		maxFont,
+		minFontSize,
+		style.fontFamily,
+		style.fontWeight,
+		style.letterSpacing,
+		style.lineHeight,
+	].join(' ');
 	const cacheValue = fitCache[cacheKey];
 
 	if (cacheValue) {

@@ -78,10 +78,11 @@ const TableRoundThemes: React.FC<TableRoundThemesProps> = ({ roundThemes }) => {
 
     return (
         <div className="tableBorderCentered scaleText" ref={textRef}>
-            <AutoSizedText
+			<AutoSizedText
 				id="tableText"
 				className="tableText tableTextCenter margined"
 				maxFontSize={finalThemeName.fontSize}
+				isAdaptive={finalThemeName.autoSize !== false}
 				style={toTypographyStyle(finalThemeName)}>
                 {text}
             </AutoSizedText>

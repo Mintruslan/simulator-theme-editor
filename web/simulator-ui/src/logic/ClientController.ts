@@ -1627,12 +1627,13 @@ export default class ClientController implements IClientController {
 		}
 	}
 
-	onTable(table: number[][]) {
-		const maxQuestionCount = Math.max(...table.map((questions) => questions.length));
+	onTable(table: number[][], themeNames?: string[]) {
+		const maxQuestionCount = table.reduce((maximum, questions) => Math.max(maximum, questions.length), 0);
 		const { roundInfo } = this.getState().table;
 		const newRoundInfo: ThemeInfo[] = [];
+		const themeCount = Math.max(table.length, roundInfo.length, themeNames?.length ?? 0);
 
-		for (let i = 0; i < roundInfo.length; i++) {
+		for (let i = 0; i < themeCount; i++) {
 			const questions = table[i] ? [...table[i]] : [];
 			const questionCount = questions.length;
 
@@ -1641,8 +1642,8 @@ export default class ClientController implements IClientController {
 			}
 
 			const newTheme: ThemeInfo = {
-				name: roundInfo[i].name,
-				comment: roundInfo[i].comment,
+				name: themeNames?.[i] ?? roundInfo[i]?.name ?? '',
+				comment: roundInfo[i]?.comment ?? '',
 				questions
 			};
 

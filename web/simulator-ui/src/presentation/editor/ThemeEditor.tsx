@@ -328,7 +328,7 @@ export default function ThemeEditor(): JSX.Element {
 
 	const updateTypography = (
 		field: keyof SimulatorTypographyToken,
-		value: string | number,
+		value: string | number | boolean,
 	) => updateTheme(draft => {
 		draft.tokens.typography[typographyRole] = {
 			...draft.tokens.typography[typographyRole],
@@ -605,8 +605,16 @@ export default function ThemeEditor(): JSX.Element {
 								onChange={importFont} />
 						</div>
 					</Field>
-					<Field label='Размер'>
+					<Field label='Адаптивный размер'>
 						<input
+							className='themeEditorTypographyAutoSize'
+							type='checkbox'
+							checked={selectedTypography.autoSize !== false}
+							onChange={event => updateTypography('autoSize', event.target.checked)} />
+					</Field>
+					<Field label='Размер, px'>
+						<input
+							className='themeEditorFontSize'
 							type='number'
 							min='8'
 							max='240'
@@ -631,9 +639,25 @@ export default function ThemeEditor(): JSX.Element {
 							value={toColorInput(selectedTypography.color)}
 							onChange={event => updateTypography('color', event.target.value)} />
 					</Field>
+					<Field label='Тень текста'>
+						<input
+							className='themeEditorTextShadowEnabled'
+							type='checkbox'
+							checked={selectedTypography.textShadowEnabled !== false}
+							onChange={event => updateTypography('textShadowEnabled', event.target.checked)} />
+					</Field>
 				</> : null}
 
 				{section === 'board' ? <>
+					<Field label='Показывать рамки'>
+						<input
+							className='themeEditorBoardBordersVisible'
+							type='checkbox'
+							checked={theme.tokens.board.bordersVisible !== false}
+							onChange={event => updateTheme(draft => {
+								draft.tokens.board.bordersVisible = event.target.checked;
+							})} />
+					</Field>
 					<Field label='Фон ячейки'>
 						<input
 							value={theme.tokens.board.cellBackground}
@@ -673,6 +697,7 @@ export default function ThemeEditor(): JSX.Element {
 							type='number'
 							min='0'
 							max='20'
+							disabled={theme.tokens.board.bordersVisible === false}
 							value={theme.tokens.board.borderWidth}
 							onChange={event => updateTheme(draft => {
 								draft.tokens.board.borderWidth = Number(event.target.value);
@@ -680,6 +705,7 @@ export default function ThemeEditor(): JSX.Element {
 					</Field>
 					<Field label='Цвет рамки'>
 						<input
+							disabled={theme.tokens.board.bordersVisible === false}
 							value={theme.tokens.board.borderColor}
 							onChange={event => updateTheme(draft => {
 								draft.tokens.board.borderColor = event.target.value;

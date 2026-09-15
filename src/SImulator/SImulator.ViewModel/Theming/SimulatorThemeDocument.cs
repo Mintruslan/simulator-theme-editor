@@ -86,6 +86,8 @@ public sealed class SimulatorTypographyToken
 
     public double FontSize { get; init; }
 
+    public bool AutoSize { get; init; } = true;
+
     public int FontWeight { get; init; } = 500;
 
     public string LineHeight { get; init; } = "normal";
@@ -99,6 +101,8 @@ public sealed class SimulatorTypographyToken
     public string TextTransform { get; init; } = "none";
 
     public string TextShadow { get; init; } = "2px 2px 4px rgba(0, 0, 0, 0.7)";
+
+    public bool TextShadowEnabled { get; init; } = true;
 
     public static SimulatorTypographyToken Create(double fontSize, int fontWeight, string color = "#FFFFFF") => new()
     {
@@ -119,6 +123,8 @@ public sealed class SimulatorBoardThemeTokens
     public string ThemeHeaderBackground { get; init; } = "rgba(255, 255, 255, 0.05)";
 
     public double BorderWidth { get; init; } = 2;
+
+    public bool BordersVisible { get; init; } = true;
 
     public string BorderColor { get; init; } = "transparent";
 

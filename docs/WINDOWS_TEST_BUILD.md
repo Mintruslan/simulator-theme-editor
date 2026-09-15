@@ -15,7 +15,9 @@ This package is a self-contained Windows x86 build of the SImulator Theme Editor
 2. Select a presentation element.
 3. Choose **Загрузить…** and select `Samples/Jost-Regular.ttf` (or another TTF, OTF, WOFF, or WOFF2 file up to 5 MB).
 4. Confirm that the live preview and open game table change immediately.
-5. Select **Сохранить копию** for the built-in theme, then export it to verify portability.
+5. Turn off **Адаптивный размер**, enter an exact size, and verify that repeated labels use that size.
+6. Turn **Тень текста** off and on for the selected element.
+7. Select **Сохранить копию** for the built-in theme, then export it to verify portability.
 
 Imported fonts are embedded in the theme JSON. The editor lists only the bundled `Standard` font and fonts imported into the active theme; it does not enumerate Windows fonts. A theme can contain up to eight font files.
 
@@ -23,6 +25,8 @@ Imported fonts are embedded in the theme JSON. The editor lists only the bundled
 
 - Launch with networking disconnected and open a local `.siq` package.
 - Check all ten preview states in Theme Editor.
+- Open a round table and confirm that every package theme is visible, even if the table is shown before the theme announcement animation finishes.
+- In **Табло**, turn **Показывать рамки** off and on; confirm the change in both preview and game presentation.
 - Save, reload, duplicate, export, import, and delete a user theme.
 - Verify text, board, players, timer, correct/incorrect states, and the final round.
 - Restart SImulator and confirm that the active theme and imported font are restored.

@@ -10,6 +10,7 @@ interface AutoSizedTextProps {
 	className?: string;
 	minFontSize?: number;
 	maxFontSize: number;
+	isAdaptive?: boolean;
 	title?: string;
 	fontsReady: boolean;
 
@@ -51,6 +52,7 @@ export class AutoSizedText extends React.Component<AutoSizedTextProps> {
 	componentDidUpdate(prevProps: AutoSizedTextProps): void {
 		if (prevProps.children !== this.props.children ||
 			prevProps.maxFontSize !== this.props.maxFontSize ||
+			prevProps.isAdaptive !== this.props.isAdaptive ||
 			prevProps.minFontSize !== this.props.minFontSize ||
 			prevProps.fontsReady !== this.props.fontsReady ||
 			prevProps.className !== this.props.className ||
@@ -99,6 +101,7 @@ export class AutoSizedText extends React.Component<AutoSizedTextProps> {
 			element.clientWidth,
 			element.clientHeight,
 			this.props.maxFontSize,
+			this.props.isAdaptive === false ? 0 : 1,
 			this.props.minFontSize ?? 1,
 			this.props.fontsReady ? 1 : 0,
 		].join('|');
@@ -112,6 +115,12 @@ export class AutoSizedText extends React.Component<AutoSizedTextProps> {
 		const resizeSignature = this.getResizeSignature();
 
 		if (!resizeSignature || resizeSignature === this.lastResizeSignature) {
+			return;
+		}
+
+		if (this.props.isAdaptive === false) {
+			this.myRef.current.style.fontSize = `${this.props.maxFontSize}px`;
+			this.lastResizeSignature = this.getResizeSignature() ?? resizeSignature;
 			return;
 		}
 

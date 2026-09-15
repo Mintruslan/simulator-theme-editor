@@ -270,6 +270,13 @@
 	padding: 3px;
 }
 
+.themeEditorField input[type='checkbox'] {
+	justify-self: end;
+	width: 18px;
+	height: 18px;
+	accent-color: var(--editor-accent);
+}
+
 .themeEditorFontControls {
 	display: grid;
 	gap: 7px;

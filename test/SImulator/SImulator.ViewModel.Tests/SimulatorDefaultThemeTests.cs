@@ -19,6 +19,9 @@ public sealed class SimulatorDefaultThemeTests
             Assert.That(theme.Tokens.Global.TextColor, Is.EqualTo("#112233"));
             Assert.That(theme.Tokens.Global.BackgroundColor, Is.EqualTo("#445566"));
             Assert.That(theme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Standard"));
+            Assert.That(theme.Tokens.Typography.QuestionText.AutoSize, Is.True);
+            Assert.That(theme.Tokens.Typography.QuestionText.TextShadowEnabled, Is.True);
+            Assert.That(theme.Tokens.Board.BordersVisible, Is.True);
         });
     }
 
@@ -46,6 +49,9 @@ public sealed class SimulatorDefaultThemeTests
             Assert.That(restored?.PresentationTheme, Is.Not.Null);
             Assert.That(restored!.PresentationTheme!.Tokens.Global.BackgroundColor, Is.EqualTo("#102040"));
             Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Standard"));
+            Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.AutoSize, Is.True);
+            Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.TextShadowEnabled, Is.True);
+            Assert.That(restored.PresentationTheme.Tokens.Board.BordersVisible, Is.True);
         });
     }
 

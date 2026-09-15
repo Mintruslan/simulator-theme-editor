@@ -446,16 +446,26 @@ describe('ClientController - Round Flow', () => {
 	});
 
 	describe('onTable', () => {
-		it('should display round table', () => {
+		it('should display every table row even when only some theme announcements arrived', () => {
+			state.table.roundInfo = [
+				{ name: 'Theme1', comment: '', questions: [] },
+				{ name: 'Theme2', comment: '', questions: [] },
+			];
 			const table: number[][] = [
 				[100, 200, 300],
+				[100, 200, 300],
+				[100, 200, 300],
+				[100, 200, 300],
 			];
+			const themeNames = ['Theme1', 'Theme2', 'Theme3', 'Theme4'];
 
-			controller.onTable(table);
+			controller.onTable(table, themeNames);
 
 			expect(mockAppDispatch).toHaveBeenCalled();
 			const actions = dispatchedActions.map(a => a.type);
 			expect(actions).toContain('table/setRoundThemes');
+			expect(state.table.roundInfo).toHaveLength(4);
+			expect(state.table.roundInfo.map(theme => theme.name)).toEqual(themeNames);
 		});
 	});
 

@@ -40,13 +40,14 @@ export function toSimulatorFontFaceCss(theme: SimulatorThemeDocument): string {
 export function toTypographyStyle(token: SimulatorTypographyToken): React.CSSProperties {
 	return {
 		fontFamily: token.fontFamily,
+		fontSize: token.autoSize === false ? pixels(token.fontSize) : undefined,
 		fontWeight: token.fontWeight,
 		lineHeight: token.lineHeight,
 		letterSpacing: pixels(token.letterSpacing),
 		color: token.color,
 		textAlign: token.textAlign,
 		textTransform: token.textTransform,
-		textShadow: token.textShadow,
+		textShadow: token.textShadowEnabled === false ? 'none' : token.textShadow,
 	};
 }
 
@@ -111,7 +112,7 @@ export function toSimulatorThemeCssVariables(theme: SimulatorThemeDocument): The
 		'--sim-question-line-height': typography.questionText.lineHeight,
 		'--sim-question-letter-spacing': pixels(typography.questionText.letterSpacing),
 		'--sim-question-color': typography.questionText.color,
-		'--sim-question-text-shadow': typography.questionText.textShadow,
+		'--sim-question-text-shadow': typography.questionText.textShadowEnabled === false ? 'none' : typography.questionText.textShadow,
 		'--sim-answer-font-family': typography.answerText.fontFamily,
 		'--sim-answer-font-size': pixels(typography.answerText.fontSize),
 		'--sim-answer-color': typography.answerText.color,
@@ -126,7 +127,7 @@ export function toSimulatorThemeCssVariables(theme: SimulatorThemeDocument): The
 		'--sim-board-padding': pixels(board.padding),
 		'--sim-board-cell-background': board.cellBackground,
 		'--sim-board-theme-background': board.themeHeaderBackground,
-		'--sim-board-border-width': pixels(board.borderWidth),
+		'--sim-board-border-width': board.bordersVisible === false ? '0px' : pixels(board.borderWidth),
 		'--sim-board-border-color': board.borderColor,
 		'--sim-board-radius': pixels(board.borderRadius),
 		'--sim-board-hover-background': board.hoverBackground,

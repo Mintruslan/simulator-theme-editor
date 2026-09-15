@@ -61,6 +61,7 @@ export function RoundTable(props: RoundTableProps) {
 						<AutoSizedText
 							minFontSize={8}
 							maxFontSize={typography.themeName.fontSize}
+							isAdaptive={typography.themeName.autoSize !== false}
 							style={toTypographyStyle(typography.themeName)}>
 							{hasQuestions ? themeInfo.name : ''}
 						</AutoSizedText>
@@ -83,6 +84,7 @@ export function RoundTable(props: RoundTableProps) {
 								<AutoSizedText
 									minFontSize={8}
 									maxFontSize={typography.questionPrice.fontSize}
+									isAdaptive={typography.questionPrice.autoSize !== false}
 									style={toTypographyStyle(typography.questionPrice)}
 									onClick={() => onSelectQuestion(themeIndex, questionIndex)}>
 									{isActive ? question.toString() : ''}

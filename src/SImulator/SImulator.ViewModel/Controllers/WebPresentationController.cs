@@ -265,8 +265,10 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
     public void SetTable(ThemeInfoViewModel[] table) => SendMessage(new
     {
         Type = "table",
-        // SIOnline receives the theme names separately and expects this payload to contain prices only.
-        Table = table.Select(t => t.Questions.Select(q => q.Price).ToArray()).ToArray()
+        // Keep the generic SIOnline price matrix and add names for the local bridge. The local engine can
+        // display the table before every animated theme announcement has reached the presentation.
+        Table = table.Select(t => t.Questions.Select(q => q.Price).ToArray()).ToArray(),
+        Themes = table.Select(t => t.Name).ToArray()
     });
 
     public void SetRoundTable() => SendMessage(new

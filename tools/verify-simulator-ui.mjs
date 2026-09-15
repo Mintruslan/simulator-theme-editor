@@ -201,27 +201,51 @@ try {
 		path.join(repositoryRoot, 'web', 'simulator-ui', 'assets', 'fonts', 'Jost-Regular.ttf'),
 	);
 	await page.waitForFunction(() => document.querySelectorAll('.themeEditorFontFamily option').length === 2);
+	await page.locator('.themeEditorTypographyAutoSize').uncheck();
+	await page.locator('.themeEditorFontSize').fill('36');
+	await page.locator('.themeEditorTextShadowEnabled').uncheck();
 	await page.locator('.themeEditorPreviewStates').getByRole('button', { name: 'Текст', exact: true }).click();
 	await page.waitForSelector('#table .tableText');
 	await page.waitForFunction(() => document.fonts.check('16px "Jost-Regular"'));
+	await page.waitForFunction(() => getComputedStyle(document.querySelector('#table .tableText')).fontSize === '36px');
+
+	const typographyResult = await page.evaluate(() => ({
+		fontSize: getComputedStyle(document.querySelector('#table .tableText')).fontSize,
+		textShadow: getComputedStyle(document.querySelector('#table .tableText')).textShadow,
+		fontOptionCount: document.querySelectorAll('.themeEditorFontFamily option').length,
+		selectedFont: document.querySelector('.themeEditorFontFamily').value,
+		fontFaceIsEmbedded: document.querySelector('style[data-simulator-theme-fonts]')?.textContent
+			.includes('data:font/ttf;base64,') ?? false,
+	}));
+
+	await page.locator('.themeEditorNavigation').getByRole('button', { name: 'Табло', exact: true }).click();
+	await page.locator('.themeEditorBoardBordersVisible').uncheck();
+	await page.locator('.themeEditorPreviewStates').getByRole('button', { name: 'Табло', exact: true }).click();
+	await page.waitForSelector('#table .roundTable');
+
+	const boardResult = await page.evaluate(() => ({
+		rowCount: document.querySelectorAll('#table .roundTableRow').length,
+		borderWidth: getComputedStyle(document.querySelector('#table .roundTableCell')).borderWidth,
+	}));
 
 	const editorResult = await page.evaluate(() => ({
 		background: getComputedStyle(document.querySelector('.themeEditorPreviewStage')).backgroundColor,
 		previewStateCount: document.querySelectorAll('.themeEditorPreviewStates button').length,
 		sectionCount: document.querySelectorAll('.themeEditorNavigation button').length,
-		fontOptionCount: document.querySelectorAll('.themeEditorFontFamily option').length,
-		selectedFont: document.querySelector('.themeEditorFontFamily').value,
-		fontFaceIsEmbedded: document.querySelector('style[data-simulator-theme-fonts]')?.textContent
-			.includes('data:font/ttf;base64,') ?? false,
 		postedMessageTypes: window.chrome.webview.postedMessages.map((message) => message.type),
 	}));
+	Object.assign(editorResult, { typographyResult, boardResult });
 
 	if (editorResult.background !== 'rgb(34, 51, 68)' ||
 		editorResult.previewStateCount !== 10 ||
 		editorResult.sectionCount !== 5 ||
-		editorResult.fontOptionCount !== 2 ||
-		editorResult.selectedFont !== 'Jost-Regular' ||
-		!editorResult.fontFaceIsEmbedded ||
+		typographyResult.fontOptionCount !== 2 ||
+		typographyResult.selectedFont !== 'Jost-Regular' ||
+		!typographyResult.fontFaceIsEmbedded ||
+		typographyResult.fontSize !== '36px' ||
+		typographyResult.textShadow !== 'none' ||
+		boardResult.rowCount !== 5 ||
+		boardResult.borderWidth !== '0px' ||
 		!editorResult.postedMessageTypes.includes('loaded') ||
 		!editorResult.postedMessageTypes.includes('themeChanged')) {
 		throw new Error(`Unexpected Theme Editor state: ${JSON.stringify(editorResult)}`);

@@ -23,6 +23,7 @@ export type SimulatorBackgroundFit = 'cover' | 'contain' | 'stretch' | 'center';
 export interface SimulatorTypographyToken {
 	fontFamily: string;
 	fontSize: number;
+	autoSize?: boolean;
 	fontWeight: number;
 	lineHeight: string;
 	letterSpacing: number;
@@ -30,6 +31,7 @@ export interface SimulatorTypographyToken {
 	textAlign: SimulatorTextAlignment;
 	textTransform: 'none' | 'uppercase' | 'lowercase';
 	textShadow: string;
+	textShadowEnabled?: boolean;
 }
 
 export interface SimulatorThemeDocument {
@@ -68,6 +70,7 @@ export interface SimulatorThemeDocument {
 			cellBackground: string;
 			themeHeaderBackground: string;
 			borderWidth: number;
+			bordersVisible?: boolean;
 			borderColor: string;
 			borderRadius: number;
 			hoverBackground: string;
@@ -107,6 +110,7 @@ const typography = (
 ): SimulatorTypographyToken => ({
 	fontFamily: SIMULATOR_BUILT_IN_FONT_FAMILY,
 	fontSize,
+	autoSize: true,
 	fontWeight,
 	lineHeight: 'normal',
 	letterSpacing: 0,
@@ -114,6 +118,7 @@ const typography = (
 	textAlign: 'center',
 	textTransform: 'none',
 	textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+	textShadowEnabled: true,
 });
 
 /** Visual baseline used whenever no saved SImulator theme is available. */
@@ -153,6 +158,7 @@ export const defaultSimulatorTheme: SimulatorThemeDocument = {
 			cellBackground: 'transparent',
 			themeHeaderBackground: 'rgba(255, 255, 255, 0.05)',
 			borderWidth: 2,
+			bordersVisible: true,
 			borderColor: 'transparent',
 			borderRadius: 4,
 			hoverBackground: 'rgba(255, 255, 255, 0.3)',
@@ -191,6 +197,7 @@ const isObject = (value: unknown): value is Record<string, unknown> => (
 
 const isString = (value: unknown): value is string => typeof value === 'string';
 const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+const isOptionalBoolean = (value: unknown): boolean => value === undefined || typeof value === 'boolean';
 
 function hasStringValues(value: unknown): boolean {
 	return isObject(value) && Object.values(value).every(isString);
@@ -240,13 +247,15 @@ function isTypographyToken(value: unknown, fontFamilies: Set<string>): boolean {
 		isString(value.fontFamily) &&
 		fontFamilies.has(value.fontFamily) &&
 		isNumber(value.fontSize) &&
+		isOptionalBoolean(value.autoSize) &&
 		isNumber(value.fontWeight) &&
 		isString(value.lineHeight) &&
 		isNumber(value.letterSpacing) &&
 		isString(value.color) &&
 		['left', 'center', 'right'].includes(value.textAlign as string) &&
 		['none', 'uppercase', 'lowercase'].includes(value.textTransform as string) &&
-		isString(value.textShadow);
+		isString(value.textShadow) &&
+		isOptionalBoolean(value.textShadowEnabled);
 }
 
 function hasTypographyTokens(value: Record<string, unknown>, fontFamilies: Set<string>): boolean {
@@ -281,6 +290,7 @@ function hasBoardTokens(value: Record<string, unknown>): boolean {
 		isString(value.cellBackground) &&
 		isString(value.themeHeaderBackground) &&
 		isNumber(value.borderWidth) &&
+		isOptionalBoolean(value.bordersVisible) &&
 		isString(value.borderColor) &&
 		isNumber(value.borderRadius) &&
 		isString(value.hoverBackground) &&

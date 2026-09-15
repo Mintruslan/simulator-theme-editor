@@ -265,7 +265,7 @@ function processMessage(controller: ClientController, payload: any, appDispatch:
 			break;
 
 		case 'table':
-			controller.onTable(payload.table);
+			controller.onTable(payload.table, payload.themes);
 			break;
 
 		case 'tableCaption':

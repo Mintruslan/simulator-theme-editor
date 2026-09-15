@@ -25,10 +25,14 @@ export default function PartialTextContent() {
 		}
 
 		if (divRef.current) {
-			divRef.current.style.fontSize = '';
-			fitElement(divRef.current, typography.fontSize);
-			const { fontSize } = window.getComputedStyle(divRef.current);
-			divRef.current.style.fontSize = (parseFloat(fontSize) * 0.95) + 'px'; // Adjust font size slightly for better fit
+			if (typography.autoSize === false) {
+				divRef.current.style.fontSize = `${typography.fontSize}px`;
+			} else {
+				divRef.current.style.fontSize = '';
+				fitElement(divRef.current, typography.fontSize);
+				const { fontSize } = window.getComputedStyle(divRef.current);
+				divRef.current.style.fontSize = (parseFloat(fontSize) * 0.95) + 'px'; // Adjust font size slightly for better fit
+			}
 		}
 	}, [text, totalLength, typography]);
 

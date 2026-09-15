@@ -61,6 +61,7 @@ export default function TextContent(props: TextContentProps) {
 			<AutoSizedText
 				className="tableText fadeIn tableTextCenter"
 				maxFontSize={typographyToken.fontSize}
+				isAdaptive={typographyToken.autoSize !== false}
 				style={toTypographyStyle(typographyToken)}>
 				{isAnswer ? <ClickableAnswer text={props.text}>{content}</ClickableAnswer> : content}
 			</AutoSizedText>
