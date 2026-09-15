@@ -1,6 +1,7 @@
 import { filterGames } from '../src/utils/GamesHelpers';
 import GameInfo from '../src/client/contracts/GameInfo';
 import ServerGameType from '../src/client/contracts/ServerGameType';
+import localization from '../src/model/resources/localization';
 
 const Classic = 1;
 const Simple = 2;
@@ -22,6 +23,10 @@ const GameStageCreated = 'Created' as any;
 const GameStageStarted = 'Started' as any;
 const GameStageRound = 'Round' as any;
 const GameStageFinished = 'Finished' as any;
+
+beforeEach(() => {
+	localization.setLanguage('en');
+});
 
 function makeGame(overrides: Partial<GameInfo> = {}): GameInfo {
 	return {

@@ -3,6 +3,15 @@
 ###############################################################################
 * text=auto
 
+# Keep web build inputs and generated presentation assets deterministic on Windows.
+web/simulator-ui/package-lock.json text eol=lf
+web/simulator-ui/assets/**/*.json text eol=lf
+web/simulator-ui/assets/**/*.svg text eol=lf
+src/SImulator/SImulator/webtable/*.js text eol=lf
+src/SImulator/SImulator/webtable/*.txt text eol=lf
+src/SImulator/SImulator/webtable/*.json text eol=lf
+src/SImulator/SImulator/webtable/*.svg text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

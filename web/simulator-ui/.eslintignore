@@ -2,6 +2,7 @@ node_modules
 dist
 webpack.config.js
 e2e
+tauri
 playwright.config.ts
 playwright-report
 test-results

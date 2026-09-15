@@ -31,6 +31,10 @@
     lb:CommandWindowBehavior.IsAttached="True"
     Background="{StaticResource MainBackground}"
     d:DataContext="{d:DesignInstance vm:MainViewModel}">
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding Start}" />
+    </Window.InputBindings>
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -1217,7 +1221,7 @@
                     Height="36"
                     Margin="0,0,4,10"
                     HorizontalContentAlignment="Center"
-                    Content="Открыть Theme Editor"
+                    Content="Открыть _Theme Editor"
                     Click="OpenThemeEditor_Click" />
 
                 <UniformGrid Columns="2" Margin="0,0,4,0">

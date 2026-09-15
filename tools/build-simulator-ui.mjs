@@ -66,8 +66,30 @@ function assertSafeTarget() {
 }
 
 function runPresentationBuild() {
-	const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-	const result = spawnSync(npmCommand, ['run', 'build-lib-table'], {
+	const npmArguments = ['run', 'build-lib-table'];
+	let npmCommand = 'npm';
+
+	if (process.platform === 'win32') {
+		const npmCliDirectories = [path.dirname(process.execPath), ...(process.env.PATH ?? '').split(path.delimiter)];
+
+		if (process.env.ProgramFiles) {
+			npmCliDirectories.push(path.join(process.env.ProgramFiles, 'nodejs'));
+		}
+
+		const npmCliCandidates = npmCliDirectories
+			.filter(Boolean)
+			.map((directory) => path.join(directory, 'node_modules', 'npm', 'bin', 'npm-cli.js'));
+		const npmCli = npmCliCandidates.find((candidate) => existsSync(candidate));
+
+		if (!npmCli) {
+			fail('npm CLI is missing from the Node.js directory and PATH');
+		}
+
+		npmCommand = process.execPath;
+		npmArguments.unshift(npmCli);
+	}
+
+	const result = spawnSync(npmCommand, npmArguments, {
 		cwd: sourceDirectory,
 		stdio: 'inherit',
 	});

@@ -14,7 +14,7 @@
 		"airbnb-typescript"
 	],
 	"parserOptions": {
-		"project": "./tsconfig.json"
+		"project": ["./tsconfig.json", "./tsconfig.test.json"]
 	},
 	"rules": {
 		"linebreak-style": "off",
@@ -22,7 +22,7 @@
 		"@typescript-eslint/indent": "off",
 		"react/jsx-indent": "off",
 		"@typescript-eslint/comma-dangle": "off",		
-		"max-len": ["error", { "code": 150 }],
+		"max-len": ["warn", { "code": 150 }],
 		"unicode-bom": "off",
 		"import/no-named-as-default": "off",
 		"react/destructuring-assignment": "off",
@@ -61,6 +61,8 @@
 		"arrow-body-style": "warn",
 		"no-await-in-loop": "warn",
 		"@typescript-eslint/no-empty-interface": "warn",
-		"@typescript-eslint/no-empty-function": "warn"
+		"@typescript-eslint/no-empty-function": "warn",
+		"@typescript-eslint/quotes": ["warn", "single", { "avoidEscape": true }],
+		"@typescript-eslint/default-param-last": "warn"
 	}
 }

@@ -4,6 +4,7 @@ import commonReducer from '../src/state/commonSlice';
 import { createDefaultPackage } from '../src/model/siquester/packageGenerator';
 import JSZip from 'jszip';
 import { downloadPackageAsSIQ } from '../src/model/siquester/packageExporter';
+import localization from '../src/model/resources/localization';
 
 jest.mock('../src/model/siquester/packageExporter', () => ({
 	downloadPackageAsSIQ: jest.fn(),
@@ -12,6 +13,7 @@ jest.mock('../src/model/siquester/packageExporter', () => ({
 describe('siquesterSlice', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		localization.setLanguage('en');
 	});
 
 	test('savePackage shows a success message after the package is downloaded', async () => {
