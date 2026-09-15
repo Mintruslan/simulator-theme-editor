@@ -38,6 +38,14 @@ export function toSimulatorFontFaceCss(theme: SimulatorThemeDocument): string {
 
 /** Maps one semantic typography role to the inline style consumed by AutoSizedText. */
 export function toTypographyStyle(token: SimulatorTypographyToken): React.CSSProperties {
+	let justifyContent: React.CSSProperties['justifyContent'] = 'center';
+
+	if (token.textAlign === 'left') {
+		justifyContent = 'flex-start';
+	} else if (token.textAlign === 'right') {
+		justifyContent = 'flex-end';
+	}
+
 	return {
 		fontFamily: token.fontFamily,
 		fontSize: token.autoSize === false ? pixels(token.fontSize) : undefined,
@@ -46,6 +54,7 @@ export function toTypographyStyle(token: SimulatorTypographyToken): React.CSSPro
 		letterSpacing: pixels(token.letterSpacing),
 		color: token.color,
 		textAlign: token.textAlign,
+		justifyContent,
 		textTransform: token.textTransform,
 		textShadow: token.textShadowEnabled === false ? 'none' : token.textShadow,
 	};

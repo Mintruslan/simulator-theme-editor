@@ -73,17 +73,22 @@ describe('SimulatorTheme', () => {
 			.toBe('url("file:///C:/Broadcast/background.png")');
 	});
 
-	it('supports fixed font sizes, disabled shadows and hidden board borders', () => {
+	it('supports fixed font sizes, alignment, disabled shadows and plain-text boards', () => {
 		const theme = cloneDefaultTheme();
 		const { questionText } = theme.tokens.typography;
 		questionText.autoSize = false;
 		questionText.fontSize = 42;
+		questionText.textAlign = 'right';
 		questionText.textShadowEnabled = false;
 		theme.tokens.board.bordersVisible = false;
+		theme.tokens.board.plainTextOnly = true;
 
 		expect(toTypographyStyle(questionText).fontSize).toBe('42px');
+		expect(toTypographyStyle(questionText).textAlign).toBe('right');
+		expect(toTypographyStyle(questionText).justifyContent).toBe('flex-end');
 		expect(toTypographyStyle(questionText).textShadow).toBe('none');
 		expect(toSimulatorThemeCssVariables(theme)['--sim-board-border-width']).toBe('0px');
+		expect(parseSimulatorTheme(theme)).toBe(theme);
 	});
 
 	it('accepts themes saved before optional presentation switches were added', () => {
@@ -91,6 +96,7 @@ describe('SimulatorTheme', () => {
 		delete theme.tokens.typography.questionText.autoSize;
 		delete theme.tokens.typography.questionText.textShadowEnabled;
 		delete theme.tokens.board.bordersVisible;
+		delete theme.tokens.board.plainTextOnly;
 
 		expect(parseSimulatorTheme(theme)).toBe(theme);
 	});

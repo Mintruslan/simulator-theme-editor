@@ -22,6 +22,7 @@ public sealed class SimulatorDefaultThemeTests
             Assert.That(theme.Tokens.Typography.QuestionText.AutoSize, Is.True);
             Assert.That(theme.Tokens.Typography.QuestionText.TextShadowEnabled, Is.True);
             Assert.That(theme.Tokens.Board.BordersVisible, Is.True);
+            Assert.That(theme.Tokens.Board.PlainTextOnly, Is.False);
         });
     }
 
@@ -52,6 +53,7 @@ public sealed class SimulatorDefaultThemeTests
             Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.AutoSize, Is.True);
             Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.TextShadowEnabled, Is.True);
             Assert.That(restored.PresentationTheme.Tokens.Board.BordersVisible, Is.True);
+            Assert.That(restored.PresentationTheme.Tokens.Board.PlainTextOnly, Is.False);
         });
     }
 

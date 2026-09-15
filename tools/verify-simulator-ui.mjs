@@ -203,14 +203,20 @@ try {
 	await page.waitForFunction(() => document.querySelectorAll('.themeEditorFontFamily option').length === 2);
 	await page.locator('.themeEditorTypographyAutoSize').uncheck();
 	await page.locator('.themeEditorFontSize').fill('36');
+	await page.locator('.themeEditorTextAlign').selectOption('right');
 	await page.locator('.themeEditorTextShadowEnabled').uncheck();
 	await page.locator('.themeEditorPreviewStates').getByRole('button', { name: 'Текст', exact: true }).click();
 	await page.waitForSelector('#table .tableText');
 	await page.waitForFunction(() => document.fonts.check('16px "Jost-Regular"'));
-	await page.waitForFunction(() => getComputedStyle(document.querySelector('#table .tableText')).fontSize === '36px');
+	await page.waitForFunction(() => {
+		const style = getComputedStyle(document.querySelector('#table .tableText'));
+		return style.fontSize === '36px' && style.textAlign === 'right' && style.justifyContent === 'flex-end';
+	});
 
 	const typographyResult = await page.evaluate(() => ({
 		fontSize: getComputedStyle(document.querySelector('#table .tableText')).fontSize,
+		textAlign: getComputedStyle(document.querySelector('#table .tableText')).textAlign,
+		justifyContent: getComputedStyle(document.querySelector('#table .tableText')).justifyContent,
 		textShadow: getComputedStyle(document.querySelector('#table .tableText')).textShadow,
 		fontOptionCount: document.querySelectorAll('.themeEditorFontFamily option').length,
 		selectedFont: document.querySelector('.themeEditorFontFamily').value,
@@ -222,11 +228,22 @@ try {
 	await page.locator('.themeEditorBoardBordersVisible').uncheck();
 	await page.locator('.themeEditorPreviewStates').getByRole('button', { name: 'Табло', exact: true }).click();
 	await page.waitForSelector('#table .roundTable');
+	await page.waitForFunction(() => getComputedStyle(document.querySelector('#table .roundTableCell')).borderWidth === '0px');
+	const hiddenBorderWidth = await page.locator('#table .roundTableCell').first().evaluate(element => getComputedStyle(element).borderWidth);
+
+	await page.locator('.themeEditorBoardBordersVisible').check();
+	await page.waitForFunction(() => getComputedStyle(document.querySelector('#table .roundTableCell')).borderWidth === '2px');
+	await page.locator('.themeEditorBoardPlainTextOnly').check();
+	await page.waitForSelector('#table .roundTable.plainTextOnly');
 
 	const boardResult = await page.evaluate(() => ({
 		rowCount: document.querySelectorAll('#table .roundTableRow').length,
 		borderWidth: getComputedStyle(document.querySelector('#table .roundTableCell')).borderWidth,
+		background: getComputedStyle(document.querySelector('#table .roundTableCell')).backgroundColor,
+		boxShadow: getComputedStyle(document.querySelector('#table .roundTableCell')).boxShadow,
+		plainTextOnly: document.querySelector('#table .roundTable').classList.contains('plainTextOnly'),
 	}));
+	Object.assign(boardResult, { hiddenBorderWidth });
 
 	const editorResult = await page.evaluate(() => ({
 		background: getComputedStyle(document.querySelector('.themeEditorPreviewStage')).backgroundColor,
@@ -243,9 +260,15 @@ try {
 		typographyResult.selectedFont !== 'Jost-Regular' ||
 		!typographyResult.fontFaceIsEmbedded ||
 		typographyResult.fontSize !== '36px' ||
+		typographyResult.textAlign !== 'right' ||
+		typographyResult.justifyContent !== 'flex-end' ||
 		typographyResult.textShadow !== 'none' ||
 		boardResult.rowCount !== 5 ||
+		boardResult.hiddenBorderWidth !== '0px' ||
 		boardResult.borderWidth !== '0px' ||
+		boardResult.background !== 'rgba(0, 0, 0, 0)' ||
+		boardResult.boxShadow !== 'none' ||
+		!boardResult.plainTextOnly ||
 		!editorResult.postedMessageTypes.includes('loaded') ||
 		!editorResult.postedMessageTypes.includes('themeChanged')) {
 		throw new Error(`Unexpected Theme Editor state: ${JSON.stringify(editorResult)}`);

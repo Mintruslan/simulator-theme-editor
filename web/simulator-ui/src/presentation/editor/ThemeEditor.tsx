@@ -639,6 +639,19 @@ export default function ThemeEditor(): JSX.Element {
 							value={toColorInput(selectedTypography.color)}
 							onChange={event => updateTypography('color', event.target.value)} />
 					</Field>
+					<Field label='Выравнивание'>
+						<select
+							className='themeEditorTextAlign'
+							value={selectedTypography.textAlign}
+							onChange={event => updateTypography(
+								'textAlign',
+								event.target.value as SimulatorTypographyToken['textAlign'],
+							)}>
+							<option value='left'>Слева</option>
+							<option value='center'>По центру</option>
+							<option value='right'>Справа</option>
+						</select>
+					</Field>
 					<Field label='Тень текста'>
 						<input
 							className='themeEditorTextShadowEnabled'
@@ -656,6 +669,15 @@ export default function ThemeEditor(): JSX.Element {
 							checked={theme.tokens.board.bordersVisible !== false}
 							onChange={event => updateTheme(draft => {
 								draft.tokens.board.bordersVisible = event.target.checked;
+							})} />
+					</Field>
+					<Field label='Только текст на фоне'>
+						<input
+							className='themeEditorBoardPlainTextOnly'
+							type='checkbox'
+							checked={theme.tokens.board.plainTextOnly === true}
+							onChange={event => updateTheme(draft => {
+								draft.tokens.board.plainTextOnly = event.target.checked;
 							})} />
 					</Field>
 					<Field label='Фон ячейки'>

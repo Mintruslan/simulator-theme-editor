@@ -15,7 +15,8 @@
     Width="800"
     WindowState="Normal"
     WindowStyle="None"
-    Closing="Window_Closing">
+    Closing="Window_Closing"
+    Closed="Window_Closed">
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding Stop}" />
         <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding Stop}" />

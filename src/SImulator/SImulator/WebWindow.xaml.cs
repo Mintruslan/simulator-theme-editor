@@ -23,4 +23,6 @@ public partial class WebWindow : Window
     {
         e.Cancel = !DesktopManager.CanCloseMainView;
     }
+
+    private void Window_Closed(object? sender, System.EventArgs e) => webView.Dispose();
 }

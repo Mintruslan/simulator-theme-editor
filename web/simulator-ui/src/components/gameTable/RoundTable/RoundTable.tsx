@@ -29,7 +29,14 @@ const mapStateToProps = (state: State) => ({
 export function RoundTable(props: RoundTableProps) {
 	const room = useAppSelector(state => state.room2);
 	const typography = useAppSelector(state => state.settings.simulatorTheme.tokens.typography);
+	const plainTextOnly = useAppSelector(state => state.settings.simulatorTheme.tokens.board.plainTextOnly === true);
 	const appDispatch = useAppDispatch();
+	const roundTableClassName = [
+		'roundTable',
+		props.isSelectable ? 'selectable' : '',
+		props.isHexagonal ? 'hexagonal' : '',
+		plainTextOnly ? 'plainTextOnly' : '',
+	].filter(Boolean).join(' ');
 
 	const onSelectQuestion = (themeIndex: number, questionIndex: number) => {
 		if (room.isEditTableEnabled) {
@@ -51,7 +58,7 @@ export function RoundTable(props: RoundTableProps) {
 	};
 
 	return (
-		<div className={`roundTable ${props.isSelectable ? 'selectable' : ''} ${props.isHexagonal ? 'hexagonal' : ''}`}>
+		<div className={roundTableClassName}>
 			{props.roundInfo.map((themeInfo, themeIndex) => {
 				const className = themeIndex % 2 === 0 ? 'right' : 'left';
 				const hasQuestions = themeInfo.questions.some(q => q > -1);

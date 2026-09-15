@@ -126,6 +126,8 @@ public sealed class SimulatorBoardThemeTokens
 
     public bool BordersVisible { get; init; } = true;
 
+    public bool PlainTextOnly { get; init; }
+
     public string BorderColor { get; init; } = "transparent";
 
     public double BorderRadius { get; init; } = 4;

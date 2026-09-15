@@ -71,6 +71,7 @@ export interface SimulatorThemeDocument {
 			themeHeaderBackground: string;
 			borderWidth: number;
 			bordersVisible?: boolean;
+			plainTextOnly?: boolean;
 			borderColor: string;
 			borderRadius: number;
 			hoverBackground: string;
@@ -159,6 +160,7 @@ export const defaultSimulatorTheme: SimulatorThemeDocument = {
 			themeHeaderBackground: 'rgba(255, 255, 255, 0.05)',
 			borderWidth: 2,
 			bordersVisible: true,
+			plainTextOnly: false,
 			borderColor: 'transparent',
 			borderRadius: 4,
 			hoverBackground: 'rgba(255, 255, 255, 0.3)',
@@ -291,6 +293,7 @@ function hasBoardTokens(value: Record<string, unknown>): boolean {
 		isString(value.themeHeaderBackground) &&
 		isNumber(value.borderWidth) &&
 		isOptionalBoolean(value.bordersVisible) &&
+		isOptionalBoolean(value.plainTextOnly) &&
 		isString(value.borderColor) &&
 		isNumber(value.borderRadius) &&
 		isString(value.hoverBackground) &&

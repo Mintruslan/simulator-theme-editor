@@ -17,7 +17,8 @@ This package is a self-contained Windows x86 build of the SImulator Theme Editor
 4. Confirm that the live preview and open game table change immediately.
 5. Turn off **Адаптивный размер**, enter an exact size, and verify that repeated labels use that size.
 6. Turn **Тень текста** off and on for the selected element.
-7. Select **Сохранить копию** for the built-in theme, then export it to verify portability.
+7. Change **Выравнивание** between left, center, and right and verify the selected text element moves inside its available area.
+8. Select **Сохранить копию** for the built-in theme, then export it to verify portability.
 
 Imported fonts are embedded in the theme JSON. The editor lists only the bundled `Standard` font and fonts imported into the active theme; it does not enumerate Windows fonts. A theme can contain up to eight font files.
 
@@ -27,8 +28,10 @@ Imported fonts are embedded in the theme JSON. The editor lists only the bundled
 - Check all ten preview states in Theme Editor.
 - Open a round table and confirm that every package theme is visible, even if the table is shown before the theme announcement animation finishes.
 - In **Табло**, turn **Показывать рамки** off and on; confirm the change in both preview and game presentation.
+- Enable **Только текст на фоне** and confirm that cell backgrounds, borders, shadows, rounded corners, and hover scaling disappear while theme names and prices remain visible.
 - Save, reload, duplicate, export, import, and delete a user theme.
 - Verify text, board, players, timer, correct/incorrect states, and the final round.
 - Restart SImulator and confirm that the active theme and imported font are restored.
+- Close Theme Editor, the presentation window, and then SImulator. In Task Manager, confirm that WebView2 subprocesses owned by this launch disappear after a short shutdown delay.
 
 When reporting a problem, include Windows version, WebView2 version, package name, selected preview/game state, and exact reproduction steps.

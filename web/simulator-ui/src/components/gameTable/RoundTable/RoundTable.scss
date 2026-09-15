@@ -122,6 +122,16 @@
 	transition: transform 0.1s;
 }
 
+#table .roundTable.plainTextOnly .roundTableCell {
+	margin: 0;
+	background: transparent !important;
+	border: 0 !important;
+	border-radius: 0;
+	box-shadow: none !important;
+	transition: none;
+	transform: none !important;
+}
+
 #table .roundTable .questHeader.editable {
 	cursor: pointer;
 }
