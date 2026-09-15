@@ -13,6 +13,7 @@ using System.Windows.Input;
 using Utils;
 using Utils.Commands;
 using Utils.Web;
+using SImulator.ViewModel.Theming;
 
 namespace SImulator.ViewModel.Controllers;
 
@@ -264,7 +265,8 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
     public void SetTable(ThemeInfoViewModel[] table) => SendMessage(new
     {
         Type = "table",
-        Table = table.Select(t => new { t.Name, Questions = t.Questions.Select(q => q.Price).ToArray() }).ToArray()
+        // SIOnline receives the theme names separately and expects this payload to contain prices only.
+        Table = table.Select(t => t.Questions.Select(q => q.Price).ToArray()).ToArray()
     });
 
     public void SetRoundTable() => SendMessage(new
@@ -432,13 +434,24 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
     {
         _settings = settings;
 
+        var tableTextColor = ConvertWpfToHtmlColor(settings.TableColorString);
+        var tableBackgroundColor = ConvertWpfToHtmlColor(settings.TableBackColorString);
+
         SendMessageCore(new
         {
             Type = "setOptions",
-            TableTextColor = ConvertWpfToHtmlColor(settings.TableColorString),
-            TableBackgroundColor = ConvertWpfToHtmlColor(settings.TableBackColorString),
+            TableTextColor = tableTextColor,
+            TableBackgroundColor = tableBackgroundColor,
         });
+
+        ApplyTheme(SimulatorDefaultTheme.Create(tableTextColor, tableBackgroundColor, settings.TableFontFamily));
     }
+
+    public void ApplyTheme(SimulatorThemeDocument theme) => SendMessageCore(new
+    {
+        Type = "applyTheme",
+        Theme = theme,
+    });
 
     private static string ConvertWpfToHtmlColor(string wpfColor)
     {

@@ -10,8 +10,11 @@ import { showLogo } from './state/tableSlice';
 import { setAppSound } from './state/settingsSlice';
 import QRCodeView from './components/panels/QRCodeView/QRCodeView';
 import { AudioContextProvider } from './contexts/AudioContextProvider';
+import ThemeStyleHost from './presentation/ThemeStyleHost';
 
 import './scss/style.scss';
+
+export { defaultSimulatorTheme } from './model/SimulatorTheme';
 
 export function run(elementId: string, game?: IGameClient): void {
 	const host = document.getElementById(elementId);
@@ -29,12 +32,12 @@ export function run(elementId: string, game?: IGameClient): void {
 	ReactDOM.render(
 		<Provider store={store}>
 			<AudioContextProvider>
-				<div className='playersAndTable'>
+				<ThemeStyleHost className='playersAndTable'>
 					<PlayersView />
 					<GameTable />
 					<AudioController />
 					<QRCodeView />
-				</div>
+				</ThemeStyleHost>
 			</AudioContextProvider>
 		</Provider>,
 		host

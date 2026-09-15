@@ -26,8 +26,8 @@ body {
 }
 
 .gamePlayers {
-    flex-direction: row !important;
-    background: #0a0e30 !important;
+    flex-direction: var(--sim-players-layout, row) !important;
+    background: var(--sim-global-background-color, #0a0e30) !important;
     margin: 0 !important;
     width: 100% !important;
 }
@@ -45,7 +45,7 @@ body {
 
     .gamePlayers div.playerInfo {
         background-color: transparent !important;
-        color: white !important;
+        color: var(--sim-global-text-color, white) !important;
         display: flex !important;
     }
 
@@ -54,7 +54,7 @@ body {
     }
 
     .gamePlayers li.me div.name, .gamePlayers li.me div.stakeHost, .gamePlayers li.me div.sum {
-        color: white !important;
+        color: var(--sim-global-text-color, white) !important;
     }
 
     .gamePlayers li .playerInfo div.stakeHost {

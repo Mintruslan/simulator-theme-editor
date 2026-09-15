@@ -17,10 +17,16 @@ import IGameClient from './client/game/IGameClient';
 import { gameSoundPlayer } from './utils/GameSoundPlayer';
 import GameSound from './model/enums/GameSound';
 import { AppDispatch } from './state/store';
-import { setAppSound, setTableBackgroundColor, setTableTextColor } from './state/settingsSlice';
+import {
+	applySimulatorTheme,
+	setAppSound,
+	setTableBackgroundColor,
+	setTableTextColor,
+} from './state/settingsSlice';
 import { loadState } from './state/SavedState';
 import { setFontsReady } from './state/commonSlice';
 import MessageProcessor from './logic/messageProcessor';
+import { parseSimulatorTheme } from './model/SimulatorTheme';
 
 declare global {
 	interface Window {
@@ -216,6 +222,18 @@ function processMessage(controller: ClientController, payload: any, appDispatch:
 			appDispatch(setTableTextColor(payload.tableTextColor));
 			appDispatch(setTableBackgroundColor(payload.tableBackgroundColor));
 			break;
+
+		case 'applyTheme': { // non-SIHost compatible API
+			const theme = parseSimulatorTheme(payload.theme);
+
+			if (theme) {
+				appDispatch(applySimulatorTheme(theme));
+			} else {
+				console.error('SImulator rejected an invalid or unsupported theme payload');
+			}
+
+			break;
+		}
 
 		case 'setSoundMap': // non-SIHost compatible API
 			Object.keys(payload.soundMap).forEach((key: string) => gameSoundPlayer.setSound(

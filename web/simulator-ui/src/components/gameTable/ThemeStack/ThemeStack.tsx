@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { selectTheme } from '../../../state/serverActions';
 import getBestRowColumnCount from '../../../utils/stackedContentHelper';
 import { shallowEqual } from 'react-redux';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './ThemeStack.scss';
 
@@ -27,6 +28,7 @@ export default function ThemeStack() {
 	}, [isSelectable, roundInfo, activeThemeIndex]);
 
 	const appDispatch = useAppDispatch();
+	const finalThemeName = useAppSelector(state => state.settings.simulatorTheme.tokens.typography.finalThemeName);
 
 	const onSelectTheme = React.useCallback((themeIndex: number) => {
 		if (!isSelectable) {
@@ -47,7 +49,8 @@ export default function ThemeStack() {
 		const isBlinking = activeThemeIndex === themeIndex;
 
 		return (
-			<AutoSizedText key={themeIndex} maxFontSize={144}
+			<AutoSizedText key={themeIndex} maxFontSize={finalThemeName.fontSize}
+				style={toTypographyStyle(finalThemeName)}
 				className={`finalTableCell  ${isActive ? 'active' : ''} ${isBlinking ? 'blink' : ''}`}
 				onClick={() => onSelectTheme(themeIndex)}>
 				{isActive ? themeName : '\u00A0'}

@@ -12,6 +12,7 @@
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
+	background: var(--sim-question-background, transparent);
 }
 
 .optionsLayout {
@@ -75,6 +76,7 @@
 	align-items: center;
 	flex-direction: column;
 	overflow: hidden;
+	max-width: var(--sim-question-content-width, 100%);
 }
 
 .clef {

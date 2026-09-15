@@ -6,6 +6,7 @@ import ThemeInfo from '../../../model/ThemeInfo';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { toggleQuestion } from '../../../state/room2Slice';
 import { selectQuestion } from '../../../state/serverActions';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './RoundTable.scss';
 
@@ -27,6 +28,7 @@ const mapStateToProps = (state: State) => ({
 
 export function RoundTable(props: RoundTableProps) {
 	const room = useAppSelector(state => state.room2);
+	const typography = useAppSelector(state => state.settings.simulatorTheme.tokens.typography);
 	const appDispatch = useAppDispatch();
 
 	const onSelectQuestion = (themeIndex: number, questionIndex: number) => {
@@ -56,7 +58,10 @@ export function RoundTable(props: RoundTableProps) {
 
 				return (<div key={themeIndex} className={`roundTableRow ${className}`}>
 					<div className="roundTableCell themeHeader">
-						<AutoSizedText minFontSize={8} maxFontSize={60}>
+						<AutoSizedText
+							minFontSize={8}
+							maxFontSize={typography.themeName.fontSize}
+							style={toTypographyStyle(typography.themeName)}>
 							{hasQuestions ? themeInfo.name : ''}
 						</AutoSizedText>
 					</div>
@@ -77,7 +82,8 @@ export function RoundTable(props: RoundTableProps) {
 							<div key={questionIndex} className={questionClassName}>
 								<AutoSizedText
 									minFontSize={8}
-									maxFontSize={144}
+									maxFontSize={typography.questionPrice.fontSize}
+									style={toTypographyStyle(typography.questionPrice)}
 									onClick={() => onSelectQuestion(themeIndex, questionIndex)}>
 									{isActive ? question.toString() : ''}
 								</AutoSizedText>

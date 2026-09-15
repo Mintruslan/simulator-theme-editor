@@ -3,8 +3,9 @@ import State from '../../../state/State';
 import { connect } from 'react-redux';
 import AutoSizedText from '../../common/AutoSizedText/AutoSizedText';
 import { showRoundTable } from '../../../state/tableSlice';
-import { useAppDispatch } from '../../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { stopAudio } from '../../../state/commonSlice';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './TableRoundThemes.css';
 
@@ -24,6 +25,7 @@ const TableRoundThemes: React.FC<TableRoundThemesProps> = ({ roundThemes }) => {
     let fadeTimerRef: number | null = null;
 
 	const appDispatch = useAppDispatch();
+	const finalThemeName = useAppSelector(state => state.settings.simulatorTheme.tokens.typography.finalThemeName);
 
 	const setNextTheme = () => {
 		if (timerThemeIndex === roundThemes.length) {
@@ -76,7 +78,11 @@ const TableRoundThemes: React.FC<TableRoundThemesProps> = ({ roundThemes }) => {
 
     return (
         <div className="tableBorderCentered scaleText" ref={textRef}>
-            <AutoSizedText id="tableText" className="tableText tableTextCenter margined" maxFontSize={144}>
+            <AutoSizedText
+				id="tableText"
+				className="tableText tableTextCenter margined"
+				maxFontSize={finalThemeName.fontSize}
+				style={toTypographyStyle(finalThemeName)}>
                 {text}
             </AutoSizedText>
         </div>

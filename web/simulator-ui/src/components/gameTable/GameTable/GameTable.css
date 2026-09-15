@@ -1,13 +1,13 @@
 #table {
     flex: 1 0 0;
     margin: 0;
-    color: #FFFFFF;
+    color: var(--sim-global-text-color, #FFFFFF);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    font-family: Standard;
-    font-weight: 500;
+    font-family: var(--sim-question-font-family, Standard);
+    font-weight: var(--sim-question-font-weight, 500);
 }
 
 .tableCaption {
@@ -147,8 +147,14 @@
 #table .tableText {
     height: 100%;
     width: 100%;
-    font-size: 36px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    max-width: var(--sim-question-content-width, 100%);
+    padding: var(--sim-question-padding, 5px);
+    color: var(--sim-question-color, #FFFFFF);
+    font-size: var(--sim-question-font-size, 36px);
+    line-height: var(--sim-question-line-height, normal);
+    letter-spacing: var(--sim-question-letter-spacing, normal);
+    text-align: var(--sim-question-alignment, center);
+    text-shadow: var(--sim-question-text-shadow, 2px 2px 4px rgba(0, 0, 0, 0.7));
     white-space: pre-line;
     display: flex;
     align-items: center;
@@ -170,7 +176,7 @@
 }
 
 .mainContent .tableText {
-    padding: 5px;
+    padding: calc(var(--sim-question-padding, 5px) * var(--sim-question-padding-scale, 1));
 }
 
 #table .tableTextCenter {
@@ -230,7 +236,7 @@
 }
 
 .commonProgress .progress-bar {
-    background: #fff;
+    background: var(--sim-timer-color, #fff);
     height: 15px;
     box-shadow: none;
     -webkit-mask-image: linear-gradient(to right,
@@ -266,7 +272,7 @@
 
 @media screen and (min-width: 1100px) {
     #table .mainContent .tableText {
-        padding: 10px;
+        --sim-question-padding-scale: 2;
     }
 
     .tableCaption {
@@ -286,7 +292,7 @@
 
 @media screen and (min-width: 1600px) {
     #table .mainContent .tableText {
-        padding: 25px;
+        --sim-question-padding-scale: 5;
     }
 
     .tableCaption {

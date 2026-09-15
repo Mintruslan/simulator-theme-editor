@@ -5,6 +5,7 @@ using SIPackages;
 using SIPackages.Core;
 using SIUI.ViewModel;
 using SIUI.ViewModel.Core;
+using SImulator.ViewModel.Theming;
 
 namespace SImulator.ViewModel.Contracts;
 
@@ -73,6 +74,11 @@ public interface IPresentationController : IDisposable
     void UpdatePlayerInfo(int index, PlayerInfo player, string? propertyName = null);
 
     void UpdateSettings(Settings settings);
+
+    /// <summary>
+    /// Applies presentation-only visual settings without changing game state.
+    /// </summary>
+    void ApplyTheme(SimulatorThemeDocument theme) { }
 
     void UpdateShowPlayers(bool showPlayers);
 

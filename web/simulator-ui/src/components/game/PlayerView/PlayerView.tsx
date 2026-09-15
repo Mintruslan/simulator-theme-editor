@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import ScoreEditor from './ScoreEditor/ScoreEditor';
 import { setAreSumsEditable } from '../../../state/room2Slice';
 import PersonName from './PersonName';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './PlayerView.scss';
 
@@ -59,6 +60,7 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 	const areSumsEditable = useAppSelector(state => state.room2.areSumsEditable);
 	const isGameStarted = useAppSelector(state => state.room2.stage.isGameStarted);
 	const hostName = useAppSelector(state => state.room2.persons.hostName);
+	const typography = useAppSelector(state => state.settings.simulatorTheme.tokens.typography);
 
 	const isHost = account?.name === hostName;
 
@@ -247,7 +249,10 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 
 				<div className="playerInfo">
 					<div className="name" title={player.name}>
-						<AutoSizedText className='nameValue' maxFontSize={48}>
+						<AutoSizedText
+							className='nameValue'
+							maxFontSize={typography.playerName.fontSize}
+							style={toTypographyStyle(typography.playerName)}>
 							<PersonName name={player.name} />
 						</AutoSizedText>
 
@@ -273,7 +278,14 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 								onFocus={() => setIsScoreEditorVisible(true)}
 								onBlur={handleNumericTextBoxBlur}
 							/>
-						) : <AutoSizedText className='staticSum' maxFontSize={48}>{player.sum}</AutoSizedText>}
+						) : (
+							<AutoSizedText
+								className='staticSum'
+								maxFontSize={typography.playerScore.fontSize}
+								style={toTypographyStyle(typography.playerScore)}>
+								{player.sum}
+							</AutoSizedText>
+						)}
 					</div>
 				</div>
 
@@ -298,7 +310,10 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 					{player.isChooser ? (
 						<div className='chooserMark' title={localization.chooserMark}>
 							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" />
+									<path
+										d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+										fill="currentColor"
+									/>
 							</svg>
 						</div>
 					) : null}
@@ -306,7 +321,14 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 					{player.mediaLoaded ? (
 						<div className='mediaLoadedMark' title={localization.mediaLoadedMark}>
 							<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M6 4L20 12L6 20V4Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+									<path
+										d="M6 4L20 12L6 20V4Z"
+										fill="currentColor"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
 							</svg>
 						</div>
 					) : null}
@@ -323,7 +345,11 @@ export function PlayerView(props: PlayerViewProps): JSX.Element {
 
 				{account && player.mediaPreloadStarted ? (
 					<div className='preload__progress'>
-						<div className="preload__bar" style={{ width: `${player.mediaPreloadProgress}%` }} title={localization.mediaPreloadProgress} />
+								<div
+									className="preload__bar"
+									style={{ width: `${player.mediaPreloadProgress}%` }}
+									title={localization.mediaPreloadProgress}
+								/>
 						<span className="preload__text">{localization.loading}: {player.mediaPreloadProgress}%</span>
 					</div>
 				) : null}

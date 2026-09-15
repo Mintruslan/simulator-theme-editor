@@ -3,6 +3,8 @@ import State from '../../../state/State';
 import { connect } from 'react-redux';
 import AutoSizedText from '../../common/AutoSizedText/AutoSizedText';
 import ClickableAnswer from '../../common/ClickableAnswer/ClickableAnswer';
+import { useAppSelector } from '../../../state/hooks';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './TableText.scss';
 
@@ -17,8 +19,14 @@ const mapStateToProps = (state: State) => ({
 });
 
 export function TableText(props: TableTextProps) {
+	const typography = useAppSelector((state) => state.settings.simulatorTheme.tokens.typography);
+	const typographyToken = props.isAnswer ? typography.answerText : typography.questionText;
+
 	return (
-		<AutoSizedText className="tableText fadeIn tableTextCenter margined" maxFontSize={72}>
+		<AutoSizedText
+			className="tableText fadeIn tableTextCenter margined"
+			maxFontSize={typographyToken.fontSize}
+			style={toTypographyStyle(typographyToken)}>
 			{props.isAnswer ? <ClickableAnswer text={props.text} /> : props.text}
 		</AutoSizedText>
 	);

@@ -6,6 +6,7 @@ import ButtonPressMode from '../model/ButtonPressMode';
 import TimeSettings from '../model/TimeSettings';
 import ThemeSettings from '../model/ThemeSettings';
 import PenaltyType from '../model/enums/PenaltyType';
+import { defaultSimulatorTheme, SimulatorThemeDocument } from '../model/SimulatorTheme';
 
 export interface SettingsState {
 	soundVolume: number;
@@ -26,6 +27,7 @@ export interface SettingsState {
 	attachContentToTable: boolean;
 	showVideoAvatars: boolean;
 	theme: ThemeSettings;
+	simulatorTheme: SimulatorThemeDocument;
 	writeGameLog: boolean;
 	logPointsEvent: boolean;
 	useProxy2: boolean;
@@ -62,6 +64,7 @@ const initialState: SettingsState = {
 			backgroundImageKey: null,
 		},
 	},
+	simulatorTheme: defaultSimulatorTheme,
 	writeGameLog: false,
 	logPointsEvent: true,
 	useProxy2: true,
@@ -199,6 +202,12 @@ export const settingsSlice = createSlice({
 		setIsHexagonal: (state: SettingsState, action: PayloadAction<boolean>) => {
 			state.theme.table.isHexagonal = action.payload;
 		},
+		applySimulatorTheme: (state: SettingsState, action: PayloadAction<SimulatorThemeDocument>) => {
+			state.simulatorTheme = action.payload;
+			state.theme.table.textColor = action.payload.tokens.global.textColor;
+			state.theme.table.backgroundColor = action.payload.tokens.global.backgroundColor;
+			state.theme.table.fontFamily = action.payload.tokens.typography.questionText.fontFamily;
+		},
 		setWriteGameLog: (state: SettingsState, action: PayloadAction<boolean>) => {
 			state.writeGameLog = action.payload;
 		},
@@ -238,6 +247,7 @@ export const settingsSlice = createSlice({
 		},
 		resetThemeSettings: (state: SettingsState) => {
 			state.theme = initialState.theme;
+			state.simulatorTheme = defaultSimulatorTheme;
 		},
 		resetSoundsSettings: (state: SettingsState) => {
 			state.customSounds = initialState.customSounds;
@@ -299,6 +309,7 @@ export const {
 	setTableBackgroundColor,
 	setTableFontFamily,
 	setIsHexagonal,
+	applySimulatorTheme,
 	setWriteGameLog,
 	setLogPointsEvent,
 	setLoadExternalMedia,

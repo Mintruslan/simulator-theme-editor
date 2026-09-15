@@ -43,6 +43,7 @@ After an update, review the bridge in `src/LibraryCore.tsx`, build the presentat
 
 1. Build the `library-table` bundle without TypeScript errors.
 2. Run SIOnline unit tests and lint.
-3. Build SImulator on Windows.
-4. Disconnect networking and open a local `.siq` package.
-5. Verify table, text, image, video, audio, timers, players, answer states, and final round.
+3. Run `node tools/verify-simulator-ui.mjs` for an isolated WebView bridge and offline-resource smoke test.
+4. Build SImulator on Windows.
+5. Disconnect networking and open a local `.siq` package.
+6. Verify table, text, image, video, audio, timers, players, answer states, and final round.

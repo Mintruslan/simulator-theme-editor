@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppSelector } from '../../../state/hooks';
 import fitElement from '../../../utils/fitElement';
+import { toTypographyStyle } from '../../../presentation/ThemeStyleHost';
 
 import './PartialTextContent.scss';
 
@@ -11,6 +12,7 @@ export default function PartialTextContent() {
 	const textVersion = useAppSelector(state => state.table.textVersion);
 	const readingSpeed = useAppSelector(state => state.room2.settings.readingSpeed);
 	const isGamePaused = useAppSelector(state => state.room2.stage.isGamePaused);
+	const typography = useAppSelector(state => state.settings.simulatorTheme.tokens.typography.questionText);
 
 	const [visibleLength, setVisibleLength] = useState(0);
 	const totalLengthRef = useRef(totalLength);
@@ -24,11 +26,11 @@ export default function PartialTextContent() {
 
 		if (divRef.current) {
 			divRef.current.style.fontSize = '';
-			fitElement(divRef.current, 144);
+			fitElement(divRef.current, typography.fontSize);
 			const { fontSize } = window.getComputedStyle(divRef.current);
 			divRef.current.style.fontSize = (parseFloat(fontSize) * 0.95) + 'px'; // Adjust font size slightly for better fit
 		}
-	}, [text, totalLength]);
+	}, [text, totalLength, typography]);
 
 	useEffect(() => {
 		setVisibleLength(0);
@@ -70,7 +72,7 @@ export default function PartialTextContent() {
 
 	return (
 		<div className='textHost'>
-			<div ref={divRef} className="tableText nonAligned">
+			<div ref={divRef} className="tableText nonAligned" style={toTypographyStyle(typography)}>
 				<span>
 					<span className="animatablePartialCharacter">{visibleText}</span>
 					<span className="invisible">{hiddenText}</span>

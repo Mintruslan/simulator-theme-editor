@@ -1,0 +1,12 @@
+.simulatorPresentation {
+	background-color: var(--sim-global-background-color, #0a0e30);
+	background-image: var(--sim-global-background-image, none);
+	background-position: var(--sim-global-background-position, center);
+	background-repeat: no-repeat;
+	background-size: var(--sim-global-background-fit, cover);
+	color: var(--sim-global-text-color, #fff);
+}
+
+.simulatorPresentation #table {
+	background-color: transparent !important;
+}
