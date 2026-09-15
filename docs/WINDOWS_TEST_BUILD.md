@@ -13,7 +13,7 @@ This package is a self-contained Windows x86 build of the SImulator Theme Editor
 
 1. Open **Типографика** in Theme Editor.
 2. Select a presentation element.
-3. Choose **Загрузить…** and select a TTF, OTF, WOFF, or WOFF2 file up to 5 MB.
+3. Choose **Загрузить…** and select `Samples/Jost-Regular.ttf` (or another TTF, OTF, WOFF, or WOFF2 file up to 5 MB).
 4. Confirm that the live preview and open game table change immediately.
 5. Select **Сохранить копию** for the built-in theme, then export it to verify portability.
 
