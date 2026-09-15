@@ -13,12 +13,12 @@ The SImulator-specific `index.html`, `script.js`, and `style.css` files are pres
 
 ## Local theme storage
 
-- `Default SImulator Theme` is built in and read-only; it preserves the legacy colors and font settings.
+- `Default SImulator Theme` is built in and read-only; it preserves legacy colors and uses the bundled `Standard` font.
 - User presets are individual, versioned `*.theme.json` files under `%LOCALAPPDATA%\Khil-soft\SImulator\Settings\Themes`.
 - The active theme document is also stored in `user.config`, so the application can restore it without network access.
 - `FileThemeRepository` validates IDs and schema versions, writes atomically, ignores broken presets while listing the library, and supports save, duplicate, delete, import, and export operations.
 
-Theme assets remain URL/path references in schema version 1. Copying fonts and images into a portable exported package belongs to the later assets/import-export stage.
+Schema version 1 embeds imported TTF, OTF, WOFF, and WOFF2 files as local data URLs in `assets.fonts`. A theme can contain up to eight fonts of 5 MB each. Typography tokens can reference only the bundled `Standard` family or one of these embedded assets, so exported font themes stay portable and never query the operating system or network. Image assets remain URL/path references.
 
 ## Theme Editor MVP
 
@@ -27,6 +27,7 @@ Open the **Design** tab in the desktop application and select **Открыть T
 - Left: visual sections for global settings, typography, board, question, and players.
 - Center: a 16:9 live preview using the same presentation components as the game.
 - Right: structured, non-CSS controls for the selected section.
+- Typography: choose the bundled font or upload/remove fonts stored directly inside the theme JSON.
 - Preview states: board, text question, image, video, audio, players, buzzer, correct answer, incorrect answer, and final round.
 - Preset actions: load, save, duplicate, delete, import JSON, and export JSON.
 

@@ -8,7 +8,7 @@ namespace SImulator.ViewModel.Tests;
 public sealed class SimulatorDefaultThemeTests
 {
     [Test]
-    public void CreatePreservesLegacyPresentationSettings()
+    public void CreatePreservesLegacyColorsButUsesBundledFont()
     {
         var theme = SimulatorDefaultTheme.Create("#112233", "#445566", "Inter");
 
@@ -18,7 +18,7 @@ public sealed class SimulatorDefaultThemeTests
             Assert.That(theme.Id, Is.EqualTo("simulator-default"));
             Assert.That(theme.Tokens.Global.TextColor, Is.EqualTo("#112233"));
             Assert.That(theme.Tokens.Global.BackgroundColor, Is.EqualTo("#445566"));
-            Assert.That(theme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Inter"));
+            Assert.That(theme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Standard"));
         });
     }
 
@@ -35,7 +35,7 @@ public sealed class SimulatorDefaultThemeTests
     {
         var settings = new AppSettings
         {
-            PresentationTheme = SimulatorDefaultTheme.Create("#F0F0F0", "#102040", "Inter")
+            PresentationTheme = SimulatorDefaultTheme.Create("#F0F0F0", "#102040", "Standard")
         };
 
         var json = JsonSerializer.Serialize(settings);
@@ -45,7 +45,56 @@ public sealed class SimulatorDefaultThemeTests
         {
             Assert.That(restored?.PresentationTheme, Is.Not.Null);
             Assert.That(restored!.PresentationTheme!.Tokens.Global.BackgroundColor, Is.EqualTo("#102040"));
-            Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Inter"));
+            Assert.That(restored.PresentationTheme.Tokens.Typography.QuestionText.FontFamily, Is.EqualTo("Standard"));
         });
     }
+
+    [Test]
+    public void EmbeddedFontThemeIsValid()
+    {
+        var theme = CreateFontTheme("Broadcast Sans", "data:font/woff2;base64,AA==");
+
+        Assert.That(SimulatorThemeValidator.IsValid(theme), Is.True);
+    }
+
+    [Test]
+    public void RemoteFontThemeIsInvalid()
+    {
+        var theme = CreateFontTheme("Broadcast Sans", "https://example.com/font.woff2");
+
+        Assert.That(SimulatorThemeValidator.IsValid(theme), Is.False);
+    }
+
+    [Test]
+    public void UnregisteredSystemFontIsInvalid()
+    {
+        var theme = CreateFontTheme("Arial", "data:font/woff2;base64,AA==");
+        theme.Assets.Fonts.Clear();
+
+        Assert.That(SimulatorThemeValidator.IsValid(theme), Is.False);
+    }
+
+    private static SimulatorThemeDocument CreateFontTheme(string fontFamily, string source) => new()
+    {
+        Id = "font-theme",
+        Name = "Font Theme",
+        Assets = new SimulatorThemeAssets
+        {
+            Fonts = new Dictionary<string, string>
+            {
+                [fontFamily] = source,
+            },
+        },
+        Tokens = new SimulatorThemeTokens
+        {
+            Typography = new SimulatorTypographyThemeTokens
+            {
+                QuestionText = new SimulatorTypographyToken
+                {
+                    FontFamily = fontFamily,
+                    FontSize = 72,
+                },
+            },
+        },
+    };
 }

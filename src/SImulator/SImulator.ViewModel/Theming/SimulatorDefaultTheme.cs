@@ -14,9 +14,7 @@ public static class SimulatorDefaultTheme
 
     public static SimulatorThemeDocument Create(string textColor, string backgroundColor, string? fontFamily)
     {
-        var resolvedFontFamily = string.IsNullOrWhiteSpace(fontFamily) || fontFamily == Settings.DefaultTableFontFamily
-            ? "Standard"
-            : fontFamily;
+        const string resolvedFontFamily = "Standard";
 
         return new SimulatorThemeDocument
         {

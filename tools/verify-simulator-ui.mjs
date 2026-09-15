@@ -21,6 +21,7 @@ const mimeTypes = {
 	'.svg': 'image/svg+xml',
 	'.ttf': 'font/ttf',
 	'.woff': 'font/woff',
+	'.woff2': 'font/woff2',
 };
 
 function resolveRequestPath(requestUrl) {
@@ -195,16 +196,32 @@ try {
 		await page.waitForSelector(expectedSelector);
 	}
 
+	await page.locator('.themeEditorNavigation').getByRole('button', { name: 'Типографика', exact: true }).click();
+	await page.locator('.themeEditorFontInput').setInputFiles(
+		path.join(repositoryRoot, 'web', 'simulator-ui', 'assets', 'fonts', 'Jost-Regular.ttf'),
+	);
+	await page.waitForFunction(() => document.querySelectorAll('.themeEditorFontFamily option').length === 2);
+	await page.locator('.themeEditorPreviewStates').getByRole('button', { name: 'Текст', exact: true }).click();
+	await page.waitForSelector('#table .tableText');
+	await page.waitForFunction(() => document.fonts.check('16px "Jost-Regular"'));
+
 	const editorResult = await page.evaluate(() => ({
 		background: getComputedStyle(document.querySelector('.themeEditorPreviewStage')).backgroundColor,
 		previewStateCount: document.querySelectorAll('.themeEditorPreviewStates button').length,
 		sectionCount: document.querySelectorAll('.themeEditorNavigation button').length,
+		fontOptionCount: document.querySelectorAll('.themeEditorFontFamily option').length,
+		selectedFont: document.querySelector('.themeEditorFontFamily').value,
+		fontFaceIsEmbedded: document.querySelector('style[data-simulator-theme-fonts]')?.textContent
+			.includes('data:font/ttf;base64,') ?? false,
 		postedMessageTypes: window.chrome.webview.postedMessages.map((message) => message.type),
 	}));
 
 	if (editorResult.background !== 'rgb(34, 51, 68)' ||
 		editorResult.previewStateCount !== 10 ||
 		editorResult.sectionCount !== 5 ||
+		editorResult.fontOptionCount !== 2 ||
+		editorResult.selectedFont !== 'Jost-Regular' ||
+		!editorResult.fontFaceIsEmbedded ||
 		!editorResult.postedMessageTypes.includes('loaded') ||
 		!editorResult.postedMessageTypes.includes('themeChanged')) {
 		throw new Error(`Unexpected Theme Editor state: ${JSON.stringify(editorResult)}`);

@@ -204,7 +204,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IButtonManagerListen
 
     static MainViewModel()
     {
-        FontFamilies = [SIUI.ViewModel.Core.Settings.DefaultTableFontFamily, .. PlatformManager.Instance.GetFonts().OrderBy(s => s)];
+        FontFamilies = [SIUI.ViewModel.Core.Settings.DefaultTableFontFamily];
         LineSpaces = [1.0, SIUI.ViewModel.Core.Settings.DefaultQuestionLineSpacing];
     }
 

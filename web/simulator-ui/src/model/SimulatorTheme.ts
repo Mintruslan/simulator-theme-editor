@@ -1,4 +1,20 @@
 export const SIMULATOR_THEME_SCHEMA_VERSION = 1;
+export const SIMULATOR_BUILT_IN_FONT_FAMILY = 'Standard';
+export const MAX_SIMULATOR_THEME_FONTS = 8;
+export const MAX_SIMULATOR_FONT_FILE_SIZE = 5 * 1024 * 1024;
+
+const MAX_SIMULATOR_FONT_DATA_URL_LENGTH = (Math.ceil(MAX_SIMULATOR_FONT_FILE_SIZE / 3) * 4) + 64;
+const supportedFontDataUrlPrefixes = [
+	'data:font/ttf;base64,',
+	'data:font/otf;base64,',
+	'data:font/woff;base64,',
+	'data:font/woff2;base64,',
+	'data:application/x-font-ttf;base64,',
+	'data:application/x-font-opentype;base64,',
+	'data:application/font-woff;base64,',
+	'data:application/font-woff2;base64,',
+	'data:application/octet-stream;base64,',
+];
 
 export type SimulatorTextAlignment = 'left' | 'center' | 'right';
 export type SimulatorPlayerLayout = 'horizontal' | 'vertical';
@@ -89,7 +105,7 @@ const typography = (
 	fontWeight: number,
 	color = '#FFFFFF',
 ): SimulatorTypographyToken => ({
-	fontFamily: 'Standard',
+	fontFamily: SIMULATOR_BUILT_IN_FONT_FAMILY,
 	fontSize,
 	fontWeight,
 	lineHeight: 'normal',
@@ -180,9 +196,49 @@ function hasStringValues(value: unknown): boolean {
 	return isObject(value) && Object.values(value).every(isString);
 }
 
-function isTypographyToken(value: unknown): boolean {
+function isValidFontFamilyName(value: string): boolean {
+	return value.length > 0 && value.length <= 64 && Array.from(value).every(character => {
+		const characterCode = character.charCodeAt(0);
+		return characterCode >= 32 && characterCode !== 127 && !'{};"\\'.includes(character);
+	});
+}
+
+/** Only embedded font payloads are accepted so a theme never depends on machine or network fonts. */
+export function isSimulatorFontDataUrl(value: string): boolean {
+	if (value.length > MAX_SIMULATOR_FONT_DATA_URL_LENGTH) {
+		return false;
+	}
+
+	const normalizedValue = value.toLowerCase();
+	return supportedFontDataUrlPrefixes.some(prefix => (
+		normalizedValue.startsWith(prefix) && value.length > prefix.length
+	));
+}
+
+function hasFontAssets(value: unknown): value is Record<string, string> {
+	if (!isObject(value)) {
+		return false;
+	}
+
+	const entries = Object.entries(value);
+
+	return entries.length <= MAX_SIMULATOR_THEME_FONTS && entries.every(([fontFamily, source]) => (
+		isString(source) &&
+		fontFamily.toLowerCase() !== SIMULATOR_BUILT_IN_FONT_FAMILY.toLowerCase() &&
+		isValidFontFamilyName(fontFamily) &&
+		isSimulatorFontDataUrl(source)
+	));
+}
+
+/** Lists the complete, portable font registry available to Theme Editor controls. */
+export function getSimulatorThemeFontFamilies(theme: SimulatorThemeDocument): string[] {
+	return [SIMULATOR_BUILT_IN_FONT_FAMILY, ...Object.keys(theme.assets.fonts).sort((left, right) => left.localeCompare(right))];
+}
+
+function isTypographyToken(value: unknown, fontFamilies: Set<string>): boolean {
 	return isObject(value) &&
 		isString(value.fontFamily) &&
+		fontFamilies.has(value.fontFamily) &&
 		isNumber(value.fontSize) &&
 		isNumber(value.fontWeight) &&
 		isString(value.lineHeight) &&
@@ -193,7 +249,7 @@ function isTypographyToken(value: unknown): boolean {
 		isString(value.textShadow);
 }
 
-function hasTypographyTokens(value: Record<string, unknown>): boolean {
+function hasTypographyTokens(value: Record<string, unknown>, fontFamilies: Set<string>): boolean {
 	const roles = [
 		'themeName',
 		'finalThemeName',
@@ -205,7 +261,7 @@ function hasTypographyTokens(value: Record<string, unknown>): boolean {
 		'timer',
 	];
 
-	return roles.every((role) => isTypographyToken(value[role]));
+	return roles.every((role) => isTypographyToken(value[role], fontFamilies));
 }
 
 function hasGlobalTokens(value: Record<string, unknown>): boolean {
@@ -266,19 +322,23 @@ export function parseSimulatorTheme(value: unknown): SimulatorThemeDocument | nu
 		typeof value.name !== 'string' ||
 		!(value.basedOn === null || isString(value.basedOn)) ||
 		!isObject(value.assets) ||
-		!hasStringValues(value.assets.fonts) ||
+		!hasFontAssets(value.assets.fonts) ||
 		!hasStringValues(value.assets.images)) {
 		return null;
 	}
 
 	const { tokens } = value;
+	const fontFamilies = new Set([
+		SIMULATOR_BUILT_IN_FONT_FAMILY,
+		...Object.keys(value.assets.fonts as Record<string, string>),
+	]);
 
 	if (!isObject(tokens)) {
 		return null;
 	}
 
 	if (!isObject(tokens.global) || !hasGlobalTokens(tokens.global) ||
-		!isObject(tokens.typography) || !hasTypographyTokens(tokens.typography) ||
+		!isObject(tokens.typography) || !hasTypographyTokens(tokens.typography, fontFamilies) ||
 		!isObject(tokens.board) || !hasBoardTokens(tokens.board) ||
 		!isObject(tokens.question) || !hasQuestionTokens(tokens.question) ||
 		!isObject(tokens.players) || !hasPlayerTokens(tokens.players) ||

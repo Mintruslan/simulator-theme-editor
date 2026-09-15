@@ -10,26 +10,7 @@ import './ThemeSettingsView.scss';
 
 const MaxImageSizeMb = 1;
 
-// Common system fonts available across different operating systems
-const systemFonts = [
-	undefined, // Default option
-	'Arial',
-	'Arial Black',
-	'Verdana',
-	'Tahoma',
-	'Trebuchet MS',
-	'Times New Roman',
-	'Georgia',
-	'Garamond',
-	'Courier New',
-	'Segoe UI',
-	'Helvetica',
-	'Calibri',
-	'Futura',
-	'Gill Sans',
-	'Geneva',
-	'Palatino'
-];
+const bundledFonts = [undefined, 'Standard'];
 
 function renderStudiaBackground() {
 	const base64 = localStorage.getItem(Constants.STUDIA_BACKGROUND_KEY);
@@ -98,7 +79,7 @@ const ThemeSettingsView: React.FC = () => {
 					id='tableFontFamily'
 					value={theme.table.fontFamily || localization.defaultFont}
 					onChange={e => appDispatch(setTableFontFamily(e.target.value))}>
-					{systemFonts.map(font => (
+					{bundledFonts.map(font => (
 						<option key={font ?? localization.defaultFont} value={font ?? ''} style={{ fontFamily: font }}>
 							{font ?? localization.defaultFont}
 						</option>

@@ -7,16 +7,35 @@ namespace SImulator.ViewModel.Theming;
 /// </summary>
 public static partial class SimulatorThemeValidator
 {
+    private const int MaxFontCount = 8;
+    private const int MaxFontFileSize = 5 * 1024 * 1024;
+    private const int MaxFontDataUrlLength = (((MaxFontFileSize + 2) / 3) * 4) + 64;
+    private const string BundledFontFamily = "Standard";
+
+    private static readonly string[] SupportedFontDataUrlPrefixes =
+    [
+        "data:font/ttf;base64,",
+        "data:font/otf;base64,",
+        "data:font/woff;base64,",
+        "data:font/woff2;base64,",
+        "data:application/x-font-ttf;base64,",
+        "data:application/x-font-opentype;base64,",
+        "data:application/font-woff;base64,",
+        "data:application/font-woff2;base64,",
+        "data:application/octet-stream;base64,",
+    ];
+
     public static bool IsValid(SimulatorThemeDocument? theme) => theme != null
         && theme.SchemaVersion == SimulatorThemeDocument.CurrentSchemaVersion
         && IsValidId(theme.Id)
         && !string.IsNullOrWhiteSpace(theme.Name)
         && theme.Assets != null
         && theme.Assets.Fonts != null
+        && IsValidFonts(theme.Assets.Fonts)
         && theme.Assets.Images != null
         && theme.Tokens != null
         && IsValidGlobal(theme.Tokens.Global)
-        && IsValidTypography(theme.Tokens.Typography)
+        && IsValidTypography(theme.Tokens.Typography, theme.Assets.Fonts)
         && IsValidBoard(theme.Tokens.Board)
         && IsValidQuestion(theme.Tokens.Question)
         && IsValidPlayers(theme.Tokens.Players)
@@ -34,18 +53,37 @@ public static partial class SimulatorThemeValidator
         && IsNonNegative(tokens.BorderRadius)
         && tokens.Scale > 0;
 
-    private static bool IsValidTypography(SimulatorTypographyThemeTokens? tokens) => tokens != null
-        && IsValidTypographyToken(tokens.ThemeName)
-        && IsValidTypographyToken(tokens.FinalThemeName)
-        && IsValidTypographyToken(tokens.QuestionPrice)
-        && IsValidTypographyToken(tokens.QuestionText)
-        && IsValidTypographyToken(tokens.AnswerText)
-        && IsValidTypographyToken(tokens.PlayerName)
-        && IsValidTypographyToken(tokens.PlayerScore)
-        && IsValidTypographyToken(tokens.Timer);
+    private static bool IsValidFonts(IReadOnlyDictionary<string, string> fonts) => fonts.Count <= MaxFontCount
+        && fonts.Keys.Distinct(StringComparer.OrdinalIgnoreCase).Count() == fonts.Count
+        && fonts.All(pair => IsValidFontFamilyName(pair.Key) && IsValidFontDataUrl(pair.Value));
 
-    private static bool IsValidTypographyToken(SimulatorTypographyToken? token) => token != null
+    private static bool IsValidFontFamilyName(string fontFamily) => HasValue(fontFamily)
+        && fontFamily.Length <= 64
+        && !fontFamily.Equals(BundledFontFamily, StringComparison.OrdinalIgnoreCase)
+        && !fontFamily.Any(character => char.IsControl(character) || "{};\"\\".Contains(character));
+
+    private static bool IsValidFontDataUrl(string? source) => source != null
+        && source.Length <= MaxFontDataUrlLength
+        && SupportedFontDataUrlPrefixes.Any(prefix =>
+            source.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && source.Length > prefix.Length);
+
+    private static bool IsValidTypography(
+        SimulatorTypographyThemeTokens? tokens,
+        IReadOnlyDictionary<string, string> fonts) => tokens != null
+        && IsValidTypographyToken(tokens.ThemeName, fonts)
+        && IsValidTypographyToken(tokens.FinalThemeName, fonts)
+        && IsValidTypographyToken(tokens.QuestionPrice, fonts)
+        && IsValidTypographyToken(tokens.QuestionText, fonts)
+        && IsValidTypographyToken(tokens.AnswerText, fonts)
+        && IsValidTypographyToken(tokens.PlayerName, fonts)
+        && IsValidTypographyToken(tokens.PlayerScore, fonts)
+        && IsValidTypographyToken(tokens.Timer, fonts);
+
+    private static bool IsValidTypographyToken(
+        SimulatorTypographyToken? token,
+        IReadOnlyDictionary<string, string> fonts) => token != null
         && HasValue(token.FontFamily)
+        && (token.FontFamily == BundledFontFamily || fonts.ContainsKey(token.FontFamily))
         && token.FontSize > 0
         && token.FontWeight is >= 1 and <= 1000
         && HasValue(token.LineHeight)

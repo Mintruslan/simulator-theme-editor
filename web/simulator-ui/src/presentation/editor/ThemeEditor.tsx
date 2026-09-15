@@ -7,7 +7,11 @@ import PlayerStates from '../../model/enums/PlayerStates';
 import PlayerInfo from '../../model/PlayerInfo';
 import {
 	defaultSimulatorTheme,
+	getSimulatorThemeFontFamilies,
+	MAX_SIMULATOR_FONT_FILE_SIZE,
+	MAX_SIMULATOR_THEME_FONTS,
 	parseSimulatorTheme,
+	SIMULATOR_BUILT_IN_FONT_FAMILY,
 	SimulatorThemeDocument,
 	SimulatorTypographyToken,
 } from '../../model/SimulatorTheme';
@@ -136,6 +140,52 @@ function toColorInput(value: string): string {
 	return /^#[0-9a-f]{6}$/i.test(value) ? value : '#000000';
 }
 
+const supportedFontMimeTypes: Record<string, string> = {
+	ttf: 'font/ttf',
+	otf: 'font/otf',
+	woff: 'font/woff',
+	woff2: 'font/woff2',
+};
+
+function createFontFamily(fileName: string, fonts: Record<string, string>): string {
+	const baseName = fileName
+		.replace(/\.[^.]+$/, '')
+		.replace(/[^A-Za-z0-9А-Яа-яЁё _.-]/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim()
+		.slice(0, 54) || 'Custom Font';
+	const existingNames = new Set(Object.keys(fonts).map(name => name.toLowerCase()));
+	let fontFamily = baseName;
+	let suffix = 2;
+
+	while (existingNames.has(fontFamily.toLowerCase()) ||
+		fontFamily.toLowerCase() === SIMULATOR_BUILT_IN_FONT_FAMILY.toLowerCase()) {
+		fontFamily = `${baseName} ${suffix}`;
+		suffix += 1;
+	}
+
+	return fontFamily;
+}
+
+function readFontAsDataUrl(file: File, mimeType: string): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onerror = () => reject(reader.error ?? new Error('Не удалось прочитать файл шрифта'));
+		reader.onload = () => {
+			const result = typeof reader.result === 'string' ? reader.result : '';
+			const separatorIndex = result.indexOf(',');
+
+			if (separatorIndex === -1) {
+				reject(new Error('Не удалось подготовить файл шрифта'));
+				return;
+			}
+
+			resolve(`data:${mimeType};base64,${result.slice(separatorIndex + 1)}`);
+		};
+		reader.readAsDataURL(file);
+	});
+}
+
 interface FieldProps {
 	label: string;
 	children: React.ReactNode;
@@ -162,6 +212,7 @@ export default function ThemeEditor(): JSX.Element {
 	const [activeThemeId, setActiveThemeId] = React.useState(theme.id);
 	const [status, setStatus] = React.useState('Все изменения сразу отображаются в preview');
 	const importInput = React.useRef<HTMLInputElement>(null);
+	const fontImportInput = React.useRef<HTMLInputElement>(null);
 
 	React.useEffect(() => {
 		dispatch(infoChanged({
@@ -334,6 +385,65 @@ export default function ThemeEditor(): JSX.Element {
 	};
 
 	const selectedTypography = theme.tokens.typography[typographyRole];
+	const availableFontFamilies = getSimulatorThemeFontFamilies(theme);
+
+	const importFont = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+
+		if (!file) {
+			return;
+		}
+
+		try {
+			const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+			const mimeType = supportedFontMimeTypes[extension];
+
+			if (!mimeType) {
+				throw new Error('Поддерживаются шрифты TTF, OTF, WOFF и WOFF2');
+			}
+
+			if (file.size === 0 || file.size > MAX_SIMULATOR_FONT_FILE_SIZE) {
+				throw new Error('Размер файла шрифта должен быть от 1 байта до 5 МБ');
+			}
+
+			if (Object.keys(theme.assets.fonts).length >= MAX_SIMULATOR_THEME_FONTS) {
+				throw new Error(`В одной теме можно хранить не более ${MAX_SIMULATOR_THEME_FONTS} шрифтов`);
+			}
+
+			const fontFamily = createFontFamily(file.name, theme.assets.fonts);
+			const dataUrl = await readFontAsDataUrl(file, mimeType);
+
+			updateTheme(draft => {
+				draft.assets.fonts[fontFamily] = dataUrl;
+				draft.tokens.typography[typographyRole].fontFamily = fontFamily;
+			});
+			setStatus(`Шрифт «${fontFamily}» добавлен в тему`);
+		} catch (error) {
+			setStatus(error instanceof Error ? error.message : 'Не удалось импортировать шрифт');
+		} finally {
+			event.target.value = '';
+		}
+	};
+
+	const removeFont = () => {
+		const { fontFamily } = selectedTypography;
+
+		if (!theme.assets.fonts[fontFamily]) {
+			return;
+		}
+
+		updateTheme(draft => {
+			delete draft.assets.fonts[fontFamily];
+
+			Object.values(draft.tokens.typography).forEach(token => {
+				if (token.fontFamily === fontFamily) {
+					token.fontFamily = SIMULATOR_BUILT_IN_FONT_FAMILY;
+				}
+			});
+		});
+		setStatus(`Шрифт «${fontFamily}» удалён из темы`);
+	};
+
 	const mediaPlaceholder = previewState === 'video' || previewState === 'audio'
 		? <div className={`themeEditorMediaPlaceholder ${previewState}`}>
 			<div className='themeEditorMediaIcon'>{previewState === 'video' ? '▶' : '♫'}</div>
@@ -467,9 +577,33 @@ export default function ThemeEditor(): JSX.Element {
 						</select>
 					</Field>
 					<Field label='Шрифт'>
-						<input
-							value={selectedTypography.fontFamily}
-							onChange={event => updateTypography('fontFamily', event.target.value)} />
+						<div className='themeEditorFontControls'>
+							<select
+								className='themeEditorFontFamily'
+								value={selectedTypography.fontFamily}
+								onChange={event => updateTypography('fontFamily', event.target.value)}>
+								{availableFontFamilies.map(fontFamily => (
+									<option key={fontFamily} value={fontFamily}>{fontFamily}</option>
+								))}
+							</select>
+							<div className='themeEditorFontActions'>
+								<button type='button' onClick={() => fontImportInput.current?.click()}>Загрузить…</button>
+								<button
+									type='button'
+									disabled={!theme.assets.fonts[selectedTypography.fontFamily]}
+									onClick={removeFont}>
+									Удалить
+								</button>
+							</div>
+							<small>TTF, OTF, WOFF или WOFF2 · до 5 МБ · хранится внутри темы</small>
+							<input
+								ref={fontImportInput}
+								className='themeEditorFontInput'
+								type='file'
+								accept='.ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2'
+								hidden
+								onChange={importFont} />
+						</div>
 					</Field>
 					<Field label='Размер'>
 						<input

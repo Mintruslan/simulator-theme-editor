@@ -1,9 +1,15 @@
 import {
 	defaultSimulatorTheme,
+	getSimulatorThemeFontFamilies,
 	parseSimulatorTheme,
 	SIMULATOR_THEME_SCHEMA_VERSION,
+	SimulatorThemeDocument,
 } from '../src/model/SimulatorTheme';
-import { toSimulatorThemeCssVariables } from '../src/presentation/ThemeStyleHost';
+import { toSimulatorFontFaceCss, toSimulatorThemeCssVariables } from '../src/presentation/ThemeStyleHost';
+
+const cloneDefaultTheme = (): SimulatorThemeDocument => (
+	JSON.parse(JSON.stringify(defaultSimulatorTheme)) as SimulatorThemeDocument
+);
 
 describe('SimulatorTheme', () => {
 	it('accepts the current default theme contract', () => {
@@ -65,5 +71,31 @@ describe('SimulatorTheme', () => {
 
 		expect(variables['--sim-global-background-image'])
 			.toBe('url("file:///C:/Broadcast/background.png")');
+	});
+
+	it('registers an embedded font without using a system or network source', () => {
+		const theme = cloneDefaultTheme();
+		theme.assets.fonts['Broadcast Sans'] = 'data:font/woff2;base64,AA==';
+		theme.tokens.typography.questionText.fontFamily = 'Broadcast Sans';
+
+		expect(parseSimulatorTheme(theme)).toBe(theme);
+		expect(getSimulatorThemeFontFamilies(theme)).toEqual(['Standard', 'Broadcast Sans']);
+		expect(toSimulatorFontFaceCss(theme)).toContain('font-family: "Broadcast Sans"');
+		expect(toSimulatorFontFaceCss(theme)).toContain('data:font/woff2;base64,AA==');
+	});
+
+	it('rejects remote font assets', () => {
+		const theme = cloneDefaultTheme();
+		theme.assets.fonts['Remote Sans'] = 'https://example.com/font.woff2';
+		theme.tokens.typography.questionText.fontFamily = 'Remote Sans';
+
+		expect(parseSimulatorTheme(theme)).toBeNull();
+	});
+
+	it('rejects font families that are not part of the theme registry', () => {
+		const theme = cloneDefaultTheme();
+		theme.tokens.typography.questionText.fontFamily = 'Arial';
+
+		expect(parseSimulatorTheme(theme)).toBeNull();
 	});
 });

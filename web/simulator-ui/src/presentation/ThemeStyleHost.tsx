@@ -1,6 +1,10 @@
 import React from 'react';
 import { useAppSelector } from '../state/hooks';
-import { SimulatorThemeDocument, SimulatorTypographyToken } from '../model/SimulatorTheme';
+import {
+	isSimulatorFontDataUrl,
+	SimulatorThemeDocument,
+	SimulatorTypographyToken,
+} from '../model/SimulatorTheme';
 
 import './ThemeStyleHost.scss';
 
@@ -13,6 +17,24 @@ interface ThemeStyleHostProps {
 
 const pixels = (value: number): string => `${value}px`;
 const milliseconds = (value: number): string => `${value}ms`;
+
+function cssString(value: string): string {
+	return value
+		.replaceAll('\\', '\\\\')
+		.replaceAll('"', '\\"')
+		.replace(/[\r\n]/g, ' ');
+}
+
+/** Builds local-only font registrations for assets embedded in a portable theme document. */
+export function toSimulatorFontFaceCss(theme: SimulatorThemeDocument): string {
+	return Object.entries(theme.assets.fonts)
+		.filter(([, source]) => isSimulatorFontDataUrl(source))
+		.map(([fontFamily, source]) => (
+			`@font-face { font-family: "${cssString(fontFamily)}"; ` +
+			`src: url("${cssString(source)}"); font-style: normal; font-display: swap; }`
+		))
+		.join('\n');
+}
 
 /** Maps one semantic typography role to the inline style consumed by AutoSizedText. */
 export function toTypographyStyle(token: SimulatorTypographyToken): React.CSSProperties {
@@ -134,9 +156,11 @@ export function toSimulatorThemeCssVariables(theme: SimulatorThemeDocument): The
 export default function ThemeStyleHost({ children, className = '' }: ThemeStyleHostProps): JSX.Element {
 	const theme = useAppSelector((state) => state.settings.simulatorTheme);
 	const cssVariables = toSimulatorThemeCssVariables(theme);
+	const fontFaceCss = toSimulatorFontFaceCss(theme);
 
 	return (
 		<div className={`simulatorPresentation ${className}`} style={cssVariables}>
+			{fontFaceCss ? <style data-simulator-theme-fonts>{fontFaceCss}</style> : null}
 			{children}
 		</div>
 	);
