@@ -18,13 +18,18 @@ internal static class Program
     private static int _exitCode = 1;
 
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
         var tempDirectory = Path.Combine(Path.GetTempPath(), "SIGameThemeEditorSmoke", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDirectory);
 
         try
         {
+            if (args.Contains("--game-view", StringComparer.OrdinalIgnoreCase))
+            {
+                return RunGameViewSmoke(tempDirectory);
+            }
+
             var settings = new ThemeSettings();
             var repository = new FileThemeRepository(tempDirectory);
             var controller = new ThemeEditorController(settings, repository, "SIGame");
@@ -209,6 +214,39 @@ internal static class Program
             {
                 Directory.Delete(tempDirectory, recursive: true);
             }
+        }
+    }
+
+    private static int RunGameViewSmoke(string tempDirectory)
+    {
+        try
+        {
+            var application = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            application.InitializeComponent();
+
+            var settings = new ThemeSettings();
+            var repository = new FileThemeRepository(tempDirectory);
+            var applierType = typeof(ThemeEditorWindow).Assembly.GetType("SIGame.Implementation.PresentationThemeApplier")
+                ?? throw new InvalidOperationException("SIGame WPF theme adapter was not found.");
+            var applierConstructor = applierType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Single();
+            using var applier = (IDisposable)applierConstructor.Invoke([
+                settings,
+                repository,
+                application.Resources,
+                Path.Combine(tempDirectory, ".font-cache"),
+            ]);
+            applierType.GetMethod("Initialize", BindingFlags.Instance | BindingFlags.Public)!.Invoke(applier, null);
+
+            _ = new Studia();
+
+            Console.WriteLine("SIGame game view smoke test passed: Studia, Table and player presentation styles loaded.");
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine(exception);
+            return 1;
         }
     }
 }

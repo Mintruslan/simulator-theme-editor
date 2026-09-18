@@ -294,7 +294,7 @@
                 </local:DropDownButton>
 
                 <Button
-                    Style="{StaticResource SIDropDownButton}"
+                    Style="{StaticResource SIToolButtonStyle}"
                     FontSize="22"
                     Height="48"
                     Width="48"
