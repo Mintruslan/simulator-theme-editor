@@ -24,7 +24,7 @@ using System.Windows.Threading;
 using Utils;
 using Settings = SImulator.ViewModel.Model.AppSettings;
 using SImulator.ViewModel.Contracts;
-using SImulator.ViewModel.Theming;
+using SITheme;
 
 #if DEBUG
 using SIStorage.Service.Contract.Models;

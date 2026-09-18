@@ -1,9 +1,7 @@
-using SImulator.ViewModel.Model;
-using SImulator.ViewModel.Theming;
 using System.Text.Json;
 using Utils.Web;
 
-namespace SImulator.ViewModel.Controllers;
+namespace SITheme;
 
 /// <summary>
 /// Connects the local WebView theme editor to application settings and the preset repository.
@@ -16,8 +14,9 @@ public sealed class ThemeEditorController : IWebInterop
         PropertyNameCaseInsensitive = true,
     };
 
-    private readonly AppSettings _settings;
+    private readonly IPresentationThemeSettings _settings;
     private readonly IThemeRepository _themeRepository;
+    private readonly string _productName;
 
     public Uri Source { get; } = new($"file:///{AppDomain.CurrentDomain.BaseDirectory}webtable/theme-editor.html");
 
@@ -25,10 +24,14 @@ public sealed class ThemeEditorController : IWebInterop
 
     public event Action<Exception>? Error;
 
-    public ThemeEditorController(AppSettings settings, IThemeRepository themeRepository)
+    public ThemeEditorController(
+        IPresentationThemeSettings settings,
+        IThemeRepository themeRepository,
+        string productName = "SImulator")
     {
         _settings = settings;
         _themeRepository = themeRepository;
+        _productName = productName;
     }
 
     public void OnMessage(string webMessageAsJson)
@@ -42,6 +45,7 @@ public sealed class ThemeEditorController : IWebInterop
             switch (type)
             {
                 case "loaded":
+                    SendMessage(new { Type = "editorContext", ProductName = _productName });
                     PublishEditorState();
                     break;
 
@@ -97,7 +101,9 @@ public sealed class ThemeEditorController : IWebInterop
     {
         if (theme.Id == "simulator-default")
         {
-            var copyName = theme.Name == "Default SImulator Theme" ? "My SImulator Theme" : theme.Name;
+            var copyName = theme.Name == $"Default {_productName} Theme"
+                ? $"My {_productName} Theme"
+                : theme.Name;
             ActivateTheme(_themeRepository.Duplicate(theme, copyName), "Тема сохранена как новый пресет");
             return;
         }
@@ -181,7 +187,7 @@ public sealed class ThemeEditorController : IWebInterop
         });
     }
 
-    private SimulatorThemeDocument GetDefaultTheme() => SimulatorDefaultTheme.Create(_settings.SIUISettings);
+    private SimulatorThemeDocument GetDefaultTheme() => _settings.CreateDefaultPresentationTheme();
 
     private void SendTheme(SimulatorThemeDocument theme) => SendMessage(new
     {

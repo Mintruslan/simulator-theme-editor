@@ -61,6 +61,7 @@
                         Background="{TemplateBinding Background}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="{DynamicResource SIThemeBoardCornerRadius}"
                         Margin="{TemplateBinding Padding}">
                         <ContentPresenter />
                     </Border>

@@ -1,7 +1,6 @@
 ﻿using SImulator.ViewModel;
-using SImulator.ViewModel.Controllers;
+using SITheme;
 using SImulator.ViewModel.Model;
-using SImulator.ViewModel.Theming;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;

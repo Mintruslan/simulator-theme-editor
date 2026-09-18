@@ -1,5 +1,5 @@
 ﻿using SImulator.ViewModel.Core;
-using SImulator.ViewModel.Theming;
+using SITheme;
 using SIUI.ViewModel.Core;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,7 +12,7 @@ namespace SImulator.ViewModel.Model;
 /// <summary>
 /// Defines application settings.
 /// </summary>
-public sealed class AppSettings : INotifyPropertyChanged
+public sealed class AppSettings : INotifyPropertyChanged, IPresentationThemeSettings
 {
     public const string AppName = "SImulator";
 
@@ -193,6 +193,11 @@ public sealed class AppSettings : INotifyPropertyChanged
             }
         }
     }
+
+    public SimulatorThemeDocument CreateDefaultPresentationTheme() => SimulatorDefaultTheme.Create(
+        SimulatorDefaultTheme.ConvertWpfToHtmlColor(SIUISettings.TableColorString),
+        SimulatorDefaultTheme.ConvertWpfToHtmlColor(SIUISettings.TableBackColorString),
+        SIUISettings.TableFontFamily);
 
     private bool _dropStatsOnBack = true;
 

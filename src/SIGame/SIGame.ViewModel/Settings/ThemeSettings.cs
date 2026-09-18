@@ -1,14 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using SITheme;
 
 namespace SIGame.ViewModel;
 
 /// <summary>
 /// Provides application theme settings.
 /// </summary>
-public sealed class ThemeSettings : INotifyPropertyChanged
+public sealed class ThemeSettings : INotifyPropertyChanged, IPresentationThemeSettings
 {
+    public const string DefaultPresentationThemeId = "simulator-default";
+
     internal const int DefaultMaximumTableTextLength = 1200;
     internal const int DefaultMaximumReplicTextLength = 400;
 
@@ -23,6 +27,55 @@ public sealed class ThemeSettings : INotifyPropertyChanged
         get => _uiSettings;
         set { _uiSettings = value; OnPropertyChanged(); }
     }
+
+    private string _presentationThemeId = DefaultPresentationThemeId;
+
+    /// <summary>
+    /// Identifier of the locally persisted presentation theme selected for SIGame.
+    /// </summary>
+    [XmlAttribute]
+    [DefaultValue(DefaultPresentationThemeId)]
+    public string PresentationThemeId
+    {
+        get => _presentationThemeId;
+        set
+        {
+            var normalizedValue = string.IsNullOrWhiteSpace(value) ? DefaultPresentationThemeId : value;
+
+            if (_presentationThemeId != normalizedValue)
+            {
+                _presentationThemeId = normalizedValue;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private SimulatorThemeDocument? _presentationTheme;
+
+    /// <summary>
+    /// Active runtime theme. Theme JSON remains in the local theme repository.
+    /// </summary>
+    [XmlIgnore]
+    public SimulatorThemeDocument? PresentationTheme
+    {
+        get => _presentationTheme;
+        set
+        {
+            if (!ReferenceEquals(_presentationTheme, value))
+            {
+                _presentationTheme = value;
+                PresentationThemeId = value?.Id ?? DefaultPresentationThemeId;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public SimulatorThemeDocument CreateDefaultPresentationTheme() => SimulatorDefaultTheme.Create(
+        SimulatorDefaultTheme.ConvertWpfToHtmlColor(UISettings.TableColorString),
+        SimulatorDefaultTheme.ConvertWpfToHtmlColor(UISettings.TableBackColorString),
+        UISettings.TableFontFamily,
+        "Default SIGame Theme",
+        CustomBackgroundUri);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private int _maximumTableTextLength = DefaultMaximumTableTextLength;
@@ -217,6 +270,7 @@ public sealed class ThemeSettings : INotifyPropertyChanged
     internal void Initialize(ThemeSettings themeSettings)
     {
         _uiSettings.Initialize(themeSettings._uiSettings);
+        PresentationThemeId = themeSettings.PresentationThemeId;
 
         MaximumTableTextLength = themeSettings.MaximumTableTextLength;
         MaximumReplicTextLength = themeSettings.MaximumReplicTextLength;

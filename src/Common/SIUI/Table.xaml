@@ -16,7 +16,8 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="300"
-    Foreground="{Binding Settings.Model.TableColorString}"
+    Background="{DynamicResource SIThemeGlobalBackgroundBrush}"
+    Foreground="{DynamicResource SIThemeGlobalTextBrush}"
     d:DataContext="{d:DesignInstance vm:TableInfoViewModel}">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -83,38 +84,55 @@
                     </Storyboard>
 
                     <Style x:Key="SIMarginedBorder" TargetType="{x:Type Border}" BasedOn="{StaticResource SIBorder}">
-                        <Setter Property="Margin" Value="-1,-1,0,0" />
+                        <Setter Property="Background" Value="{DynamicResource SIThemeBoardHeaderBackground}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource SIThemeBoardBorderBrush}" />
+                        <Setter Property="BorderThickness" Value="{DynamicResource SIThemeBoardBorderThickness}" />
+                        <Setter Property="CornerRadius" Value="{DynamicResource SIThemeBoardCornerRadius}" />
+                        <Setter Property="Margin" Value="{DynamicResource SIThemeBoardCellMargin}" />
+                        <Setter Property="Padding" Value="{DynamicResource SIThemeBoardPadding}" />
                     </Style>
 
                     <Style x:Key="SIQuestionText" BasedOn="{StaticResource SIText}" TargetType="{x:Type TextBlock}">
                         <Setter Property="Text" Value="{Binding Price}" />
-                        <Setter Property="Margin" Value="4" />
-                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeQuestionPriceFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeQuestionPriceFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeQuestionPriceFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeQuestionPriceForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeQuestionPriceTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeQuestionPriceTextEffect}" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
                         <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="lb:FillManager.Fill" Value="True" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeQuestionPriceAutoSize}" />
                         
                         <Setter
                             Property="lb:FillManager.MaxFontSize"
-                            Value="{Binding ElementName=root,Path=Zoom,Converter={StaticResource multiplier},ConverterParameter=30}" />
+                            Value="{DynamicResource SIThemeQuestionPriceFontSize}" />
                         
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Price}" Value="-1">
                                 <Setter Property="Text" Value="" />
+                                <Setter Property="Opacity" Value="{DynamicResource SIThemeBoardAnsweredOpacity}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
 
                     <Style x:Key="SIThemeText" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SIText}">
                         <Setter Property="Text" Value="{Binding Name}" />
-                        <Setter Property="TextAlignment" Value="Center" />
-                        <Setter Property="Margin" Value="4" />
-                        <Setter Property="lb:FillManager.Fill" Value="True" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeThemeNameFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeThemeNameFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeThemeNameFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeThemeNameForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeThemeNameTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeThemeNameTextEffect}" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeThemeNameAutoSize}" />
                         
                         <Setter
                             Property="lb:FillManager.MaxFontSize"
-                            Value="{Binding ElementName=root,Path=Zoom,Converter={StaticResource multiplier},ConverterParameter=35}" />
+                            Value="{DynamicResource SIThemeThemeNameFontSize}" />
                         
-                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
                         <Setter Property="VerticalAlignment" Value="Center" />
                         <Setter Property="TextWrapping" Value="Wrap" />
                     </Style>
@@ -128,7 +146,14 @@
                     </DataTemplate>
 
                     <Style x:Key="QuestionText" BasedOn="{StaticResource CenteredText}" TargetType="{x:Type TextBlock}">
-                        <Setter Property="lb:FillManager.Fill" Value="True" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeQuestionTextFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeQuestionTextFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeQuestionTextFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeQuestionTextForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeQuestionTextTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeQuestionTextTextEffect}" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeQuestionTextAutoSize}" />
 
                         <Setter
                             Property="lb:FillManager.Interlinyage"
@@ -136,10 +161,21 @@
 
                         <Setter
                             Property="lb:FillManager.MaxFontSize"
-                            Value="{Binding ElementName=root,Path=Zoom,Converter={StaticResource multiplier},ConverterParameter=50}" />
+                            Value="{DynamicResource SIThemeQuestionTextFontSize}" />
 
                         <Setter Property="TextWrapping" Value="Wrap" />
-                        <Setter Property="Margin" Value="10" />
+                        <Setter Property="Margin" Value="{DynamicResource SIThemeQuestionPadding}" />
+                    </Style>
+
+                    <Style x:Key="AnswerText" BasedOn="{StaticResource QuestionText}" TargetType="{x:Type TextBlock}">
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeAnswerTextFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeAnswerTextFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeAnswerTextFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeAnswerTextForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeAnswerTextTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeAnswerTextTextEffect}" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeAnswerTextAutoSize}" />
+                        <Setter Property="lb:FillManager.MaxFontSize" Value="{DynamicResource SIThemeAnswerTextFontSize}" />
                     </Style>
 
                     <localc:TemplateConverter x:Key="AnswerContentSelector">
@@ -149,14 +185,14 @@
                             <DataTemplate x:Key="{x:Static vm:ContentType.Text}">
                                 <TextBlock
                                     Text="{Binding Value}"
-                                    Style="{StaticResource QuestionText}"
+                                    Style="{StaticResource AnswerText}"
                                     lb:FillManager.Interlinyage="0.0"
                                     Margin="0" />
                             </DataTemplate>
 
                             <DataTemplate x:Key="{x:Static vm:ContentType.Image}">
                                 <Image
-                                    Stretch="Uniform"
+                                    Stretch="{DynamicResource SIThemeQuestionImageStretch}"
                                     Source="{Binding Value, Converter={StaticResource UriConverter}}"
                                     lb:ImageController.LoadHandler="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
                             </DataTemplate>
@@ -186,8 +222,11 @@
 
                     <Style x:Key="SIItemButton" TargetType="{x:Type Button}" BasedOn="{StaticResource SIButtonBase}">
                         <Setter Property="Content" Value="{Binding}" />
-                        <Setter Property="Background" Value="{StaticResource TransparentSIButtonBackground}" />
-                        <Setter Property="Margin" Value="-1,-1,0,0" />
+                        <Setter Property="Background" Value="{DynamicResource SIThemeBoardCellBackground}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource SIThemeBoardBorderBrush}" />
+                        <Setter Property="BorderThickness" Value="{DynamicResource SIThemeBoardBorderThickness}" />
+                        <Setter Property="Margin" Value="{DynamicResource SIThemeBoardCellMargin}" />
+                        <Setter Property="Padding" Value="{DynamicResource SIThemeBoardPadding}" />
                         
                         <Style.Triggers>
                             <MultiTrigger>
@@ -197,7 +236,7 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                 </MultiTrigger.Conditions>
 
-                                <Setter Property="Background" Value="{StaticResource SelectedSIButtonBackground}" />
+                                <Setter Property="Background" Value="{DynamicResource SIThemeBoardHoverBackground}" />
                             </MultiTrigger>
                         </Style.Triggers>
                     </Style>
@@ -217,9 +256,7 @@
                             </DataTrigger>
 
                             <DataTrigger Binding="{Binding State}" Value="Blinking">
-                                <DataTrigger.EnterActions>
-                                    <BeginStoryboard Storyboard="{StaticResource QSelection}" />
-                                </DataTrigger.EnterActions>
+                                <Setter Property="Background" Value="{DynamicResource SIThemeBoardSelectedBackground}" />
                             </DataTrigger>
 
                             <Trigger Property="lb:EditableBehavior.IsEditable" Value="True">
@@ -243,6 +280,7 @@
                     </Style>
 
                     <Style x:Key="SIThemeButton" TargetType="{x:Type Button}" BasedOn="{StaticResource SIItemButton}">
+                        <Setter Property="Background" Value="{DynamicResource SIThemeBoardHeaderBackground}" />
                         <Setter Property="ContentTemplate" Value="{StaticResource SIThemeTemplate}" />
                         
                         <Setter
@@ -253,9 +291,7 @@
                         
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding State}" Value="Blinking">
-                                <DataTrigger.EnterActions>
-                                    <BeginStoryboard Storyboard="{StaticResource TSelection}" />
-                                </DataTrigger.EnterActions>
+                                <Setter Property="Background" Value="{DynamicResource SIThemeBoardSelectedBackground}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -321,35 +357,59 @@
 
                     <Style x:Key="RoundText" BasedOn="{StaticResource CenteredText}" TargetType="{x:Type TextBlock}">
                         <Setter Property="Margin" Value="10" />
-                        <Setter Property="lb:FillManager.Fill" Value="True" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeFinalThemeNameFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeFinalThemeNameFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeFinalThemeNameFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeFinalThemeNameForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeFinalThemeNameTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeFinalThemeNameTextEffect}" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeFinalThemeNameAutoSize}" />
                         
                         <Setter
                             Property="lb:FillManager.MaxFontSize"
-                            Value="{Binding ElementName=root,Path=Zoom,Converter={StaticResource multiplier},ConverterParameter=100}" />
+                            Value="{DynamicResource SIThemeFinalThemeNameFontSize}" />
+                    </Style>
+
+                    <Style x:Key="QuestionPriceText" BasedOn="{StaticResource RoundText}" TargetType="{x:Type TextBlock}">
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeQuestionPriceFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeQuestionPriceFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeQuestionPriceFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeQuestionPriceForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeQuestionPriceTextAlignment}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeQuestionPriceTextEffect}" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeQuestionPriceAutoSize}" />
+                        <Setter Property="lb:FillManager.MaxFontSize" Value="{DynamicResource SIThemeQuestionPriceFontSize}" />
                     </Style>
 
                     <DropShadowEffect x:Key="SoftShadow" BlurRadius="2" Opacity="1" ShadowDepth="1" />
 
                     <Style x:Key="RotatingText" TargetType="{x:Type TextBlock}">
                         <Setter Property="Text" Value="{Binding Text}" />
-                        <Setter Property="TextAlignment" Value="Center" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeFinalThemeNameFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeFinalThemeNameFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeFinalThemeNameFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeFinalThemeNameForeground}" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeFinalThemeNameTextAlignment}" />
                         <Setter Property="TextWrapping" Value="Wrap" />
                         <Setter Property="HorizontalAlignment" Value="Stretch" />
                         <Setter Property="VerticalAlignment" Value="Center" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="Margin" Value="3,10" />
-                        <Setter Property="Effect" Value="{StaticResource SoftShadow}" />
-                        <Setter Property="lb:FillManager.Fill" Value="True" />
-                        <Setter Property="lb:FillManager.MaxFontSize" Value="200" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeFinalThemeNameTextEffect}" />
+                        <Setter Property="lb:FillManager.Fill" Value="{DynamicResource SIThemeFinalThemeNameAutoSize}" />
+                        <Setter Property="lb:FillManager.MaxFontSize" Value="{DynamicResource SIThemeFinalThemeNameFontSize}" />
                     </Style>
 
                     <Style x:Key="GameThemeText" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SIText}">
-                        <Setter
-                            Property="FontSize"
-                            Value="{Binding ElementName=root,Path=Zoom,Converter={StaticResource multiplier},ConverterParameter=24}" />
+                        <Setter Property="FontFamily" Value="{DynamicResource SIThemeThemeNameFontFamily}" />
+                        <Setter Property="FontSize" Value="{DynamicResource SIThemeThemeNameFontSize}" />
+                        <Setter Property="FontWeight" Value="{DynamicResource SIThemeThemeNameFontWeight}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SIThemeThemeNameForeground}" />
+                        <Setter Property="Effect" Value="{DynamicResource SIThemeThemeNameTextEffect}" />
                         
                         <Setter Property="TextWrapping" Value="NoWrap" />
-                        <Setter Property="TextAlignment" Value="Center" />
+                        <Setter Property="TextAlignment" Value="{DynamicResource SIThemeThemeNameTextAlignment}" />
                     </Style>
 
                     <ControlTemplate x:Key="Rotator3D" TargetType="{x:Type ContentControl}">
@@ -514,7 +574,7 @@
                             <DataTemplate x:Key="{x:Static vm:ContentType.Image}">
                                 <Image
                                     Name="image"
-                                    Stretch="Uniform"
+                                    Stretch="{DynamicResource SIThemeQuestionImageStretch}"
                                     Source="{Binding Value, Converter={StaticResource UriConverter}}"
                                     lb:ImageController.LoadHandler="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" />
 
@@ -648,7 +708,7 @@
                             <DataTemplate x:Key="{x:Static vm:QuestionContentType.Image}">
                                 <Image
                                     Name="image"
-                                    Stretch="Uniform"
+                                    Stretch="{DynamicResource SIThemeQuestionImageStretch}"
                                     Source="{Binding MediaSource.Uri, Converter={StaticResource UriConverter}}"
                                     lb:ImageController.LoadHandler="{Binding}" />
 
@@ -911,7 +971,7 @@
                                     Name="themeText"
                                     Text="{Binding Text}"
                                     Tag="{Binding ElementName=root,Path=DataContext.Settings.QuestionLineSpacing}"
-                                    Style="{StaticResource QuestionText}" />
+                                    Style="{StaticResource RoundText}" />
 
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding AnimateText}" Value="True">
@@ -947,7 +1007,7 @@
                             </DataTemplate>
                             
                             <DataTemplate x:Key="{x:Static vm:TableStage.QuestionPrice}">
-                                <TextBlock Text="{Binding Text}" Style="{StaticResource RoundText}" />
+                                <TextBlock Text="{Binding Text}" Style="{StaticResource QuestionPriceText}" />
                             </DataTemplate>
 
                             <!-- Deprecated -->
@@ -1065,14 +1125,28 @@
                                                         <TextBlock
                                                             Text="{Binding Name}"
                                                             Style="{StaticResource CenteredText}"
-                                                            lb:FillManager.Fill="True" />
+                                                            FontFamily="{DynamicResource SIThemePlayerNameFontFamily}"
+                                                            FontSize="{DynamicResource SIThemePlayerNameFontSize}"
+                                                            FontWeight="{DynamicResource SIThemePlayerNameFontWeight}"
+                                                            Foreground="{DynamicResource SIThemePlayerNameForeground}"
+                                                            TextAlignment="{DynamicResource SIThemePlayerNameTextAlignment}"
+                                                            Effect="{DynamicResource SIThemePlayerNameTextEffect}"
+                                                            lb:FillManager.Fill="{DynamicResource SIThemePlayerNameAutoSize}"
+                                                            lb:FillManager.MaxFontSize="{DynamicResource SIThemePlayerNameFontSize}" />
                                                     </ContentControl>
                                                     
                                                     <ContentControl>
                                                         <TextBlock
                                                             Text="{Binding Sum}"
                                                             Style="{StaticResource CenteredText}"
-                                                            lb:FillManager.Fill="True" />
+                                                            FontFamily="{DynamicResource SIThemePlayerScoreFontFamily}"
+                                                            FontSize="{DynamicResource SIThemePlayerScoreFontSize}"
+                                                            FontWeight="{DynamicResource SIThemePlayerScoreFontWeight}"
+                                                            Foreground="{DynamicResource SIThemePlayerScoreForeground}"
+                                                            TextAlignment="{DynamicResource SIThemePlayerScoreTextAlignment}"
+                                                            Effect="{DynamicResource SIThemePlayerScoreTextEffect}"
+                                                            lb:FillManager.Fill="{DynamicResource SIThemePlayerScoreAutoSize}"
+                                                            lb:FillManager.MaxFontSize="{DynamicResource SIThemePlayerScoreFontSize}" />
                                                     </ContentControl>
                                                 </UniformGrid>
                                             </DataTemplate>
@@ -1082,7 +1156,7 @@
                             </DataTemplate>
                             
                             <DataTemplate x:Key="{x:Static vm:TableStage.Question}">
-                                <Grid>
+                                <Grid Background="{DynamicResource SIThemeQuestionBackground}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="3*" />
                                         <ColumnDefinition x:Name="secondColumn" Width="0" />
@@ -1107,11 +1181,19 @@
                                     </Border>
 
                                     <!-- Main question content (text, image, video, treble clef) -->
-                                    <ContentControl
-                                        Grid.Row="1"
-                                        Content="{Binding}"
-                                        ContentTemplate="{Binding QuestionContentType, Converter={StaticResource QuestionContentSelector}}"
-                                        Margin="10" />
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="{DynamicResource SIThemeQuestionLeadingWidth}" />
+                                            <ColumnDefinition Width="{DynamicResource SIThemeQuestionContentWidth}" />
+                                            <ColumnDefinition Width="{DynamicResource SIThemeQuestionTrailingWidth}" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <ContentControl
+                                            Grid.Column="1"
+                                            Content="{Binding}"
+                                            ContentTemplate="{Binding QuestionContentType, Converter={StaticResource QuestionContentSelector}}"
+                                            Margin="{DynamicResource SIThemeQuestionPadding}" />
+                                    </Grid>
                                     
                                     <!-- Border for pressing mode / Answerer name -->
                                     <ContentControl
@@ -1230,8 +1312,8 @@
                             </DataTemplate>
                             
                             <DataTemplate x:Key="{x:Static vm:TableStage.Answer}">
-                                <Border Background="#55000000" Margin="0,40">
-                                    <TextBlock Text="{Binding Text}" Style="{StaticResource QuestionText}" />
+                                <Border Background="{DynamicResource SIThemeQuestionBackground}" Margin="0,40" Padding="{DynamicResource SIThemeQuestionPadding}">
+                                    <TextBlock Text="{Binding Text}" Style="{StaticResource AnswerText}" />
                                 </Border>
                             </DataTemplate>
                             
@@ -1327,19 +1409,9 @@
         </ResourceDictionary>
     </UserControl.Resources>
     
-    <UserControl.Background>
-        <RadialGradientBrush>
-            <GradientStop
-                Color="{Binding Settings.Model.TableBackColorString, Converter={StaticResource ColorConverter}}"
-                Offset="0" />
-            
-            <GradientStop
-                Color="{Binding Settings.Model.TableBackColorString}"
-                Offset="1" />
-        </RadialGradientBrush>
-    </UserControl.Background>
-    
     <Grid>
+        <Border Background="{DynamicResource SIThemeGlobalBackgroundImageBrush}" />
+
         <ContentControl
             HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch"

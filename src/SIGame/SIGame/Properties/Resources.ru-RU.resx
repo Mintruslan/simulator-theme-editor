@@ -1233,4 +1233,7 @@
   <data name="VaBank" xml:space="preserve">
     <value>ВА-БАНК!!!</value>
   </data>
+  <data name="OpenThemeEditor" xml:space="preserve">
+    <value>Открыть Theme Editor</value>
+  </data>
 </root>

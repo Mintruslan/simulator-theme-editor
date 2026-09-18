@@ -34,6 +34,13 @@ public static class WebView2Behavior
     public static readonly DependencyProperty AllowLocalFilesAccessProperty =
         DependencyProperty.RegisterAttached("AllowLocalFilesAccess", typeof(bool), typeof(WebView2), new PropertyMetadata(false));
 
+    public static bool GetDisableGpu(DependencyObject obj) => (bool)obj.GetValue(DisableGpuProperty);
+
+    public static void SetDisableGpu(DependencyObject obj, bool value) => obj.SetValue(DisableGpuProperty, value);
+
+    public static readonly DependencyProperty DisableGpuProperty =
+        DependencyProperty.RegisterAttached("DisableGpu", typeof(bool), typeof(WebView2), new PropertyMetadata(false));
+
     public static void OnIsAttachedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (!(bool)e.NewValue)
@@ -77,6 +84,8 @@ public static class WebView2Behavior
 
         webView2.NavigationStarting -= WebView2_NavigationStarting;
         webView2.Unloaded -= WebView2_Unloaded;
+        webView2.WebMessageReceived -= WebView2_WebMessageReceived;
+        webView2.CoreWebView2InitializationCompleted -= WebView2_CoreWebView2InitializationCompleted;
 
         try
         {
@@ -90,7 +99,6 @@ public static class WebView2Behavior
                 if (webView2.DataContext is IWebInterop webInterop)
                 {
                     webInterop.SendJsonMessage -= coreWebView.PostWebMessageAsJson;
-                    webView2.WebMessageReceived -= WebView2_WebMessageReceived;
                     webView2.CoreWebView2.ProcessFailed -= CoreWebView2_ProcessFailed;
                 }
             }
@@ -103,11 +111,20 @@ public static class WebView2Behavior
 
     private static async void UpdateWebView2Environment(WebView2 webView2)
     {
+        // Subscribe before CoreWebView2 initialization. A local page can otherwise finish loading
+        // and post its handshake before EnsureCoreWebView2Async returns.
+        webView2.WebMessageReceived += WebView2_WebMessageReceived;
+        webView2.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
+
         try
         {
             var allowLocalFilesAccess = GetAllowLocalFilesAccess(webView2);
+            var disableGpu = GetDisableGpu(webView2);
             // Allowing autoplay
-            var options = new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required" + (allowLocalFilesAccess ? " --allow-file-access-from-files" : ""));
+            var options = new CoreWebView2EnvironmentOptions(
+                "--autoplay-policy=no-user-gesture-required"
+                + (allowLocalFilesAccess ? " --allow-file-access-from-files" : "")
+                + (disableGpu ? " --disable-gpu" : ""));
             var environment = await CoreWebView2Environment.CreateAsync(null, null, options);
 
             try
@@ -121,17 +138,28 @@ public static class WebView2Behavior
                 DeleteHighDpiAwareKey();
                 await webView2.EnsureCoreWebView2Async(environment);
             }
-
-            if (webView2.DataContext is IWebInterop webInterop)
-            {
-                webInterop.SendJsonMessage += webView2.CoreWebView2.PostWebMessageAsJson;
-                webView2.WebMessageReceived += WebView2_WebMessageReceived;
-                webView2.CoreWebView2.ProcessFailed += CoreWebView2_ProcessFailed;
-            }
         }
         catch (Exception exc)
         {
+            webView2.WebMessageReceived -= WebView2_WebMessageReceived;
+            webView2.CoreWebView2InitializationCompleted -= WebView2_CoreWebView2InitializationCompleted;
             MessageBox.Show(exc.ToString(), "Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private static void WebView2_CoreWebView2InitializationCompleted(
+        object? sender,
+        CoreWebView2InitializationCompletedEventArgs e)
+    {
+        if (!e.IsSuccess || sender is not WebView2 webView2 || webView2.CoreWebView2 == null)
+        {
+            return;
+        }
+
+        if (webView2.DataContext is IWebInterop webInterop)
+        {
+            webInterop.SendJsonMessage += webView2.CoreWebView2.PostWebMessageAsJson;
+            webView2.CoreWebView2.ProcessFailed += CoreWebView2_ProcessFailed;
         }
     }
 

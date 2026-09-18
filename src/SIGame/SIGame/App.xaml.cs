@@ -15,8 +15,10 @@ using SIGame.ViewModel;
 using SIGame.ViewModel.Settings;
 using SIStatisticsService.Client;
 using SIStorage.Service.Client;
+using SITheme;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows;
@@ -29,7 +31,6 @@ using AppRegistryService.Contract.Responses;
 using AppRegistryService.Contract.Requests;
 using SICore;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Net.Http;
@@ -60,6 +61,9 @@ public partial class App : Application
     private CommonSettings _commonSettings = new();
     private UserSettings _userSettings = new();
     private AppState _appState = new();
+    private IThemeRepository? _themeRepository;
+    private PresentationThemeApplier? _themeApplier;
+    private ThemeEditorWindow? _themeEditorWindow;
 
     /// <summary>
     /// Application name.
@@ -118,6 +122,7 @@ public partial class App : Application
         services.AddSingleton(_commonSettings);
         services.AddSingleton(_userSettings);
         services.AddSingleton(_appState);
+        services.AddSingleton<IThemeRepository>(_ => new FileThemeRepository(SettingsManager.ThemesFolder));
 
         services.AddSingleton<IUIThreadExecutor>(_manager);
         services.AddTransient<IErrorManager, ErrorManager>();
@@ -168,7 +173,15 @@ public partial class App : Application
 
             UserSettings.Default.PropertyChanged += Default_PropertyChanged;
 
-            var mainViewModel = _host!.Services.GetRequiredService<MainViewModel>();
+            _themeRepository = _host!.Services.GetRequiredService<IThemeRepository>();
+            _themeApplier = new PresentationThemeApplier(
+                _userSettings.GameSettings.AppSettings.ThemeSettings,
+                _themeRepository,
+                Resources,
+                Path.Combine(SettingsManager.ThemesFolder, ".font-cache"));
+            _themeApplier.Initialize();
+
+            var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
 
             MainWindow = new MainWindow
             {
@@ -342,11 +355,35 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _themeApplier?.Dispose();
         SettingsManager.SaveCommonSettings(_commonSettings);
         SettingsManager.SaveUserSettings(_userSettings);
         SettingsManager.SaveAppState(_appState);
 
         base.OnExit(e);
+    }
+
+    internal void OpenThemeEditor(Window owner)
+    {
+        if (_themeEditorWindow != null)
+        {
+            _themeEditorWindow.Activate();
+            return;
+        }
+
+        var repository = _themeRepository
+            ?? throw new InvalidOperationException("Theme repository is not initialized.");
+
+        _themeEditorWindow = new ThemeEditorWindow(new ThemeEditorController(
+            _userSettings.GameSettings.AppSettings.ThemeSettings,
+            repository,
+            "SIGame"))
+        {
+            Owner = owner,
+        };
+
+        _themeEditorWindow.Closed += (_, _) => _themeEditorWindow = null;
+        _themeEditorWindow.Show();
     }
 
     private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) =>

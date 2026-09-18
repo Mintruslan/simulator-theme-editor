@@ -18,6 +18,7 @@ const repositoryRoot = path.resolve(scriptDirectory, '..');
 const sourceDirectory = path.join(repositoryRoot, 'web', 'simulator-ui');
 const buildDirectory = path.join(sourceDirectory, 'dist');
 const targetDirectory = path.join(repositoryRoot, 'src', 'SImulator', 'SImulator', 'webtable');
+const sigameTargetDirectory = path.join(repositoryRoot, 'src', 'SIGame', 'SIGame', 'webtable');
 const integrationFile = path.join(repositoryRoot, 'web', 'simulator-ui.integration.json');
 const manifestName = 'presentation-build.json';
 const manifestPath = path.join(targetDirectory, manifestName);
@@ -62,6 +63,26 @@ function assertSafeTarget() {
 
 	if (actualTarget !== expectedTarget) {
 		fail(`refusing to update unexpected target: ${actualTarget}`);
+	}
+
+	const expectedSIGameTarget = path.join('src', 'SIGame', 'SIGame', 'webtable');
+	const actualSIGameTarget = path.relative(repositoryRoot, sigameTargetDirectory);
+
+	if (actualSIGameTarget !== expectedSIGameTarget) {
+		fail(`refusing to update unexpected SIGame target: ${actualSIGameTarget}`);
+	}
+}
+
+function syncSIGameRuntime() {
+	if (existsSync(sigameTargetDirectory)) {
+		rmSync(sigameTargetDirectory, { recursive: true, force: true });
+	}
+
+	for (const relativePath of listFiles(targetDirectory)) {
+		const sourcePath = path.join(targetDirectory, relativePath);
+		const destinationPath = path.join(sigameTargetDirectory, relativePath);
+		mkdirSync(path.dirname(destinationPath), { recursive: true });
+		copyFileSync(sourcePath, destinationPath);
 	}
 }
 
@@ -193,4 +214,5 @@ const manifest = {
 };
 
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`Simulator presentation synced: ${buildFiles.length} files -> ${path.relative(repositoryRoot, targetDirectory)}`);
+syncSIGameRuntime();
+console.log(`SI presentation synced: ${buildFiles.length} files -> ${path.relative(repositoryRoot, targetDirectory)}, ${path.relative(repositoryRoot, sigameTargetDirectory)}`);

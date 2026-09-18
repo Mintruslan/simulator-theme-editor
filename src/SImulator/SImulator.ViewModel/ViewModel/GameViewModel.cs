@@ -7,7 +7,7 @@ using SImulator.ViewModel.Model;
 using SImulator.ViewModel.PlatformSpecific;
 using SImulator.ViewModel.Properties;
 using SImulator.ViewModel.Services;
-using SImulator.ViewModel.Theming;
+using SITheme;
 using SIPackages;
 using SIPackages.Core;
 using SIUI.Model;

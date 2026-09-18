@@ -26,4 +26,7 @@ public partial class Studia : UserControl
 
     private void UserControl_MouseRightButtonDown(object sender, MouseButtonEventArgs e) =>
         studiaCommandPanel.OnMouseRightButtonDown();
+
+    private void OpenThemeEditor_Click(object sender, RoutedEventArgs e) =>
+        ((App)Application.Current).OpenThemeEditor(Window.GetWindow(this));
 }

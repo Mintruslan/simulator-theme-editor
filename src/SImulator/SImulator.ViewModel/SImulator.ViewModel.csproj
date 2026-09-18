@@ -14,6 +14,7 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\SITheme\SITheme.csproj" />
     <ProjectReference Include="..\..\Common\SIEngine\SIEngine.csproj" />
     <ProjectReference Include="..\..\SICore\SICore\SICore.csproj" />
   </ItemGroup>

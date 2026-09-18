@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using SImulator.ViewModel.Theming;
+using SITheme;
 
 namespace SImulator.ViewModel.Tests;
 

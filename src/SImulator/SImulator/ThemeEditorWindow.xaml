@@ -16,7 +16,7 @@
     WindowStartupLocation="CenterOwner">
     <wv2:WebView2
         x:Name="webView"
-        Source="{Binding Source}"
         ub:WebView2Behavior.AllowLocalFilesAccess="True"
+        ub:WebView2Behavior.DisableGpu="True"
         ub:WebView2Behavior.IsAttached="True" />
 </Window>

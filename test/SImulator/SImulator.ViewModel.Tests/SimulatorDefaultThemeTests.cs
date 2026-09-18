@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using SImulator.ViewModel.Model;
-using SImulator.ViewModel.Theming;
+using SITheme;
 using System.Text.Json;
 
 namespace SImulator.ViewModel.Tests;

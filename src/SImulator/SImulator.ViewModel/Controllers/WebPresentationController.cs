@@ -13,7 +13,7 @@ using System.Windows.Input;
 using Utils;
 using Utils.Commands;
 using Utils.Web;
-using SImulator.ViewModel.Theming;
+using SITheme;
 
 namespace SImulator.ViewModel.Controllers;
 
@@ -436,7 +436,10 @@ public sealed class WebPresentationController : IPresentationController, IWebInt
     {
         _settings = settings;
 
-        var defaultTheme = SimulatorDefaultTheme.Create(settings);
+        var defaultTheme = SimulatorDefaultTheme.Create(
+            SimulatorDefaultTheme.ConvertWpfToHtmlColor(settings.TableColorString),
+            SimulatorDefaultTheme.ConvertWpfToHtmlColor(settings.TableBackColorString),
+            settings.TableFontFamily);
         var tableTextColor = defaultTheme.Tokens.Global.TextColor;
         var tableBackgroundColor = defaultTheme.Tokens.Global.BackgroundColor;
 

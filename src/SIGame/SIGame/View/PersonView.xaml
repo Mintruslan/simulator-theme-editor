@@ -22,8 +22,10 @@
         <ControlTemplate x:Key="PersonArea" TargetType="{x:Type Button}">
             <Border
                 Name="border"
+                Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{DynamicResource SIThemePlayerCardCornerRadius}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Cursor="{TemplateBinding Cursor}">
@@ -139,13 +141,15 @@
         <Style x:Key="PersonAreaStyle" TargetType="Button">
             <Setter Property="Command" Value="{Binding DataContext.SelectPlayer, RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=3}}" />
             <Setter Property="CommandParameter" Value="{Binding}" />
-            <Setter Property="BorderBrush" Value="#FF111111" />
-            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="{DynamicResource SIThemePlayerCardBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SIThemePlayerCardBorderBrush}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource SIThemePlayerCardBorderThickness}" />
             <Setter Property="Template" Value="{StaticResource PersonArea}" />
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Model.State}" Value="Answering">
                     <Setter Property="BorderBrush" Value="Yellow" />
+                    <Setter Property="Background" Value="{DynamicResource SIThemePlayerBuzzerBackground}" />
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding Model.State}" Value="Lost">
@@ -154,10 +158,12 @@
 
                 <DataTrigger Binding="{Binding Model.State}" Value="Right">
                     <Setter Property="BorderBrush" Value="Lime" />
+                    <Setter Property="Background" Value="{DynamicResource SIThemePlayerCorrectBackground}" />
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding Model.State}" Value="Wrong">
                     <Setter Property="BorderBrush" Value="DarkRed" />
+                    <Setter Property="Background" Value="{DynamicResource SIThemePlayerIncorrectBackground}" />
                 </DataTrigger>
 
                 <DataTrigger Binding="{Binding Model.State}" Value="HasAnswered">
@@ -242,7 +248,7 @@
             </TextBlock.Style>
         </TextBlock>
 
-        <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{StaticResource PersonGradient}" Margin="3">
+        <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{DynamicResource SIThemePlayerCardBackground}" Margin="3" CornerRadius="{DynamicResource SIThemePlayerCardCornerRadius}">
             <TextBlock Style="{StaticResource PersonTextStyle}" Text="{Binding Model.Name}" TextWrapping="Wrap" />
         </Border>
         

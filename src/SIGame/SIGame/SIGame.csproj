@@ -125,6 +125,7 @@
     <None Include="key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\SITheme\SITheme.csproj" />
     <ProjectReference Include="..\..\Common\SIUI\SIUI.csproj" />
     <ProjectReference Include="..\SIGame.ViewModel\SIGame.ViewModel.csproj" />
   </ItemGroup>
@@ -269,6 +270,10 @@
     </None>
     <None Update="licenses\Polly.LICENSE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="webtable\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
     <None Update="Photo\Ada_Lovelace.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

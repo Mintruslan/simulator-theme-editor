@@ -1233,4 +1233,7 @@
   <data name="VaBank" xml:space="preserve">
     <value>ALL-IN!!!</value>
   </data>
+  <data name="OpenThemeEditor" xml:space="preserve">
+    <value>Open Theme Editor</value>
+  </data>
 </root>

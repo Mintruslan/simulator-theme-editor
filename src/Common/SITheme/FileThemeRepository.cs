@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace SImulator.ViewModel.Theming;
+namespace SITheme;
 
 /// <summary>
 /// Stores each user theme as an independent JSON file in a local directory.

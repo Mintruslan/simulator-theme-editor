@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace SImulator.ViewModel.Theming;
+namespace SITheme;
 
 /// <summary>
 /// Validates theme documents before they cross a persistence or presentation boundary.

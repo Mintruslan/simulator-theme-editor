@@ -1,7 +1,7 @@
-namespace SImulator.ViewModel.Theming;
+namespace SITheme;
 
 /// <summary>
-/// Defines a portable, versioned visual theme for the SImulator presentation surface.
+/// Defines a portable, versioned visual theme shared by SImulator and SIGame.
 /// </summary>
 public sealed class SimulatorThemeDocument
 {

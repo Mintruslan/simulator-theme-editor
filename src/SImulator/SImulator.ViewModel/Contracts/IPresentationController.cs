@@ -5,7 +5,7 @@ using SIPackages;
 using SIPackages.Core;
 using SIUI.ViewModel;
 using SIUI.ViewModel.Core;
-using SImulator.ViewModel.Theming;
+using SITheme;
 
 namespace SImulator.ViewModel.Contracts;
 

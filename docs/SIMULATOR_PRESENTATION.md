@@ -6,8 +6,9 @@ SImulator remains a Windows-first, offline application. Its audience-facing scre
 
 - `web/simulator-ui` contains the SIOnline source imported as a Git subtree.
 - `web/simulator-ui.integration.json` records the upstream revision and integration mode.
-- `tools/build-simulator-ui.mjs` builds the `library-table` entry and synchronizes its generated assets.
+- `tools/build-simulator-ui.mjs` builds the `library-table` entry and synchronizes its generated assets to both SImulator and SIGame.
 - `src/SImulator/SImulator/webtable` contains the local runtime shell and generated presentation bundle.
+- `src/Common/SITheme` contains the shared schema, validation, preset repository, default-theme factory, and editor bridge used by both desktop applications.
 
 The SImulator-specific `index.html`, `script.js`, and `style.css` files are preserved during synchronization. Webpack owns `main.js`, `vendor.js`, and hashed assets. Do not edit generated JavaScript manually.
 
@@ -37,6 +38,10 @@ Changes update both the editor preview and an active game presentation immediate
 The local `table` bridge includes the complete theme-name list together with the price matrix. This prevents the board from losing rows when it opens before the one-by-one theme announcement animation finishes; generic SIOnline callers can continue sending the original prices-only payload.
 
 Both SImulator WebView2 host windows explicitly dispose their controls when the WPF window closes. This releases the presentation/editor controllers and allows the WebView2 subprocess tree to exit when SImulator no longer owns another WebView.
+
+The shared WebView2 behavior subscribes to the initialization handshake before local navigation starts. This prevents the editor's initial `loaded` message—and therefore its theme library—from being lost on fast machines.
+
+SIGame integration and its native WPF token mapping are documented in [`SIGAME_THEME_EDITOR.md`](SIGAME_THEME_EDITOR.md).
 
 ## Initial setup and build
 

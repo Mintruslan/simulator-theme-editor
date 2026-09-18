@@ -46,6 +46,13 @@
             FontSize="20"
             Margin="5,10"
             TextWrapping="Wrap" />
+
+        <Button
+            Style="{StaticResource WhiteButton}"
+            Margin="0,5,0,10"
+            Padding="20,8"
+            Click="OpenThemeEditor_Click"
+            Content="{x:Static lp:Resources.OpenThemeEditor}" />
         
         <TextBlock Style="{StaticResource Header}" Text="{x:Static lp:Resources.TableFont}" />
         

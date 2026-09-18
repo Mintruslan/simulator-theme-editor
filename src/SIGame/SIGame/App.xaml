@@ -1035,10 +1035,14 @@
 
             <Style x:Key="PersonTextStyle" TargetType="{x:Type TextBlock}">
                 <Setter Property="Margin" Value="3,1" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="uib:FillManager.Fill" Value="True" />
-                <Setter Property="Foreground" Value="White" />
-                <Setter Property="TextAlignment" Value="Center" />
+                <Setter Property="FontFamily" Value="{DynamicResource SIThemePlayerNameFontFamily}" />
+                <Setter Property="FontSize" Value="{DynamicResource SIThemePlayerNameFontSize}" />
+                <Setter Property="FontWeight" Value="{DynamicResource SIThemePlayerNameFontWeight}" />
+                <Setter Property="Foreground" Value="{DynamicResource SIThemePlayerNameForeground}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource SIThemePlayerNameTextAlignment}" />
+                <Setter Property="Effect" Value="{DynamicResource SIThemePlayerNameTextEffect}" />
+                <Setter Property="uib:FillManager.Fill" Value="{DynamicResource SIThemePlayerNameAutoSize}" />
+                <Setter Property="uib:FillManager.MaxFontSize" Value="{DynamicResource SIThemePlayerNameFontSize}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
 
                 <Style.Triggers>
@@ -1060,6 +1064,14 @@
             </Style>
 
             <Style x:Key="sumTB" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource PersonTextStyle}">
+                <Setter Property="FontFamily" Value="{DynamicResource SIThemePlayerScoreFontFamily}" />
+                <Setter Property="FontSize" Value="{DynamicResource SIThemePlayerScoreFontSize}" />
+                <Setter Property="FontWeight" Value="{DynamicResource SIThemePlayerScoreFontWeight}" />
+                <Setter Property="Foreground" Value="{DynamicResource SIThemePlayerScoreForeground}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource SIThemePlayerScoreTextAlignment}" />
+                <Setter Property="Effect" Value="{DynamicResource SIThemePlayerScoreTextEffect}" />
+                <Setter Property="uib:FillManager.Fill" Value="{DynamicResource SIThemePlayerScoreAutoSize}" />
+                <Setter Property="uib:FillManager.MaxFontSize" Value="{DynamicResource SIThemePlayerScoreFontSize}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Model.Sum}" Value="{x:Null}">
                         <Setter Property="Visibility" Value="Collapsed" />
@@ -1068,7 +1080,7 @@
             </Style>
 
             <Style x:Key="nonShowman" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource PersonGradient}" />
+                <Setter Property="Background" Value="{DynamicResource SIThemePlayerCardBackground}" />
                 
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Model.Sum}" Value="{x:Null}">
@@ -1078,7 +1090,7 @@
             </Style>
 
             <Style x:Key="nonShowmanRev" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource GradientRev}" />
+                <Setter Property="Background" Value="{DynamicResource SIThemePlayerCardBackground}" />
                 
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Model.IsShowman}" Value="True">
@@ -1122,7 +1134,7 @@
             <localc:ChangeTypeConverter x:Key="ChangeTypeConverter" />
 
             <Style x:Key="ReadyStyle" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource PersonGradient}" />
+                <Setter Property="Background" Value="{DynamicResource SIThemePlayerCardBackground}" />
                 <Setter Property="Opacity" Value="0" />
                 
                 <Style.Triggers>

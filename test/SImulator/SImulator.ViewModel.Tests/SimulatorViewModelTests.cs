@@ -2,7 +2,7 @@ using NUnit.Framework;
 using SImulator.ViewModel.Controllers;
 using SImulator.ViewModel.Model;
 using SImulator.ViewModel.PlatformSpecific;
-using SImulator.ViewModel.Theming;
+using SITheme;
 
 namespace SImulator.ViewModel.Tests;
 

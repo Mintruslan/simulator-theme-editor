@@ -1,4 +1,4 @@
-namespace SImulator.ViewModel.Theming;
+namespace SITheme;
 
 /// <summary>
 /// Provides local-first persistence for user-created presentation themes.

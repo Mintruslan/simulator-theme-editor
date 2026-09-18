@@ -33,6 +33,8 @@ internal static class SettingsManager
         CommonSettings.AppNameEn,
         SettingsFolderName);
 
+    internal static string ThemesFolder => Path.Combine(SettingsFolder, "Themes");
+
     public static AppState LoadAppState()
     {
         try

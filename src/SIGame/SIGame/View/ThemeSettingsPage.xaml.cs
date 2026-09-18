@@ -11,5 +11,8 @@ namespace SIGame.View
         {
             InitializeComponent();
         }
+
+        private void OpenThemeEditor_Click(object sender, System.Windows.RoutedEventArgs e) =>
+            ((App)System.Windows.Application.Current).OpenThemeEditor(System.Windows.Window.GetWindow(this));
     }
 }

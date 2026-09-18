@@ -1,28 +1,28 @@
-using SIUI.ViewModel.Core;
-
-namespace SImulator.ViewModel.Theming;
+namespace SITheme;
 
 /// <summary>
 /// Creates the compatibility theme that preserves the current SImulator appearance and legacy color settings.
 /// </summary>
 public static class SimulatorDefaultTheme
 {
-    public static SimulatorThemeDocument Create(Settings settings) => Create(
-        ConvertWpfToHtmlColor(settings.TableColorString),
-        ConvertWpfToHtmlColor(settings.TableBackColorString),
-        settings.TableFontFamily);
-
-    public static SimulatorThemeDocument Create(string textColor, string backgroundColor, string? fontFamily)
+    public static SimulatorThemeDocument Create(
+        string textColor,
+        string backgroundColor,
+        string? fontFamily,
+        string name = "Default SImulator Theme",
+        string? backgroundImage = null)
     {
         const string resolvedFontFamily = "Standard";
 
         return new SimulatorThemeDocument
         {
+            Name = name,
             Tokens = new SimulatorThemeTokens
             {
                 Global = new SimulatorGlobalThemeTokens
                 {
                     BackgroundColor = backgroundColor,
+                    BackgroundImage = backgroundImage,
                     TextColor = textColor,
                 },
                 Typography = new SimulatorTypographyThemeTokens
@@ -52,7 +52,7 @@ public static class SimulatorDefaultTheme
         FontFamily = fontFamily,
     };
 
-    private static string ConvertWpfToHtmlColor(string wpfColor)
+    public static string ConvertWpfToHtmlColor(string wpfColor)
     {
         if (wpfColor.Length == 9 && wpfColor.StartsWith('#'))
         {

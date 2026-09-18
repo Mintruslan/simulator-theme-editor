@@ -1,7 +1,6 @@
 using NUnit.Framework;
-using SImulator.ViewModel.Controllers;
+using SITheme;
 using SImulator.ViewModel.Model;
-using SImulator.ViewModel.Theming;
 using System.Text.Json;
 
 namespace SImulator.ViewModel.Tests;
@@ -46,7 +45,7 @@ public sealed class ThemeEditorControllerTests
 
         var messageTypes = _messages.Select(ReadMessageType).ToArray();
 
-        Assert.That(messageTypes, Is.EqualTo(new[] { "applyTheme", "themeLibrary" }));
+        Assert.That(messageTypes, Is.EqualTo(new[] { "editorContext", "applyTheme", "themeLibrary" }));
     }
 
     [Test]
@@ -66,7 +65,7 @@ public sealed class ThemeEditorControllerTests
     [Test]
     public void SavingBuiltInThemeCreatesEditableCopy()
     {
-        var theme = SimulatorDefaultTheme.Create(_settings.SIUISettings);
+        var theme = _settings.CreateDefaultPresentationTheme();
 
         SendThemeMessage("saveTheme", theme);
 

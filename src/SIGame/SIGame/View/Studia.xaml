@@ -17,6 +17,7 @@
     d:DataContext="{d:DesignInstance Type=lvm:GameViewModel}"
     d:DesignHeight="5391.093"
     d:DesignWidth="7812.698"
+    Background="{DynamicResource SIThemeGlobalBackgroundBrush}"
     MouseRightButtonDown="UserControl_MouseRightButtonDown">
     <UserControl.Resources>
         <localc:EqualNumberToVisibilityConverter x:Key="ReplicC" />
@@ -30,7 +31,7 @@
             <Setter Property="Margin" Value="1" />
             <Setter Property="Minimum" Value="0" />
             <Setter Property="Maximum" Value="100" />
-            <Setter Property="Foreground" Value="#FF183CF3" />
+            <Setter Property="Foreground" Value="{DynamicResource SIThemeAccentBrush}" />
         </Style>
 
         <Style x:Key="HiddenTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SIText}">
@@ -54,13 +55,9 @@
         </Style>
     </UserControl.Resources>
 
-    <UserControl.Background>
-        <ImageBrush
-            ImageSource="{Binding UserSettings.GameSettings.AppSettings.ThemeSettings.CustomBackgroundUri, Converter={StaticResource BackgroundConverter}}"
-            Stretch="Fill" />
-    </UserControl.Background>
-
     <Grid Name="root">
+        <Border Background="{DynamicResource SIThemeGlobalBackgroundImageBrush}" />
+
         <Grid Name="base">
             <Grid.RowDefinitions>
                 <RowDefinition Height="16*" />
@@ -94,7 +91,7 @@
 
                 <ProgressBar
                     Height="13"
-                    Foreground="Orange"
+                    Foreground="{DynamicResource SIThemeAccentBrush}"
                     VerticalAlignment="Top"
                     Value="{Binding Timers[2].Time, Converter={StaticResource ReverseTimeConverter}}"
                     ToolTip="{x:Static lp:Resources.Time_Decide}"
@@ -181,12 +178,19 @@
                 </Border>
             </ContentControl>
 
-            <ItemsControl ItemsSource="{Binding Players}" Grid.Row="1" Grid.Column="2" Margin="3,15,3,30" Grid.ZIndex="10">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Rows="1" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <ItemsControl
+                ItemsSource="{Binding Players}"
+                ItemsPanel="{DynamicResource SIThemePlayersPanel}"
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="3,15,3,30"
+                Grid.ZIndex="10">
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="{DynamicResource SIThemePlayersGap}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -288,6 +292,16 @@
                     </local:DropDownButton.DropDown>
                     📷
                 </local:DropDownButton>
+
+                <Button
+                    Style="{StaticResource SIDropDownButton}"
+                    FontSize="22"
+                    Height="48"
+                    Width="48"
+                    Padding="8"
+                    Click="OpenThemeEditor_Click"
+                    ToolTip="{x:Static lp:Resources.OpenThemeEditor}"
+                    Content="🎨" />
             </StackPanel>
 
             <Grid>

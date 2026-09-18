@@ -44,6 +44,7 @@ interface ThemeLibraryItem {
 
 interface EditorMessage {
 	type: string;
+	productName?: string;
 	theme?: unknown;
 	themes?: ThemeLibraryItem[];
 	activeThemeId?: string;
@@ -210,6 +211,7 @@ export default function ThemeEditor(): JSX.Element {
 		{ id: defaultSimulatorTheme.id, name: defaultSimulatorTheme.name, basedOn: null },
 	]);
 	const [activeThemeId, setActiveThemeId] = React.useState(theme.id);
+	const [productName, setProductName] = React.useState('SImulator');
 	const [status, setStatus] = React.useState('Все изменения сразу отображаются в preview');
 	const importInput = React.useRef<HTMLInputElement>(null);
 	const fontImportInput = React.useRef<HTMLInputElement>(null);
@@ -299,7 +301,9 @@ export default function ThemeEditor(): JSX.Element {
 				return;
 			}
 
-			if (message.type === 'applyTheme') {
+			if (message.type === 'editorContext' && message.productName) {
+				setProductName(message.productName);
+			} else if (message.type === 'applyTheme') {
 				const parsedTheme = parseSimulatorTheme(message.theme);
 
 				if (parsedTheme) {
@@ -456,7 +460,7 @@ export default function ThemeEditor(): JSX.Element {
 		<div className='themeEditor'>
 			<header className='themeEditorHeader'>
 				<div>
-					<strong>SImulator Theme Editor</strong>
+					<strong>{productName} Theme Editor</strong>
 					<span>Локальный визуальный редактор</span>
 				</div>
 
